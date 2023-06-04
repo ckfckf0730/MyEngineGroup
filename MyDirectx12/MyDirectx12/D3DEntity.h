@@ -120,14 +120,21 @@ struct KeyFrame
 		p2(ip2)*/ {}
 };
 
+class D3DModel;
+
 class D3DAnimation
 {
+private:
+	DWORD m_startTime;
+	D3DModel* m_owner;
+
 public:
 	std::vector<VMDMotion> m_vmdMotionData;
 	std::unordered_map<std::string,std::vector<KeyFrame>> m_motionData;
 
-	int LoadVMDFile(const char* fullFilePath);
-
+	int LoadVMDFile(const char* fullFilePath, D3DModel* owner);
+	void StartAnimation();
+	void UpdateAnimation();
 };
 
 class D3DModel
@@ -153,6 +160,7 @@ public:
 
 	std::vector<DirectX::XMMATRIX> m_boneMatrices;
 	std::map<std::string, BoneNode> m_boneNodeTable;
+	std::string m_rootNodeStr;
 
 	std::vector<ID3D12Resource*> m_textureResources;
 	std::vector<ID3D12Resource*> m_toonResources;
@@ -169,6 +177,7 @@ public:
 	int CreateTransformView(D3DDevice* _cD3DDev);
 
 	void LoadAnimation(const char* path);
+	void UpdateAnimation();
 
 
 	void RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat);

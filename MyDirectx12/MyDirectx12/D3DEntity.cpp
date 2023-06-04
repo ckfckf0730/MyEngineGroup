@@ -683,6 +683,11 @@ int D3DModel::SetBone()
 	m_boneMatrices.resize(m_pmdBones.size());
 	std::vector<std::string> boneNames(m_pmdBones.size());
 
+	if (m_pmdBones.size() > 0)
+	{
+		m_rootNodeStr = m_pmdBones[0].boneName;
+	}
+	
 	for (int i = 0; i < m_pmdBones.size(); i++)
 	{
 		auto& pb = m_pmdBones[i];
@@ -704,7 +709,6 @@ int D3DModel::SetBone()
 			&m_boneNodeTable[pb.boneName]);
 	}
 	std::fill(m_boneMatrices.begin(), m_boneMatrices.end(), XMMatrixIdentity());
-	//RecursiveMatrixMultiply(&m_boneNodeTable["センター"], XMMatrixIdentity());
 	
 	return 1;
 }
@@ -773,27 +777,13 @@ int D3DModel::CreateTransformView(D3DDevice* _cD3DDev)
 void D3DModel::LoadAnimation(const char* path)
 {
 	m_animation = new D3DAnimation();
-	m_animation->LoadVMDFile(path);
+	m_animation->LoadVMDFile(path,this);
+	m_animation->StartAnimation();
+}
 
-	for (auto& boneMotion : m_animation->m_motionData)
-	{
-		auto nodeIter = m_boneNodeTable.find(boneMotion.first);
-		if (nodeIter == m_boneNodeTable.end())
-		{
-			PrintDebug("Can't find bone name:");
-			PrintDebug(boneMotion.first.c_str());
-			continue;
-		}
-		auto node = nodeIter->second;
-		auto& pos = node.startPos;
-		auto mat = XMMatrixTranslation(-pos.x, -pos.y, -pos.z) *
-			XMMatrixRotationQuaternion(boneMotion.second[0].quaternion) *
-			XMMatrixTranslation(pos.x, pos.y, pos.z);
-		m_boneMatrices[node.boneIdx] = mat;
-	}
-	RecursiveMatrixMultiply(&m_boneNodeTable["センター"], XMMatrixIdentity());
-
-	std::copy(m_boneMatrices.begin(), m_boneMatrices.end(), m_mapMatrices + 1);
+void D3DModel::UpdateAnimation()
+{
+	m_animation->UpdateAnimation();
 }
 
 void D3DModel::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat)
@@ -803,39 +793,4 @@ void D3DModel::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& 
 	{
 		RecursiveMatrixMultiply(cnode, m_boneMatrices[node->boneIdx]);
 	}
-}
-
-int D3DAnimation::LoadVMDFile(const char* fullFilePath)
-{
-	FILE* fp;
-	errno_t err = fopen_s(&fp, fullFilePath, "rb");
-	if (err != 0)
-	{
-		PrintDebug(L"Load VMD motion file fault.");
-		return -1;
-	}
-
-	fseek(fp, 50, SEEK_SET);
-
-	unsigned int motionDataNum = 0;
-	fread(&motionDataNum, sizeof(motionDataNum), 1, fp);
-
-	m_vmdMotionData.resize(motionDataNum);
-	for (auto& vmdMotion : m_vmdMotionData)
-	{
-		fread(vmdMotion.boneName, sizeof(vmdMotion.boneName), 1, fp);
-		fread(&vmdMotion.frameNo,
-			sizeof(vmdMotion.frameNo) + sizeof(vmdMotion.location) +
-			sizeof(vmdMotion.quaternion) + sizeof(vmdMotion.bezier),
-			1,fp);
-
-		auto quaternion = XMLoadFloat4(&vmdMotion.quaternion);
-		m_motionData[vmdMotion.boneName].emplace_back(
-			KeyFrame(vmdMotion.frameNo, quaternion));
-	}
-
-
-	fclose(fp);
-
-	return 1;
 }

@@ -35,6 +35,9 @@ namespace CkfEngine
         [DllImport("MyDirectx12.dll")]
         public static extern void LoadAnimation(ulong uid, string path);
 
+        [DllImport("MyDirectx12.dll")]
+        public static extern void UpdateAnimation(ulong uid);
+
         [DllImport("MyDirectx12.dll", CharSet = CharSet.Auto)]
         public static extern void TryGetLog( ref int isGet, StringBuilder msg);
 

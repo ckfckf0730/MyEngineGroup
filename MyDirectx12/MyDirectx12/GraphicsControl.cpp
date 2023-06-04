@@ -105,7 +105,7 @@ void __declspec(dllexport) __stdcall SetModelTransform(unsigned long long _uid, 
 	iter->second->m_transform.world = matrix;
 }
 
-//Load animation
+//load Animation
 #ifdef __cplusplus 
 extern"C"
 {
@@ -124,6 +124,27 @@ void __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, cons
 		return;
 	}
 	iter->second->LoadAnimation(path);
+}
+
+//Update Animation
+#ifdef __cplusplus 
+extern"C"
+{
+#endif
+	void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid);
+#ifdef __cplusplus 
+}
+#endif
+
+void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
+{
+	auto iter = D3DResourceManage::Instance().UidModelTable->find(_uid);
+	if (iter == D3DResourceManage::Instance().UidModelTable->end())
+	{
+		PrintDebug("LoadAnimation fault, can't find Entity.");
+		return;
+	}
+	iter->second->UpdateAnimation();
 }
 
 #pragma endregion

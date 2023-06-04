@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +22,9 @@ namespace CkfEngine
         public void Init()
         {
             m_role1 = Entity.CreateEntity("role1");
+            var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
+            renderer.SetModel("Model/初音ミク.pmd");
+            D3DAPICall.LoadAnimation(m_role1.Uid, "motion/swing.vmd");
 
             //var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
             //renderer.File = "Model/初音ミク.pmd";
@@ -37,14 +41,14 @@ namespace CkfEngine
 
         public void TestUpdate()
         {
-            var worldMat = Matrix4x4.CreateRotationY(angle);
-            angle += 0.1f;
+            //var worldMat = Matrix4x4.CreateRotationY(angle);
+            //angle += 0.1f;
 
-            var offMat = Matrix4x4.CreateTranslation(-5,0,0);
+            //var offMat = Matrix4x4.CreateTranslation(-5,0,0);
 
-            worldMat= worldMat * offMat;
+            //worldMat= worldMat * offMat;
 
-
+            D3DAPICall.UpdateAnimation(m_role1.Uid);
         }
 
         public void Update()

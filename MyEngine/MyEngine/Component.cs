@@ -141,6 +141,10 @@ namespace CkfEngine
             OwnerEntity.Transform.EffectiveTransform();
         }
 
+        public void SetModel(string path)
+        {
+            m_file.FullPath = path;
+        }
 
 
     }
