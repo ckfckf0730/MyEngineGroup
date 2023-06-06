@@ -1,5 +1,6 @@
 #include"D3DEntity.h"
 #include"D3DResourceManage.h"
+#include <algorithm>
 using namespace DirectX;
 
 int D3DAnimation::LoadVMDFile(const char* fullFilePath, D3DModel* owner)
@@ -18,8 +19,8 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, D3DModel* owner)
 	unsigned int motionDataNum = 0;
 	fread(&motionDataNum, sizeof(motionDataNum), 1, fp);
 
-	m_vmdMotionData.resize(motionDataNum);
-	for (auto& vmdMotion : m_vmdMotionData)
+	std::vector<VMDMotion> vmdMotionData(motionDataNum);
+	for (auto& vmdMotion : vmdMotionData)
 	{
 		fread(vmdMotion.boneName, sizeof(vmdMotion.boneName), 1, fp);
 		fread(&vmdMotion.frameNo,
@@ -31,18 +32,30 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, D3DModel* owner)
 
 	fclose(fp);
 
+	for (auto& vmdMotion : vmdMotionData)
+	{
+		auto quaternion = XMLoadFloat4(&vmdMotion.quaternion);
+		m_motionData[vmdMotion.boneName].emplace_back(
+			KeyFrame(vmdMotion.frameNo, quaternion));
+		m_duration = std::max<unsigned int>(m_duration, vmdMotion.frameNo);
+	}
+
+	for (auto& motion : m_motionData)
+	{
+		std::sort(motion.second.begin(), motion.second.end(),
+			[](const KeyFrame& lval, const KeyFrame& rval)
+			{
+				return lval.frameNo <= rval.frameNo;
+			});
+	}
+
 	return 1;
 }
 
 void D3DAnimation::StartAnimation()
 {
 	m_startTime = timeGetTime();
-	for (auto& vmdMotion : m_vmdMotionData)
-	{
-		auto quaternion = XMLoadFloat4(&vmdMotion.quaternion);
-		m_motionData[vmdMotion.boneName].emplace_back(
-			KeyFrame(vmdMotion.frameNo, quaternion));
-	}
+	
 
 	UpdateAnimation();
 }
@@ -52,6 +65,12 @@ void D3DAnimation::UpdateAnimation()
 	DWORD elapsedTime = timeGetTime() - m_startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
 
+	if (frameNo > m_duration)
+	{
+		m_startTime = timeGetTime();
+		frameNo = 0;
+	}
+
 	std::fill(m_owner->m_boneMatrices.begin(),
 		m_owner->m_boneMatrices.end(), XMMatrixIdentity());
 
@@ -60,8 +79,8 @@ void D3DAnimation::UpdateAnimation()
 		auto nodeIter = m_owner->m_boneNodeTable.find(boneMotion.first);
 		if (nodeIter == m_owner->m_boneNodeTable.end())
 		{
-			PrintDebug("Can't find bone name:");
-			PrintDebug(boneMotion.first.c_str());
+			/*PrintDebug("Can't find bone name:");
+			PrintDebug(boneMotion.first.c_str());*/
 			continue;
 		}
 		auto motions = boneMotion.second;
@@ -81,8 +100,8 @@ void D3DAnimation::UpdateAnimation()
 			auto t = static_cast<float>(frameNo - reIter->frameNo) /
 				static_cast<float>(iter->frameNo - reIter->frameNo);
 
-			rotation = XMMatrixRotationQuaternion(reIter->quaternion) * (1 - t) +
-				XMMatrixRotationQuaternion(iter->quaternion) * t;
+			rotation = XMMatrixRotationQuaternion(
+				XMQuaternionSlerp(reIter->quaternion, iter->quaternion, t));
 		}
 		else
 		{

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CkfEngine.Editor
 {
-    internal class CkfEditorSystem
+    public class CkfEditorSystem
     {
         private CkfEditorSystem() { }
 
@@ -21,10 +21,11 @@ namespace CkfEngine.Editor
         }
         private static CkfEditorSystem instance;
 
-        public event Action UpdateEvent;
+        internal event Action UpdateEvent;
 
         private EditorCamera m_camera;
-        public void Init()
+
+        internal void Init()
         {
             m_camera = new EditorCamera();
             m_camera.Init();
@@ -37,6 +38,10 @@ namespace CkfEngine.Editor
             UpdateEvent?.Invoke();
         }
 
+        public void SetEditorCamera(Vector3 eye, Vector3 target, Vector3 up)
+        {
+            m_camera.SetTransform(eye, target, up);
+        }
 
 
         private class EditorCamera

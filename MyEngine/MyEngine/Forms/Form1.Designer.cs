@@ -76,7 +76,7 @@ namespace CkfEngine
             // 
             this.splitContainer2.Panel1.Controls.Add(this.splitContainer3);
             this.splitContainer2.Size = new System.Drawing.Size(1010, 538);
-            this.splitContainer2.SplitterDistance = 352;
+            this.splitContainer2.SplitterDistance = 392;
             this.splitContainer2.TabIndex = 0;
             // 
             // splitContainer3
@@ -88,15 +88,15 @@ namespace CkfEngine
             // splitContainer3.Panel1
             // 
             this.splitContainer3.Panel1.Controls.Add(this.SceneItemTree);
-            this.splitContainer3.Size = new System.Drawing.Size(1010, 352);
-            this.splitContainer3.SplitterDistance = 289;
+            this.splitContainer3.Size = new System.Drawing.Size(1010, 392);
+            this.splitContainer3.SplitterDistance = 366;
             this.splitContainer3.TabIndex = 0;
             // 
             // SceneItemTree
             // 
             this.SceneItemTree.Location = new System.Drawing.Point(12, 12);
             this.SceneItemTree.Name = "SceneItemTree";
-            this.SceneItemTree.Size = new System.Drawing.Size(274, 337);
+            this.SceneItemTree.Size = new System.Drawing.Size(351, 377);
             this.SceneItemTree.TabIndex = 0;
             // 
             // menuStrip1
@@ -119,7 +119,7 @@ namespace CkfEngine
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1362, 577);
+            this.ClientSize = new System.Drawing.Size(1362, 597);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;

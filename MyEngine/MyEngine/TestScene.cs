@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CkfEngine.Editor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -22,9 +23,13 @@ namespace CkfEngine
         public void Init()
         {
             m_role1 = Entity.CreateEntity("role1");
+            //m_role1.Transform.Rotation = new Vector3(0, (float)(Math.PI * 1) / 2, 0);
             var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
             renderer.SetModel("Model/初音ミク.pmd");
-            D3DAPICall.LoadAnimation(m_role1.Uid, "motion/swing.vmd");
+            D3DAPICall.LoadAnimation(m_role1.Uid, "motion/motion.vmd");
+
+            CkfEditorSystem.Instance.SetEditorCamera(
+                new Vector3(0, 12, -20), new Vector3(0, 12, 0), new Vector3(0, 1, 0));
 
             //var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
             //renderer.File = "Model/初音ミク.pmd";
@@ -51,10 +56,6 @@ namespace CkfEngine
             D3DAPICall.UpdateAnimation(m_role1.Uid);
         }
 
-        public void Update()
-        {
-
-        }
 
     }
 }

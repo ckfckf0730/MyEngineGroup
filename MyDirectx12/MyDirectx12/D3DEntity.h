@@ -127,9 +127,9 @@ class D3DAnimation
 private:
 	DWORD m_startTime;
 	D3DModel* m_owner;
+	unsigned int m_duration;
 
 public:
-	std::vector<VMDMotion> m_vmdMotionData;
 	std::unordered_map<std::string,std::vector<KeyFrame>> m_motionData;
 
 	int LoadVMDFile(const char* fullFilePath, D3DModel* owner);
