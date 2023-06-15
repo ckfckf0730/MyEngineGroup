@@ -36,7 +36,10 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, D3DModel* owner)
 	{
 		auto quaternion = XMLoadFloat4(&vmdMotion.quaternion);
 		m_motionData[vmdMotion.boneName].emplace_back(
-			KeyFrame(vmdMotion.frameNo, quaternion));
+			KeyFrame(vmdMotion.frameNo, 
+				quaternion,
+				XMFLOAT2((float)vmdMotion.bezier[3]/127.0f, (float)vmdMotion.bezier[7]/127.0f),
+				XMFLOAT2((float)vmdMotion.bezier[11] / 127.0f, (float)vmdMotion.bezier[15] / 127.0f)));
 		m_duration = std::max<unsigned int>(m_duration, vmdMotion.frameNo);
 	}
 
@@ -59,6 +62,36 @@ void D3DAnimation::StartAnimation()
 
 	UpdateAnimation();
 }
+
+float GetYFromXOnBezier(float x, const XMFLOAT2& a, const XMFLOAT2& b, uint8_t n)
+{
+	if (a.x == a.y && b.x == b.y)
+	{
+		return x;
+	}
+
+	float t = x;
+	const float k0 = 1 + 3 * a.x - 3 * b.x;
+	const float k1 = 3 * b.x - 6 * a.x;
+	const float k2 = 3 * a.x;
+
+	constexpr float epsilon = 0.0005f;
+
+	for (int i = 0; i < n; i++)
+	{
+		auto ft = k0 * t * t * t + k1 * t * t + k2 * t - x;
+
+		if (ft <= epsilon && ft >= -epsilon)
+		{
+			break;
+		}
+
+		t -= ft / 2;
+	}
+	auto r = 1 - t;
+	return t * t * t + 3 * t * t * r * b.y + 3 * t * r * r * a.y;
+}
+
 
 void D3DAnimation::UpdateAnimation()
 {
@@ -99,6 +132,7 @@ void D3DAnimation::UpdateAnimation()
 		{
 			auto t = static_cast<float>(frameNo - reIter->frameNo) /
 				static_cast<float>(iter->frameNo - reIter->frameNo);
+			t = GetYFromXOnBezier(t, iter->p1, iter->p2, 12);
 
 			rotation = XMMatrixRotationQuaternion(
 				XMQuaternionSlerp(reIter->quaternion, iter->quaternion, t));
