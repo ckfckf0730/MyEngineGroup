@@ -2,7 +2,7 @@
 
 #include"D3DAPI.h"
 #include<vector>
-#include"D3DEntity.h"
+#include"PMDActor.h"
 
 struct SceneMatrix;
 

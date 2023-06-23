@@ -10,6 +10,7 @@ void ShowMsgBox(LPCWSTR title, int msg);
 void PrintDebug(LPCWSTR msg);
 void PrintDebug(const char* msg);
 void PrintDebug(int msg);
+void PrintDebug(float msg);
 
 std::wstring GetWideStringFromString(const std::string& str);
 std::wstring GetWideStringFromString(const char* str);

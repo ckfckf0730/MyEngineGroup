@@ -58,6 +58,17 @@ void PrintDebug(int msg)
 #endif // _DEBUG
 }
 
+void PrintDebug(float msg)
+{
+#ifdef _DEBUG
+	WCHAR wChar[30];
+	swprintf(wChar, sizeof(msg) / sizeof(wchar_t), L"%f", msg);
+	_itow_s(msg, wChar, 30, 10);
+	PrintDebug(wChar);
+
+#endif // _DEBUG
+}
+
 void PrintDebug(LPCWSTR msg)
 {
 #ifdef _DEBUG
@@ -86,19 +97,19 @@ void PrintDebug(const char* str)
 extern"C"
 {
 #endif
-	void __declspec(dllexport) __stdcall TryGetLog(int& isGet, LPWSTR msg_Need50LenStringbuilder);
+	void __declspec(dllexport) __stdcall TryGetLog(int& isGet, LPWSTR _msg);
 #ifdef __cplusplus 
 }
 #endif
 
-void __declspec(dllexport) __stdcall TryGetLog(int& isGet, LPWSTR msg_Need50LenStringbuilder)
+void __declspec(dllexport) __stdcall TryGetLog(int& isGet, LPWSTR _msg)
 {
 	LPWSTR msg;
 	bool result = LogQueue.try_pop(msg);
 	if (result) 
 	{ 
 		isGet = 1; 
-		wcscpy_s(msg_Need50LenStringbuilder, 50, msg);
+		wcscpy_s(_msg, 200, msg);
 		delete[] msg;
 	}
 	else { isGet = 0; }

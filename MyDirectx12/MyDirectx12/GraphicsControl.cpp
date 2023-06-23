@@ -1,5 +1,5 @@
 #include"D3DFunction.h"
-#include"D3DEntity.h"
+#include"PMDActor.h"
 #include"D3DResourceManage.h"
 
 using namespace std;
@@ -63,7 +63,7 @@ extern"C"
 
 int __declspec(dllexport) __stdcall SetModel(unsigned long long _uid,const char* _FileFullName)
 {
-	D3DModel* verRes = new D3DModel();
+	PMDModel* verRes = new PMDModel();
 	int result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
 	if (result < 1)
 	{
@@ -79,7 +79,7 @@ int __declspec(dllexport) __stdcall SetModel(unsigned long long _uid,const char*
 
 	iter->second->push_back(verRes);
 	D3DResourceManage::Instance().UidModelTable->insert(
-		pair<unsigned long long, D3DModel*>(_uid, verRes));
+		pair<unsigned long long, PMDModel*>(_uid, verRes));
 
 	return result;
 }

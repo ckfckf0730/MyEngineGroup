@@ -21,7 +21,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="D3DEntity.cpp">
+    <ClCompile Include="PMDActor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D3DDevice.cpp">
@@ -53,7 +53,7 @@
     <ClInclude Include="D3DFunction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="D3DEntity.h">
+    <ClInclude Include="PMDActor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D3DAPI.h">
