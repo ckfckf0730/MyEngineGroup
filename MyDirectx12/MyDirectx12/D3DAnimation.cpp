@@ -308,7 +308,24 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 
 void D3DAnimation::SolveCCDIK(const PMDIK& ik)
 {
+	std::vector<XMVECTOR> positions;
 
+	auto targetBoneNode = m_boneNodeAddressArr[ik.boneIdx];
+	auto targetOriginPos = XMLoadFloat3(&targetBoneNode->startPos);
+
+	auto parentMat = m_boneMatrices[m_boneNodeAddressArr[ik.boneIdx]->ikParentBone];
+	XMVECTOR det;
+	auto invPatrentMat = XMMatrixInverse(&det, parentMat);
+	auto targetNextPos = XMVector3Transform(
+		targetOriginPos, m_boneMatrices[ik.boneIdx] * invPatrentMat);
+
+	auto endPos = XMLoadFloat3(
+		&m_boneNodeAddressArr[ik.targetIdx]->startPos);
+
+	for (auto& cidx : ik.nodeIdxes)
+	{
+		
+	}
 }
 
 void D3DAnimation::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat)

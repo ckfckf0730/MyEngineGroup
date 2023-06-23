@@ -726,7 +726,7 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 			<< getNameFromIdx(ik.boneIdx) << std::endl;
 
 		oss << "target number = " << ik.targetIdx << ":"
-			<< getNameFromIdx(ik.boneIdx) << std::endl;
+			<< getNameFromIdx(ik.targetIdx) << std::endl;
 
 		for (auto& node : ik.nodeIdxes)
 		{
