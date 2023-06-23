@@ -234,10 +234,7 @@ void D3DAnimation::SolveLookAt(const PMDIK& ik)
 		originVec, targetVec, up, right);
 }
 
-void D3DAnimation::SolveCCDIK(const PMDIK& ik)
-{
 
-}
 void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 {
 	std::vector<XMVECTOR> positions;
@@ -257,7 +254,7 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 		positions.emplace_back(XMLoadFloat3(&boneNode->startPos));
 	}
 
-	reverse(positions.begin(), positions.end());
+	reverse(positions.begin(), positions.end());  //make positions' order from root to end 
 
 	edgeLens[0] = XMVector3Length(
 		XMVectorSubtract(positions[1], positions[0])).m128_f32[0];
@@ -279,7 +276,39 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 	float theta1 = acosf((A * A + B * B - C * C) / (2 * A * B));
 	float theta2 = acosf((B * B + C * C - A * A) / (2 * B * C));
 
-	
+	//get the axis, if there is a knee in nodes, then get a fixed axis
+	XMVECTOR axis;
+	if (std::find(m_kneeIdxes.begin(), m_kneeIdxes.end(), ik.nodeIdxes[0]) 
+		== m_kneeIdxes.end())             //can't find knee node in ik node list
+	{
+		auto vm = XMVector3Normalize(
+			XMVectorSubtract(positions[2], positions[0]));
+		auto vt = XMVector3Normalize(
+			XMVectorSubtract(targetPos, positions[0]));
+		axis = XMVector3Cross(vt, vm);
+	}
+	else   //the knee arithmetic is a special one, a common IK animation may be not like this
+	{
+		auto right = XMFLOAT3(1, 0, 0);
+		axis = XMLoadFloat3(&right);
+	}
+
+	auto mat1 = XMMatrixTranslationFromVector(-positions[0]);
+	mat1 *= XMMatrixRotationAxis(axis, theta1);
+	mat1 *= XMMatrixTranslationFromVector(positions[0]);
+
+	auto mat2 = XMMatrixTranslationFromVector(-positions[1]);
+	mat2 *= XMMatrixRotationAxis(axis, theta2 - XM_PI);
+	mat2 *= XMMatrixTranslationFromVector(positions[1]);
+
+	m_boneMatrices[ik.nodeIdxes[1]] *= mat1;
+	m_boneMatrices[ik.nodeIdxes[0]] = mat2 * m_boneMatrices[ik.nodeIdxes[1]];
+	m_boneMatrices[ik.targetIdx] = m_boneMatrices[ik.nodeIdxes[0]];
+}
+
+void D3DAnimation::SolveCCDIK(const PMDIK& ik)
+{
+
 }
 
 void D3DAnimation::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat)

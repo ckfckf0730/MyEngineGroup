@@ -767,6 +767,7 @@ int PMDModel::SetBone()
 		m_animation->m_boneNodeAddressArr[i] = node;
 
 		std::string boneName = pb.boneName;
+		//the knee data is a special one, a common bone data struct may be not like this
 		if (boneName.find("ひざ") != std::string::npos)
 		{
 			m_animation->m_kneeIdxes.emplace_back(i);
