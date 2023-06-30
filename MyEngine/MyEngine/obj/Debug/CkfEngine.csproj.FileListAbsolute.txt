@@ -10,3 +10,15 @@ D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\CkfEngine.pdb
 D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.Properties.Resources.resources
 D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.exe
 D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.pdb
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\CkfEngine.exe.config
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\CkfEngine.exe
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\CkfEngine.pdb
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.AssemblyReference.cache
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.SuggestedBindingRedirects.cache
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.Form1.resources
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.FormAddComponent.resources
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.Properties.Resources.resources
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.GenerateResource.cache
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.CoreCompileInputs.cache
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.exe
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.pdb
