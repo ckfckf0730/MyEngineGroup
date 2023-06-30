@@ -99,15 +99,43 @@ struct VMDMotion
 	unsigned char bezier[64];
 };
 
-//struct Motion
-//{
-//	unsigned int frameNo;
-//	DirectX::XMVECTOR quaternion;
-//	Motion(unsigned int fno, DirectX::XMVECTOR& q): frameNo(fno),quaternion(q)
-//	{
-//		
-//	}
-//};
+#pragma pack(1)
+struct VMDMorph
+{
+	char name[15];
+	uint32_t frameNo;
+	float wight;
+};
+#pragma pack()
+
+#pragma pack(1)
+struct VMDCamera
+{
+	uint32_t frameNo;
+	float distance;
+	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 eulerAngle;
+	uint8_t Interpolation[24];
+	uint32_t fov;
+	uint8_t persFlg;
+};
+#pragma pack()
+
+struct VMDLight
+{
+	uint32_t frameNo;
+	DirectX::XMFLOAT3 rgb;
+	DirectX::XMFLOAT3 vec;
+};
+
+#pragma pack(1)
+struct VMDSelfShadow
+{
+	uint32_t frameNo;
+	uint8_t mode;
+	float distance;
+};
+#pragma pack()
 
 struct KeyFrame 
 {
@@ -154,7 +182,10 @@ public:
 	std::vector<std::string> m_boneNameArr;
 	std::vector<BoneNode*> m_boneNodeAddressArr;
 	std::vector<uint32_t> m_kneeIdxes;
-
+	std::vector<VMDMorph> m_morphs;
+	std::vector<VMDCamera> m_cameraData;
+	std::vector<VMDLight> m_lights;
+	std::vector<VMDSelfShadow> m_selfShadowData;
 
 	std::unordered_map<std::string,std::vector<KeyFrame>> m_motionData;
 

@@ -4,6 +4,8 @@
 #include<array>
 using namespace DirectX;
 
+constexpr float epsilon = 0.0005f;
+
 int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 {
 	m_owner = owner;
@@ -17,9 +19,9 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 
 	fseek(fp, 50, SEEK_SET);
 
+	//-----------motion data----------------
 	unsigned int motionDataNum = 0;
 	fread(&motionDataNum, sizeof(motionDataNum), 1, fp);
-
 	std::vector<VMDMotion> vmdMotionData(motionDataNum);
 	for (auto& vmdMotion : vmdMotionData)
 	{
@@ -30,6 +32,29 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 			1, fp);
 	}
 
+	//-----------morph data----------------
+	uint32_t morphCount = 0;
+	fread(&morphCount, sizeof(morphCount), 1, fp);
+	m_morphs.resize(morphCount);
+	fread(m_morphs.data(), sizeof(VMDMorph), morphCount, fp);
+
+	//-----------camera animation data----------------
+	uint32_t vmdCameraCount = 0;
+	fread(&vmdCameraCount, sizeof(vmdCameraCount), 1, fp);
+	m_cameraData.resize(vmdCameraCount);
+	fread(m_cameraData.data(), sizeof(VMDCamera), vmdCameraCount, fp);
+
+	//-----------light data----------------
+	uint32_t vmdLightCount = 0;
+	fread(&vmdLightCount, sizeof(vmdLightCount), 1, fp);
+	m_lights.resize(vmdLightCount);
+	fread(m_lights.data(), sizeof(VMDLight), vmdLightCount, fp);
+	
+	//-----------self shadow data----------------
+	uint32_t selfShadowCount = 0;
+	fread(&selfShadowCount, sizeof(selfShadowCount), 1, fp);
+	m_selfShadowData.resize(selfShadowCount);
+	fread(m_selfShadowData.data(), sizeof(VMDSelfShadow), selfShadowCount, fp);
 
 	fclose(fp);
 
@@ -75,8 +100,6 @@ float GetYFromXOnBezier(float x, const XMFLOAT2& a, const XMFLOAT2& b, uint8_t n
 	const float k0 = 1 + 3 * a.x - 3 * b.x;
 	const float k1 = 3 * b.x - 6 * a.x;
 	const float k2 = 3 * a.x;
-
-	constexpr float epsilon = 0.0005f;
 
 	for (int i = 0; i < n; i++)
 	{
@@ -319,13 +342,84 @@ void D3DAnimation::SolveCCDIK(const PMDIK& ik)
 	auto targetNextPos = XMVector3Transform(
 		targetOriginPos, m_boneMatrices[ik.boneIdx] * invPatrentMat);
 
+	std::vector<XMVECTOR> bonePositions;
 	auto endPos = XMLoadFloat3(
 		&m_boneNodeAddressArr[ik.targetIdx]->startPos);
 
 	for (auto& cidx : ik.nodeIdxes)
 	{
-		
+		bonePositions.push_back(
+			XMLoadFloat3(&m_boneNodeAddressArr[cidx]->startPos));
 	}
+
+	std::vector<XMMATRIX> mats(bonePositions.size());
+	fill(mats.begin(), mats.end(), XMMatrixIdentity());
+
+	auto ikLimit = ik.limit * XM_PI;
+
+	//root for the times of ik data setting
+	for (int c = 0; c < ik.iterations; c++)
+	{
+		//if target and end are very closed, break
+		if (XMVector3Length(
+			XMVectorSubtract(endPos, targetNextPos)).m128_f32[0] <= epsilon)
+		{
+			break;
+		}
+
+		for (int bidx = 0; bidx < bonePositions.size(); bidx++)
+		{
+			const auto& pos = bonePositions[bidx];
+
+			auto vecToEnd = XMVectorSubtract(endPos, pos);
+			auto vecToTarget = XMVectorSubtract(targetNextPos, pos);
+
+			vecToEnd = XMVector3Normalize(vecToEnd);
+			vecToTarget = XMVector3Normalize(vecToTarget);
+
+			if (XMVector3Length(
+				XMVectorSubtract(vecToEnd, vecToTarget)).m128_f32[0] <= epsilon)
+			{
+				continue;
+			}
+
+			auto cross = XMVector3Normalize(XMVector3Cross(vecToEnd, vecToTarget));
+			float angle = XMVector3AngleBetweenVectors(vecToEnd, vecToTarget).m128_f32[0];
+
+			angle = min(angle, ikLimit);
+
+			XMMATRIX rot = XMMatrixRotationAxis(cross, angle);
+				
+			XMMATRIX mat = XMMatrixTranslationFromVector(-pos)
+				* rot * XMMatrixTranslationFromVector(pos);
+
+			mats[bidx] *= mat;
+
+			for (auto idx = bidx - 1; idx >= 0; idx--)
+			{
+				bonePositions[idx] = XMVector3Transform(bonePositions[idx], mat);
+			}
+
+			endPos = XMVector3Transform(endPos, mat);
+
+			if (XMVector3Length(
+				XMVectorSubtract(endPos, targetNextPos)).m128_f32[0] <= epsilon)
+			{
+				break;
+			}
+		}
+	}
+	
+	int idx = 0;
+	for (auto& cidx : ik.nodeIdxes)
+	{
+		m_boneMatrices[cidx] = mats[idx];
+		idx++;
+	}
+
+	auto rootNode = m_boneNodeAddressArr[ik.nodeIdxes.back()];
+	RecursiveMatrixMultiply(rootNode, parentMat);
+
 }
 
 void D3DAnimation::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat)
