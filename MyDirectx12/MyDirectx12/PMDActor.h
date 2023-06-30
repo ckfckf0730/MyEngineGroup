@@ -137,6 +137,12 @@ struct VMDSelfShadow
 };
 #pragma pack()
 
+struct VMDIKEnable
+{
+	uint32_t frameNo;
+	std::unordered_map<std::string, bool> ikEnableTable;
+};
+
 struct KeyFrame 
 {
 	unsigned int frameNo;
@@ -186,6 +192,7 @@ public:
 	std::vector<VMDCamera> m_cameraData;
 	std::vector<VMDLight> m_lights;
 	std::vector<VMDSelfShadow> m_selfShadowData;
+	std::vector<VMDIKEnable> m_ikEnableData;
 
 	std::unordered_map<std::string,std::vector<KeyFrame>> m_motionData;
 
@@ -193,7 +200,7 @@ public:
 	void StartAnimation();
 	void UpdateAnimation();
 
-	void IKSolve();
+	void IKSolve(int fremeNo);
 	void SolveCCDIK(const PMDIK& ik);
 	void SolveCosineIK(const PMDIK& ik);
 	void SolveLookAt(const PMDIK& ik);

@@ -56,6 +56,32 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 	m_selfShadowData.resize(selfShadowCount);
 	fread(m_selfShadowData.data(), sizeof(VMDSelfShadow), selfShadowCount, fp);
 
+	//-----------IK enable data----------------
+	uint32_t ikSwitchCount = 0;
+	fread(&ikSwitchCount, sizeof(ikSwitchCount), 1, fp);
+	m_ikEnableData.resize(ikSwitchCount);
+	for (auto& ikEnable : m_ikEnableData)
+	{
+		fread(&ikEnable.frameNo, sizeof(ikEnable.frameNo), 1, fp);
+
+		uint8_t visibleFlg = 0;
+		fread(&visibleFlg, sizeof(visibleFlg), 1, fp);
+
+		uint32_t ikBoneCount = 0;
+		fread(&ikBoneCount, sizeof(ikBoneCount), 1, fp);
+
+		for (int i = 0; i < ikBoneCount; i++)
+		{
+			char ikBoneName[20];
+			fread(ikBoneName, _countof(ikBoneName), 1, fp);
+
+			uint8_t flg = 0;
+			fread(&flg, sizeof(flg), 1, fp);
+			ikEnable.ikEnableTable[ikBoneName] = flg;
+		}
+	}
+	
+
 	fclose(fp);
 
 	for (auto& vmdMotion : vmdMotionData)
@@ -180,10 +206,25 @@ void D3DAnimation::UpdateAnimation()
 
 
 
-void D3DAnimation::IKSolve() 
+void D3DAnimation::IKSolve(int frameNo) 
 {
+	auto it = find_if(m_ikEnableData.rbegin(), m_ikEnableData.rend(),
+		[frameNo](const VMDIKEnable& ikenable)
+		{
+			return ikenable.frameNo <= frameNo;
+		});
+
 	for (auto& ik : m_ikData)
 	{
+		auto ikEnableIt = it->ikEnableTable.find(m_boneNameArr[ik.boneIdx]);
+		if (ikEnableIt != it->ikEnableTable.end())
+		{
+			if (!ikEnableIt->second)
+			{
+				continue;;
+			}
+		}
+
 		auto childrenNodesCount = ik.nodeIdxes.size();
 
 		switch (childrenNodesCount)
