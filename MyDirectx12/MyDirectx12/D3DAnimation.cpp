@@ -201,6 +201,8 @@ void D3DAnimation::UpdateAnimation()
 	RecursiveMatrixMultiply(
 		&m_boneNodeTable[m_rootNodeStr], XMMatrixIdentity());
 
+	IKSolve(frameNo);
+
 	std::copy(m_boneMatrices.begin(), m_boneMatrices.end(), m_owner->m_mapMatrices + 1);
 }
 

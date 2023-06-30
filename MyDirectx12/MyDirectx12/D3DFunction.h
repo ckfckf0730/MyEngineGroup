@@ -28,7 +28,7 @@ class D3DCamera
 public:
 
 	IDXGISwapChain4* m_swapchain = nullptr;
-	ID3D12DescriptorHeap* m_rtvHeaps = nullptr;
+	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
 	std::vector<ID3D12Resource*> m_backBuffers;
 	D3D12_VIEWPORT m_viewport = {};
 	D3D12_RECT m_scissorrect = {};

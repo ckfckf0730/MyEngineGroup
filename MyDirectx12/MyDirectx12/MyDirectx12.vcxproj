@@ -136,6 +136,7 @@
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="D3DAnimation.cpp" />
     <ClCompile Include="D3DCamera.cpp" />
+    <ClCompile Include="D3DMulPassRender.cpp" />
     <ClCompile Include="D3DPipeline.cpp" />
     <ClCompile Include="PMDActor.cpp" />
     <ClCompile Include="D3DResourceManage.cpp" />
@@ -146,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="D3DAPI.h" />
+    <ClInclude Include="D3DMulPassRender.h" />
     <ClInclude Include="PMDActor.h" />
     <ClInclude Include="D3DResourceManage.h" />
     <ClInclude Include="D3DFunction.h" />

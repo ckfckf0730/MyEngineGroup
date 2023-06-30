@@ -48,6 +48,9 @@
     <ClCompile Include="D3DAnimation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D3DMulPassRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D3DFunction.h">
@@ -63,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D3DResourceManage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DMulPassRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

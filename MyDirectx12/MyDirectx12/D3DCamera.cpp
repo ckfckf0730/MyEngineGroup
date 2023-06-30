@@ -43,7 +43,7 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 	heapDesc.NodeMask = 0;
 	heapDesc.NumDescriptors = 2;//front and back 
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	result = device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_rtvHeaps));
+	result = device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_rtvHeap));
 	DXGI_SWAP_CHAIN_DESC swcDesc = {};
 	result = m_swapchain->GetDesc(&swcDesc);
 	for (int i = 0; i < swcDesc.BufferCount; i++)
@@ -56,7 +56,7 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE handle = m_rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
 	for (int i = 0; i < swcDesc.BufferCount; ++i)
 	{
 		result = m_swapchain->GetBuffer(i, IID_PPV_ARGS(&m_backBuffers[i]));
@@ -145,7 +145,7 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 	cmdList->ResourceBarrier(1, &m_barrierDesc);
 
 	//appoint render target 
-	auto rtvH = m_rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIdx * device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	cmdList->OMSetRenderTargets(1, &rtvH, false, nullptr);
 
@@ -198,7 +198,7 @@ int D3DCamera::Draw(D3DDevice* _cD3DDev)
 
 	cmdList->ResourceBarrier(1, &m_barrierDesc);
 
-	auto rtvH = m_rtvHeaps->GetCPUDescriptorHandleForHeapStart();
+	auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIdx * d3ddevice->
 		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
