@@ -193,7 +193,10 @@ int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long l
 {
 	D3DCamera* mainCamera = new D3DCamera();
 	mainCamera->CreateSwapChain(hwnd,width,height);
-	mainCamera->CreateFinalRenderTarget(width, height);
+	mainCamera->CreateRenderTargetView();
+	mainCamera->CreateDepthStencilView(width, height);
+	mainCamera->SetViewPort(width, height);
+	mainCamera->Clear();
 
 	D3DResourceManage::Instance().CameraTable.insert(
 		pair<unsigned long long, D3DCamera*>(uid, mainCamera));

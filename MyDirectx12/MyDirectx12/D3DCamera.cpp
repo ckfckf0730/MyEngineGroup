@@ -1,6 +1,8 @@
 ﻿#include"D3DFunction.h"
 #include"D3DResourceManage.h"
 
+using namespace DirectX;
+
 int D3DCamera::CreateSwapChain(HWND hwnd,UINT width , UINT height)
 {
 	auto dxgiFactory = D3DResourceManage::Instance().pGraphicsCard->pDxgiFactory;
@@ -32,10 +34,11 @@ int D3DCamera::CreateSwapChain(HWND hwnd,UINT width , UINT height)
 	return 1;
 }
 
-int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
+
+
+int D3DCamera::CreateRenderTargetView()
 {
 	auto device = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
-	auto graphicsCard = D3DResourceManage::Instance().pGraphicsCard;
 	HRESULT result = S_OK;
 
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
@@ -46,25 +49,31 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 	result = device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_rtvHeap));
 	DXGI_SWAP_CHAIN_DESC swcDesc = {};
 	result = m_swapchain->GetDesc(&swcDesc);
-	for (int i = 0; i < swcDesc.BufferCount; i++)
-	{
-		m_backBuffers.push_back(nullptr);
-	}
+	m_backBuffers.resize(swcDesc.BufferCount);
 
 	//SRGB render target view setup
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE handle = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = m_rtvHeap->
+		GetCPUDescriptorHandleForHeapStart();
+
 	for (int i = 0; i < swcDesc.BufferCount; ++i)
 	{
 		result = m_swapchain->GetBuffer(i, IID_PPV_ARGS(&m_backBuffers[i]));
 		device->CreateRenderTargetView(m_backBuffers[i], &rtvDesc, handle);
-		handle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		handle.ptr += device->GetDescriptorHandleIncrementSize(
+			D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
 
-	//--depth stencil view setup----
+	return 1;
+}
+
+int D3DCamera::CreateDepthStencilView(UINT width, UINT height)
+{
+	auto device = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+
 	D3D12_RESOURCE_DESC depthResDesc = {};
 	depthResDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	depthResDesc.Width = width;
@@ -85,7 +94,7 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 
 	ID3D12Resource* depthBuff = nullptr;
 
-	result = device->CreateCommittedResource(
+	auto result = device->CreateCommittedResource(
 		&depthHeapProp,
 		D3D12_HEAP_FLAG_NONE,
 		&depthResDesc,
@@ -116,7 +125,11 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 		&dsvDesc,
 		m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 
+	return 1;
+}
 
+void  D3DCamera::SetViewPort(UINT width, UINT height)
+{
 	//-------------create view port-------------- 
 	m_viewport.Width = width;
 	m_viewport.Height = height;
@@ -130,21 +143,18 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 	m_scissorrect.left = 0;
 	m_scissorrect.right = m_scissorrect.left + width;
 	m_scissorrect.bottom = m_scissorrect.top + height;
+}
 
-
+void D3DCamera::Clear()
+{
+	auto device = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
 	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
 
 	auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
+	Barrier(m_backBuffers[bbIdx],
+		D3D12_RESOURCE_STATE_PRESENT,
+		D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	m_barrierDesc.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	m_barrierDesc.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	m_barrierDesc.Transition.pResource = m_backBuffers[bbIdx];
-	m_barrierDesc.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	m_barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	m_barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	cmdList->ResourceBarrier(1, &m_barrierDesc);
-
-	//appoint render target 
 	auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIdx * device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	cmdList->OMSetRenderTargets(1, &rtvH, false, nullptr);
@@ -152,36 +162,42 @@ int D3DCamera::CreateFinalRenderTarget(UINT width, UINT height)
 	//clear screen
 	float clearColor[] = { 1.0f,1.0f,0.0f,1.0f };//yellow
 	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
+}
 
-	m_barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	m_barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	cmdList->ResourceBarrier(1, &m_barrierDesc);
+void D3DCamera::Barrier(ID3D12Resource* resource, 
+	D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
+{
+	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
+	auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource, before, after, 0);
+	cmdList->ResourceBarrier(1, &barrier);
+}
+
+void D3DCamera::Flip()
+{
+	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
+	auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
+	auto graphicsCard = D3DResourceManage::Instance().pGraphicsCard;
+
+	Barrier(m_backBuffers[bbIdx],
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_PRESENT);
 
 	cmdList->Close();
 
-	//implement commond list
 	ID3D12CommandList* cmdlists[] = { cmdList };
-	D3DResourceManage::Instance().pGraphicsCard->pCmdQueue->ExecuteCommandLists(1, cmdlists);
-	//wait
-	D3DResourceManage::Instance().pGraphicsCard->pCmdQueue->Signal(graphicsCard->m_fence, ++graphicsCard->m_fenceVal);
+	graphicsCard->pCmdQueue->ExecuteCommandLists(1, cmdlists);
 
-	if (graphicsCard->m_fence->GetCompletedValue() != graphicsCard->m_fenceVal)
-	{
-		auto event = CreateEvent(nullptr, false, false, nullptr);
-		graphicsCard->m_fence->SetEventOnCompletion(graphicsCard->m_fenceVal, event);
-		WaitForSingleObject(event, INFINITE);
-		CloseHandle(event);
-	}
-	D3DResourceManage::Instance().pGraphicsCard->pCmdAllocator->Reset();//キューをクリア
-	cmdList->Reset(D3DResourceManage::Instance().pGraphicsCard->pCmdAllocator, nullptr);//再びコマンドリストをためる準備
+	graphicsCard->WaitForCommandQueue();
+	
+	graphicsCard->pCmdAllocator->Reset();
+	
+	cmdList->Reset(graphicsCard->pCmdAllocator, nullptr);
 
 	//flip
-	m_swapchain->Present(1, 0);
-
-	return 1;
+	auto result = m_swapchain->Present(1, 0);
+	assert(SUCCEEDED(result));
 }
 
-using namespace DirectX;
 
 int D3DCamera::Draw(D3DDevice* _cD3DDev)
 {

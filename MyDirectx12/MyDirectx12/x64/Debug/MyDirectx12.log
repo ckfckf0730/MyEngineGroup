@@ -1,11 +1,4 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8004: Output 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Output 目录。
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(503,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
   D3DMulPassRender.cpp
-D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: pragma 参数应为 "1"、"2"、"4"、"8" 或者 "16"
-  D3DPipeline.cpp
-D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: pragma 参数应为 "1"、"2"、"4"、"8" 或者 "16"
-D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(311,51): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
-  D3DDevice.cpp
-D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: pragma 参数应为 "1"、"2"、"4"、"8" 或者 "16"
-  正在生成代码...
-    正在?建? ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.lib 和?象 ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.exp
-  MyDirectx12.vcxproj -> D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
+  MyDirectx12.vcxproj -> D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll

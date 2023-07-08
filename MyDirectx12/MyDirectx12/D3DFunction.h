@@ -20,6 +20,8 @@ public:
 	int	InitializeFence();
 	int InitializeDXGIDevice();
 	int InitializeCommand();
+
+	void WaitForCommandQueue();
 	
 };
 
@@ -36,8 +38,16 @@ public:
 	D3D12_RESOURCE_BARRIER m_barrierDesc = {};
 
 	int CreateSwapChain(HWND hwnd, UINT width, UINT height);
-	int CreateFinalRenderTarget(UINT width, UINT height);
+	int CreateRenderTargetView();
+	int CreateDepthStencilView(UINT width, UINT height);
 	int Draw(D3DDevice* _cD3DDev);
+
+	void SetViewPort(UINT width, UINT height);
+	void Clear();
+	void Barrier(ID3D12Resource* resource,
+		D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
+	void Flip();
+
 };
 
 class D3DPipeline

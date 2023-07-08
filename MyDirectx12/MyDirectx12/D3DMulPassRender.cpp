@@ -6,7 +6,7 @@ using namespace DirectX;
 void D3DMulPassRender::Init(D3DCamera* camera)
 {
 	//the resource created is a render target one, and at the same time, it's also as a shader resource.
-
+	m_bindCamera = camera;
 	auto _pDev = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
 
 	auto& bbuff = camera->m_backBuffers[0];
@@ -70,4 +70,58 @@ void D3DMulPassRender::Init(D3DCamera* camera)
 		&srvDesc,
 		m_peraSRVHeap->GetCPUDescriptorHandleForHeapStart());
 
+}
+
+
+void D3DMulPassRender::Draw()
+{
+	auto rtvHeapPointer = m_peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
+
+	auto _cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
+
+	auto dsvHeapHandle = m_bindCamera->m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	_cmdList->OMSetRenderTargets(
+		1,
+		&rtvHeapPointer,
+		false,
+		&dsvHeapHandle);
+	
+	D3D12_RESOURCE_BARRIER barrierDesc;
+	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	barrierDesc.Transition.pResource = m_peraResource.Get();
+	_cmdList->ResourceBarrier(1, &barrierDesc);
+}
+
+void D3DMulPassRender::CreatePeraPolygon()
+{
+	PeraVertex pv[4] =
+	{
+		{{-1.0f, -1.0f, 0.1f}, {0.0f, 1.0f}},	//left bottom
+		{{-1.0f, 1.0f, 0.1f}, {0.0f, 0.0f}},	//left top
+		{{1.0f, -1.0f, 0.1f}, {1.0f, 1.0f}},	//right bottom
+		{{1.0f, 1.0f, 0.1f}, {1.0f, 0.0f}}		//right top
+	};
+
+	auto _dev = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+
+	auto heap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(pv));
+	auto result = _dev->CreateCommittedResource(
+		&heap,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(m_peraVB.ReleaseAndGetAddressOf()));
+
+	D3D12_VERTEX_BUFFER_VIEW m_peraVBV;
+
+	m_peraVBV.BufferLocation = m_peraVB->GetGPUVirtualAddress();
+	m_peraVBV.SizeInBytes = sizeof(pv);
+	m_peraVBV.StrideInBytes = sizeof(PeraVertex);
+	PeraVertex* mappedPera = nullptr;
+	m_peraVB->Map(0, nullptr, (void**)&mappedPera);
+	std::copy(std::begin(pv), std::end(pv), mappedPera);
+	m_peraVB->Unmap(0, nullptr);
 }
