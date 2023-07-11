@@ -157,11 +157,16 @@ void D3DCamera::Clear()
 
 	auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvH.ptr += bbIdx * device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	cmdList->OMSetRenderTargets(1, &rtvH, false, nullptr);
+	auto dsvh = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
 
 	//clear screen
 	float clearColor[] = { 1.0f,1.0f,0.0f,1.0f };//yellow
+	//float clearColor[] = { 1.0f,1.0f,1.0f,1.0f };
 	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
+	cmdList->ClearDepthStencilView(dsvh, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	cmdList->RSSetViewports(1, &m_viewport);
+	cmdList->RSSetScissorRects(1, &m_scissorrect);
 }
 
 void D3DCamera::Barrier(ID3D12Resource* resource, 
@@ -191,7 +196,14 @@ void D3DCamera::Flip()
 	
 	graphicsCard->pCmdAllocator->Reset();
 	
-	cmdList->Reset(graphicsCard->pCmdAllocator, nullptr);
+	//cmdList->Reset(graphicsCard->pCmdAllocator, nullptr);
+
+	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin();
+		iter != D3DResourceManage::Instance().PipelineTable.end(); iter++)
+	{
+		auto pipeline = iter->second;
+		cmdList->Reset(D3DResourceManage::Instance().pGraphicsCard->pCmdAllocator, pipeline->m_pipelinestate);
+	}
 
 	//flip
 	auto result = m_swapchain->Present(1, 0);
@@ -204,29 +216,7 @@ int D3DCamera::Draw(D3DDevice* _cD3DDev)
 	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
 	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
 
-	//------------------set render target state------------------------
-	//Get current back buffer
-	auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
-
-	m_barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	m_barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	m_barrierDesc.Transition.pResource = m_backBuffers[bbIdx];
-
-	cmdList->ResourceBarrier(1, &m_barrierDesc);
-
-	auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvH.ptr += bbIdx * d3ddevice->
-		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-	auto dsvh = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
-	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
-
-	float clearColor[] = { 1.0f,1.0f,1.0f,1.0f };
-	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
-	cmdList->ClearDepthStencilView(dsvh, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-	cmdList->RSSetViewports(1, &m_viewport);
-	cmdList->RSSetScissorRects(1, &m_scissorrect);
+	Clear();
 
 	//-------------render each pipeline------------------
 	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin(); 
@@ -236,37 +226,7 @@ int D3DCamera::Draw(D3DDevice* _cD3DDev)
 		pipeline->Draw(cmdList, d3ddevice);
 	}
 
-	//------------------set render target state back------------------------
-	m_barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	m_barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	cmdList->ResourceBarrier(1, &m_barrierDesc);
-
-	cmdList->Close();
-
-	ID3D12CommandList* cmdlists[] = { cmdList };
-	D3DResourceManage::Instance().pGraphicsCard->pCmdQueue->ExecuteCommandLists(1, cmdlists);
-	//
-	D3DResourceManage::Instance().pGraphicsCard->pCmdQueue->Signal(_cD3DDev->m_fence, ++_cD3DDev->m_fenceVal);
-
-	if (_cD3DDev->m_fence->GetCompletedValue() != _cD3DDev->m_fenceVal)
-	{
-		auto event = CreateEvent(nullptr, false, false, nullptr);
-		_cD3DDev->m_fence->SetEventOnCompletion(_cD3DDev->m_fenceVal, event);
-		WaitForSingleObject(event, INFINITE);
-		CloseHandle(event);
-	}
-	D3DResourceManage::Instance().pGraphicsCard->pCmdAllocator->Reset();
-
-	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin();
-		iter != D3DResourceManage::Instance().PipelineTable.end(); iter++)
-	{
-		auto pipeline = iter->second;
-		cmdList->Reset(D3DResourceManage::Instance().pGraphicsCard->pCmdAllocator, pipeline->m_pipelinestate);
-	}
-
-
-	//
-	m_swapchain->Present(1, 0);
+	Flip();
 
 	return 1;
 }

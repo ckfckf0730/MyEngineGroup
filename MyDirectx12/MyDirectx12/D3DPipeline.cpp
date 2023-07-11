@@ -10,17 +10,17 @@ D3DPipeline::D3DPipeline(const char* name)
 int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
 {
 	//hlsl compile
-	ID3DBlob* vsBlob = nullptr;
-	ID3DBlob* psBlob = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob;
+	Microsoft::WRL::ComPtr<ID3DBlob> psBlob;
 
-	ID3DBlob* errorBlob = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 
 	HRESULT result = D3DCompileFromFile(
 		L"BasicVertexShader.hlsl",
 		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"BasicVS", "vs_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0, &vsBlob, &errorBlob);
+		0, vsBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf());
 	if (FAILED(result))
 	{
 		ShowMsgBox(L"Error", L"hlsl compile fault.");
@@ -41,7 +41,7 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
 		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"BasicPS", "ps_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
-		0, &psBlob, &errorBlob);
+		0, psBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf());
 	if (FAILED(result))
 	{
 		ShowMsgBox(L"Error", L"hlsl compile fault.");
@@ -208,7 +208,7 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
 		&rootSignatureDesc,
 		D3D_ROOT_SIGNATURE_VERSION_1_0,
 		&rootSigBlob,
-		&errorBlob);
+		errorBlob.ReleaseAndGetAddressOf());
 	if (FAILED(result))
 	{
 		ShowMsgBox(L"Error", L"create root signature Blob fault.");

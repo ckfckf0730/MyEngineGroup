@@ -12,17 +12,17 @@ void D3DMulPassRender::Init(D3DCamera* camera)
 	auto& bbuff = camera->m_backBuffers[0];
 	auto resDesc = bbuff->GetDesc();
 
-	D3D12_HEAP_PROPERTIES heapProp = 
+	D3D12_HEAP_PROPERTIES heapProp =
 		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
 	float clsClr[4] = { 0.5f,0.5f,0.5f,1.0f };
-	D3D12_CLEAR_VALUE clearValue = 
+	D3D12_CLEAR_VALUE clearValue =
 		CD3DX12_CLEAR_VALUE(DXGI_FORMAT_R8G8B8A8_UNORM, clsClr);
 
 	auto result = _pDev->CreateCommittedResource(
-			&heapProp, D3D12_HEAP_FLAG_NONE,
-			&resDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-			&clearValue, IID_PPV_ARGS(m_peraResource.ReleaseAndGetAddressOf()));
+		&heapProp, D3D12_HEAP_FLAG_NONE,
+		&resDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		&clearValue, IID_PPV_ARGS(m_peraResource.ReleaseAndGetAddressOf()));
 	if (FAILED(result))
 	{
 		ShowMsgBox(L"Error", "Create MulPass resource fault");
@@ -51,7 +51,7 @@ void D3DMulPassRender::Init(D3DCamera* camera)
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
 	result = _pDev->CreateDescriptorHeap(
-		&heapDesc, 
+		&heapDesc,
 		IID_PPV_ARGS(m_peraSRVHeap.ReleaseAndGetAddressOf()));
 	if (FAILED(result))
 	{
@@ -72,7 +72,6 @@ void D3DMulPassRender::Init(D3DCamera* camera)
 
 }
 
-
 void D3DMulPassRender::Draw()
 {
 	auto rtvHeapPointer = m_peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
@@ -85,12 +84,18 @@ void D3DMulPassRender::Draw()
 		&rtvHeapPointer,
 		false,
 		&dsvHeapHandle);
-	
+
 	D3D12_RESOURCE_BARRIER barrierDesc;
 	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	barrierDesc.Transition.pResource = m_peraResource.Get();
 	_cmdList->ResourceBarrier(1, &barrierDesc);
+
+	_cmdList->SetGraphicsRootSignature(m_peraRootSign.Get());
+	_cmdList->SetPipelineState(m_peraPipeline.Get());
+	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	_cmdList->IASetVertexBuffers(0, 1, &m_peraVBV);
+	_cmdList->DrawInstanced(4, 1, 0, 0);
 }
 
 void D3DMulPassRender::CreatePeraPolygon()
@@ -113,15 +118,114 @@ void D3DMulPassRender::CreatePeraPolygon()
 		&resDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(m_peraVB.ReleaseAndGetAddressOf()));
+		IID_PPV_ARGS(m_peraVertexBuffer.ReleaseAndGetAddressOf()));
 
-	D3D12_VERTEX_BUFFER_VIEW m_peraVBV;
-
-	m_peraVBV.BufferLocation = m_peraVB->GetGPUVirtualAddress();
+	m_peraVBV.BufferLocation = m_peraVertexBuffer->GetGPUVirtualAddress();
 	m_peraVBV.SizeInBytes = sizeof(pv);
 	m_peraVBV.StrideInBytes = sizeof(PeraVertex);
 	PeraVertex* mappedPera = nullptr;
-	m_peraVB->Map(0, nullptr, (void**)&mappedPera);
+	m_peraVertexBuffer->Map(0, nullptr, (void**)&mappedPera);
 	std::copy(std::begin(pv), std::end(pv), mappedPera);
-	m_peraVB->Unmap(0, nullptr);
+	m_peraVertexBuffer->Unmap(0, nullptr);
+}
+
+void D3DMulPassRender::SetPipeline()
+{
+	auto _dev = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+
+	D3D12_INPUT_ELEMENT_DESC layout[2] =
+	{
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT_R32G32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		},
+	};
+
+	Microsoft::WRL::ComPtr<ID3DBlob> vs;
+	Microsoft::WRL::ComPtr<ID3DBlob> ps;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
+
+	auto result = D3DCompileFromFile(
+		L"PeraVertex.hlsl", nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		"vs", "vs_5_0", 0, 0,
+		vs.ReleaseAndGetAddressOf(),
+		errorBlob.ReleaseAndGetAddressOf());
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"create MulpassRender vs Blob fault.");
+	}
+
+	result = D3DCompileFromFile(
+		L"PeraPixel.hlsl", nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		"ps", "ps_5_0", 0, 0,
+		ps.ReleaseAndGetAddressOf(),
+		errorBlob.ReleaseAndGetAddressOf());
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"create MulpassRender ps Blob fault.");
+	}
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsDesc = {};
+	gpsDesc.InputLayout.NumElements = _countof(layout);
+	gpsDesc.InputLayout.pInputElementDescs = layout;
+	gpsDesc.VS = CD3DX12_SHADER_BYTECODE(vs.Get());
+	gpsDesc.PS = CD3DX12_SHADER_BYTECODE(ps.Get());
+	gpsDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	gpsDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	gpsDesc.NumRenderTargets = 1;
+	gpsDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	gpsDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	gpsDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
+	gpsDesc.SampleDesc.Count = 1;
+	gpsDesc.SampleDesc.Quality = 0;
+	gpsDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
+	rsDesc.NumParameters = 0;
+	rsDesc.NumStaticSamplers = 0;
+	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	
+	Microsoft::WRL::ComPtr<ID3DBlob> rsBlob;
+
+	result = D3D12SerializeRootSignature(
+		&rsDesc,
+		D3D_ROOT_SIGNATURE_VERSION_1,
+		rsBlob.ReleaseAndGetAddressOf(),
+		errorBlob.ReleaseAndGetAddressOf());
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"create MulpassRender root signature blob fault.");
+	}
+
+	result = _dev->CreateRootSignature(
+		0,
+		rsBlob->GetBufferPointer(),
+		rsBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_peraRootSign.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"create MulpassRender root signature fault.");
+	}
+	
+	gpsDesc.pRootSignature = m_peraRootSign.Get();
+	result = _dev->CreateGraphicsPipelineState(
+		&gpsDesc,
+		IID_PPV_ARGS(m_peraPipeline.ReleaseAndGetAddressOf()));
+
 }

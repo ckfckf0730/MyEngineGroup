@@ -35,7 +35,6 @@ public:
 	D3D12_VIEWPORT m_viewport = {};
 	D3D12_RECT m_scissorrect = {};
 	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
-	D3D12_RESOURCE_BARRIER m_barrierDesc = {};
 
 	int CreateSwapChain(HWND hwnd, UINT width, UINT height);
 	int CreateRenderTargetView();

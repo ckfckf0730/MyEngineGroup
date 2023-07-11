@@ -16,17 +16,24 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_peraRTVHeap;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_peraSRVHeap;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_peraVB;
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_peraVertexBuffer;
+	D3D12_VERTEX_BUFFER_VIEW m_peraVBV;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_peraRootSign;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_peraPipeline;
 
 	D3DCamera* m_bindCamera;
 
 public:
 
 	void Init(D3DCamera* camera);
+
+
 	void CreatePeraPolygon();
 
-
 	void Draw();
+
+	void SetPipeline();
 };
 
 
