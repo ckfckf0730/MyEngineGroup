@@ -6,6 +6,8 @@
 
 struct SceneMatrix;
 
+class D3DMulPassRender;
+
 class D3DDevice 
 {
 public:
@@ -20,7 +22,7 @@ public:
 	int	InitializeFence();
 	int InitializeDXGIDevice();
 	int InitializeCommand();
-
+	
 	void WaitForCommandQueue();
 	
 };
@@ -36,6 +38,8 @@ public:
 	D3D12_RECT m_scissorrect = {};
 	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
 
+	D3DMulPassRender* m_mulPassRender;
+
 	int CreateSwapChain(HWND hwnd, UINT width, UINT height);
 	int CreateRenderTargetView();
 	int CreateDepthStencilView(UINT width, UINT height);
@@ -46,6 +50,8 @@ public:
 	void Barrier(ID3D12Resource* resource,
 		D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
 	void Flip();
+
+	void InitMulPassRender();
 
 };
 

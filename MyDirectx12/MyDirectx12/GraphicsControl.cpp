@@ -196,6 +196,7 @@ int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long l
 	mainCamera->CreateRenderTargetView();
 	mainCamera->CreateDepthStencilView(width, height);
 	mainCamera->SetViewPort(width, height);
+	//mainCamera->InitMulPassRender();
 	mainCamera->Clear();
 
 	D3DResourceManage::Instance().CameraTable.insert(

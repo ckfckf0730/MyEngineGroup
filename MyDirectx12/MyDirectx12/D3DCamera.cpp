@@ -1,5 +1,6 @@
 ﻿#include"D3DFunction.h"
 #include"D3DResourceManage.h"
+#include"D3DMulPassRender.h"
 
 using namespace DirectX;
 
@@ -150,15 +151,31 @@ void D3DCamera::Clear()
 	auto device = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
 	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
 
-	auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
-	Barrier(m_backBuffers[bbIdx],
-		D3D12_RESOURCE_STATE_PRESENT,
-		D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-	auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvH.ptr += bbIdx * device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH;
 	auto dsvh = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
-	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
+	if (m_mulPassRender == nullptr)
+	{
+		//-------------render to normal BackBuffer-------------
+		auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
+		Barrier(m_backBuffers[bbIdx],
+			D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+		rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
+		rtvH.ptr += bbIdx * device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
+	}
+	else
+	{
+		//---------------render to mulpass render target-----------------
+		rtvH = m_mulPassRender->m_peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
+		cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
+		auto barrierRes = CD3DX12_RESOURCE_BARRIER::Transition(
+			m_mulPassRender->m_peraResource.Get(),
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
+		cmdList->ResourceBarrier(1, &barrierRes);
+	}
 
 	//clear screen
 	float clearColor[] = { 1.0f,1.0f,0.0f,1.0f };//yellow
@@ -226,7 +243,34 @@ int D3DCamera::Draw(D3DDevice* _cD3DDev)
 		pipeline->Draw(cmdList, d3ddevice);
 	}
 
+	//mulpass render test
+	if (m_mulPassRender != nullptr)
+	{
+		Barrier(m_mulPassRender->m_peraResource.Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+		auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
+		Barrier(m_backBuffers[bbIdx],
+			D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+		auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
+		rtvH.ptr += bbIdx * d3ddevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		auto dsvh = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+		cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
+		m_mulPassRender->Draw();
+	}
+
 	Flip();
 
 	return 1;
+}
+
+void D3DCamera::InitMulPassRender()
+{
+	m_mulPassRender = new D3DMulPassRender();
+	m_mulPassRender->Init(this);
+	m_mulPassRender->CreatePeraPolygon();
+	m_mulPassRender->SetPipeline();
 }

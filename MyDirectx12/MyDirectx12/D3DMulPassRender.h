@@ -1,7 +1,9 @@
 #pragma once
 
 #include"D3DAPI.h"
-#include"D3DFunction.h"
+//#include"D3DFunction.h"
+
+class D3DCamera;
 
 struct PeraVertex
 {
@@ -11,7 +13,7 @@ struct PeraVertex
 
 class D3DMulPassRender
 {
-private:
+public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_peraResource;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_peraRTVHeap;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_peraSRVHeap;

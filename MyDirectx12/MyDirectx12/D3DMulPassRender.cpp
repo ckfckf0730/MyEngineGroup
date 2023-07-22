@@ -1,5 +1,6 @@
 #include "D3DMulPassRender.h"
 #include"D3DResourceManage.h"
+#include"D3DFunction.h"
 
 using namespace DirectX;
 
@@ -74,28 +75,16 @@ void D3DMulPassRender::Init(D3DCamera* camera)
 
 void D3DMulPassRender::Draw()
 {
-	auto rtvHeapPointer = m_peraRTVHeap->GetCPUDescriptorHandleForHeapStart();
+	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
 
-	auto _cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
-
-	auto dsvHeapHandle = m_bindCamera->m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
-	_cmdList->OMSetRenderTargets(
-		1,
-		&rtvHeapPointer,
-		false,
-		&dsvHeapHandle);
-
-	D3D12_RESOURCE_BARRIER barrierDesc;
-	barrierDesc.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	barrierDesc.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrierDesc.Transition.pResource = m_peraResource.Get();
-	_cmdList->ResourceBarrier(1, &barrierDesc);
-
-	_cmdList->SetGraphicsRootSignature(m_peraRootSign.Get());
-	_cmdList->SetPipelineState(m_peraPipeline.Get());
-	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	_cmdList->IASetVertexBuffers(0, 1, &m_peraVBV);
-	_cmdList->DrawInstanced(4, 1, 0, 0);
+	cmdList->SetGraphicsRootSignature(m_peraRootSign.Get());
+	cmdList->SetPipelineState(m_peraPipeline.Get());
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	cmdList->SetDescriptorHeaps(1, m_peraSRVHeap.GetAddressOf());
+	auto handle = m_peraSRVHeap->GetGPUDescriptorHandleForHeapStart();
+	cmdList->SetGraphicsRootDescriptorTable(0, handle);
+	cmdList->IASetVertexBuffers(0, 1, &m_peraVBV);
+	cmdList->DrawInstanced(4, 1, 0, 0);
 }
 
 void D3DMulPassRender::CreatePeraPolygon()
@@ -181,6 +170,19 @@ void D3DMulPassRender::SetPipeline()
 		ShowMsgBox(L"Error", L"create MulpassRender ps Blob fault.");
 	}
 
+	D3D12_DESCRIPTOR_RANGE range = {};
+	range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	range.BaseShaderRegister = 0;
+	range.NumDescriptors = 1;
+
+	D3D12_ROOT_PARAMETER rp = {};
+	rp.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rp.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rp.DescriptorTable.pDescriptorRanges = &range;
+	rp.DescriptorTable.NumDescriptorRanges = 1;
+
+	D3D12_STATIC_SAMPLER_DESC sampler = CD3DX12_STATIC_SAMPLER_DESC(0);
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsDesc = {};
 	gpsDesc.InputLayout.NumElements = _countof(layout);
 	gpsDesc.InputLayout.pInputElementDescs = layout;
@@ -200,6 +202,11 @@ void D3DMulPassRender::SetPipeline()
 	rsDesc.NumParameters = 0;
 	rsDesc.NumStaticSamplers = 0;
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+	rsDesc.NumParameters = 1;
+	rsDesc.pParameters = &rp;
+	rsDesc.NumStaticSamplers = 1;
+	rsDesc.pStaticSamplers = &sampler;
 	
 	Microsoft::WRL::ComPtr<ID3DBlob> rsBlob;
 
