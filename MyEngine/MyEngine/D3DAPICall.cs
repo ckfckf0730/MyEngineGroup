@@ -27,7 +27,7 @@ namespace CkfEngine
 
    
         [DllImport("MyDirectx12.dll")]
-        public static extern int SetModel(ulong uid,string fileFullName);
+        public static extern int SetPMDModel(ulong uid,string fileFullName);
 
         [DllImport("MyDirectx12.dll")]
         public static extern void SetModelTransform(ulong uid, Matrix4x4 matrix);

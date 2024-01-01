@@ -25,7 +25,7 @@ namespace CkfEngine
             m_role1 = Entity.CreateEntity("role1");
             //m_role1.Transform.Rotation = new Vector3(0, (float)(Math.PI * 1) / 2, 0);
             var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
-            renderer.SetModel("Model/初音ミク.pmd");
+            renderer.SetPMDModel("Model/初音ミク.pmd");
             D3DAPICall.LoadAnimation(m_role1.Uid, "motion/motion.vmd");
 
             CkfEditorSystem.Instance.SetEditorCamera(

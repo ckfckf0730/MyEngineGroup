@@ -302,6 +302,23 @@ ID3D12Resource* CreateOneColorTexture(ID3D12Device* _d3dDevive, const uint32_t& 
 //	return -1;
 //}
 
+int PMDModel::SetBasic(D3DDevice* _cD3DDev, const char* _FileFullName)
+{
+	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+
+	FILE* fp;
+	errno_t err = fopen_s(&fp, _FileFullName, "rb");
+	if (err != 0)
+	{
+		ShowMsgBox(L"error", L"Load basic model file fault.");
+		return -1;
+	}
+
+
+	UINT vertexCount;
+
+}
+
 int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 {
 	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;

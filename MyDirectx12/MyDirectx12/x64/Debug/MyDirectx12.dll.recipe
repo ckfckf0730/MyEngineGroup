@@ -13,6 +13,9 @@
       <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\BasicVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\NoBoneVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\PeraPixel.cso</FullPath>
     </ContentFile>
     <ContentFile>

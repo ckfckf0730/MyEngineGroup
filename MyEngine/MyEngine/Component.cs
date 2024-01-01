@@ -132,16 +132,16 @@ namespace CkfEngine
         protected override void OnCreated()
         {
             m_file = new FileLoad();
-            m_file.OnChenged += SetModel;
+            m_file.OnChenged += SetPMDModel;
         }
 
-        private void SetModel()
+        private void SetPMDModel()
         {
-            D3DAPICall.SetModel(OwnerEntity.Uid, m_file.FullPath);
+            D3DAPICall.SetPMDModel(OwnerEntity.Uid, m_file.FullPath);
             OwnerEntity.Transform.EffectiveTransform();
         }
 
-        public void SetModel(string path)
+        public void SetPMDModel(string path)
         {
             m_file.FullPath = path;
         }

@@ -85,6 +85,9 @@
     <FxCompile Include="PeraPixel.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
+    <FxCompile Include="NoBoneVertexShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="BasicShaderHeader.hlsli">

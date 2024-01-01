@@ -7,7 +7,8 @@ D3DPipeline::D3DPipeline(const char* name)
 	m_name = name;
 }
 
-int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
+int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev,D3D12_INPUT_ELEMENT_DESC inputLayout[],UINT numElements,
+	LPCWSTR vsShader, LPCWSTR psShader)
 {
 	//hlsl compile
 	Microsoft::WRL::ComPtr<ID3DBlob> vsBlob;
@@ -16,7 +17,7 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 
 	HRESULT result = D3DCompileFromFile(
-		L"BasicVertexShader.hlsl",
+		vsShader,
 		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"BasicVS", "vs_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
@@ -37,7 +38,7 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
 	}
 
 	result = D3DCompileFromFile(
-		L"BasicPixelShader.hlsl",
+		psShader,
 		nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"BasicPS", "ps_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
@@ -57,15 +58,15 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
 	}
 
 	//create vertex layout (tell pipelien the vertex struct)
-	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
-	{
-		{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-		{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-		{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-		{ "BONE_NO",0,DXGI_FORMAT_R16G16_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-		{ "WEIGHT",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-		/*{"EDGE_FLG",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}*/
-	};
+	//D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+	//{
+	//	{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+	//	{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+	//	{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+	//	{ "BONE_NO",0,DXGI_FORMAT_R16G16_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+	//	{ "WEIGHT",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+	//	/*{"EDGE_FLG",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}*/
+	//};
 
 	//create graphics pipeline
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpipelineDesc = {};
@@ -126,7 +127,7 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev)
 	//gpipeline.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	gpipelineDesc.InputLayout.pInputElementDescs = inputLayout;
-	gpipelineDesc.InputLayout.NumElements = _countof(inputLayout);
+	gpipelineDesc.InputLayout.NumElements = numElements;
 
 	gpipelineDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 	gpipelineDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -337,7 +338,11 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_cmdList->SetGraphicsRootSignature(m_rootsignature);
 
-	auto models = (*D3DResourceManage::Instance().PipelineModelTable)["PmdStandard"];
+	auto models = (*D3DResourceManage::Instance().PipelineModelTable)[m_name];
+	if (models == nullptr)
+	{
+		return;
+	}
 
 	for (auto& vertices : *models)
 	{

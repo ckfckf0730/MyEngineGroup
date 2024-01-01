@@ -12,7 +12,7 @@ void D3DResourceManage::Init()
     PipelineModelTable = new std::map<const char*, std::vector<PMDModel*>*>();
     UidModelTable = new std::map<unsigned long long, PMDModel*>();
 
-    //creat dault pmd pipeline
+    //creat default pmd pipelineTable
     auto pModelTable = D3DResourceManage::Instance().PipelineModelTable;
     auto iter = pModelTable->find("PmdStandard");
     std::vector<PMDModel*>* pVector = nullptr;
@@ -21,9 +21,12 @@ void D3DResourceManage::Init()
         pVector = new std::vector<PMDModel*>();
         pModelTable->insert(std::pair<const char*, std::vector<PMDModel*>*>("PmdStandard", pVector));
     }
-    else
+    
+    iter = pModelTable->find("NoboneStandard");
+    if (iter == pModelTable->end())
     {
-        pVector = iter->second;
+        pVector = new std::vector<PMDModel*>();
+        pModelTable->insert(std::pair<const char*, std::vector<PMDModel*>*>("NoboneStandard", pVector));
     }
 }
 
