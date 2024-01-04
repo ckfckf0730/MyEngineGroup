@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CkfEngine.Core;
+using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -6,10 +7,12 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace CkfEngine
 {
-    public abstract class Component
+    public abstract class Component : EngineObject
     {
         private Entity m_owner;
         public Entity OwnerEntity
@@ -47,22 +50,26 @@ namespace CkfEngine
             set { m_translation = value; EffectiveTransform(); }
         }
         private Vector3 m_rotation;
-        public Vector3 Rotation 
-        { 
-            get { return m_rotation; } 
+        public Vector3 Rotation
+        {
+            get { return m_rotation; }
             set { m_rotation = value; EffectiveTransform(); }
         }
         private Vector3 m_scale = Vector3.One;
-        public Vector3 Scale 
-        { 
-            get { return m_scale; } 
+        public Vector3 Scale
+        {
+            get { return m_scale; }
             set { m_scale = value; EffectiveTransform(); }
         }
 
 
         private Transform m_parent;
-        private Transform Parent { get { return m_parent; } }
+        public Transform Parent { get { return m_parent; } }
         private List<Transform> m_children = new List<Transform>();
+        public Transform[] Children
+        {
+            get { return m_children.ToArray();}
+        }
 
         internal void EffectiveTransform()
         {
@@ -80,7 +87,12 @@ namespace CkfEngine
             {
                 m_parent = parent;
                 parent.m_children.Add(this);
+
+
+                
             }
+            EventSetParent?.Invoke(OwnerEntity.Uid, parent == null ? 0 : parent.OwnerEntity.Uid,
+                false, OwnerEntity.Name);
         }
 
         private void UnsetParent()
@@ -89,9 +101,12 @@ namespace CkfEngine
             {
                 m_parent.m_children.Remove(this);
                 m_parent = null;
+
             }
         }
 
+        // entity UID, parent UID(null = 0), is delete
+        internal static event Action<ulong, ulong, bool, string> EventSetParent;
     }
 
     public class Camera : Component

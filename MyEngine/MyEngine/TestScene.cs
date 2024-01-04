@@ -1,4 +1,5 @@
-﻿using CkfEngine.Editor;
+﻿using CkfEngine.Core;
+using CkfEngine.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,8 @@ namespace CkfEngine
 
             CkfEditorSystem.Instance.SetEditorCamera(
                 new Vector3(0, 12, -20), new Vector3(0, 12, 0), new Vector3(0, 1, 0));
+
+            Prefab.ReadPrefabFile("role1.prefab");
 
             //var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
             //renderer.File = "Model/初音ミク.pmd";

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CkfEngine.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,23 +7,12 @@ using System.Threading.Tasks;
 
 namespace CkfEngine
 {
-    public static class UID
+
+    public class Entity : EngineObject
     {
-        private static ulong uid = 0;
-        public static ulong GetUID()
-        {
-            uid++;
-            return uid;
-        }
-    }
-
-    public class Entity : EntityBase
-    {
-
-
         private Entity() { }
 
-        private Entity(string name) { m_name = name; }
+        private Entity(string name) { Name = name; }
 
         private static Dictionary<ulong,Entity> m_entityTable = new Dictionary<ulong, Entity>();
 
@@ -34,12 +24,10 @@ namespace CkfEngine
             }
 
             var entity = new Entity(name);
-            entity.m_uid = UID.GetUID();
+            
             entity.m_transform = entity.CreateComponent<Transform>();
+            m_entityTable.Add(entity.Uid, entity);
             entity.m_transform.SetParent(parent?.m_transform);
-            m_entityTable.Add(entity.m_uid, entity);
-            EventSetParent?.Invoke(entity.m_uid, parent == null ? 0 : parent.m_uid , 
-                false, name);
             return entity;
         }
 
@@ -51,9 +39,6 @@ namespace CkfEngine
         }
 
 
-        private string m_name;
-        private ulong m_uid;
-        public ulong Uid { get { return m_uid; } }
 
         private Dictionary<Type, Component> m_components = new Dictionary<Type, Component>();
         public Component[] Components
@@ -70,7 +55,7 @@ namespace CkfEngine
             Type type = typeof(T);
             if(m_components.TryGetValue(type, out Component component))
             {
-                Console.WriteLine(m_name + " already exist component: " + type.Name);
+                Console.WriteLine(Name + " already exist component: " + type.Name);
                 return component as T;
             }
 
@@ -84,7 +69,7 @@ namespace CkfEngine
         {
             if (m_components.TryGetValue(type, out Component component))
             {
-                Console.WriteLine(m_name + " already exist component: " + type.Name);
+                Console.WriteLine(Name + " already exist component: " + type.Name);
                 return component;
             }
             Type baseType = typeof(Component);
@@ -113,14 +98,9 @@ namespace CkfEngine
             return component;
         }
 
-        // entity UID, parent UID(null = 0), is delete
-        internal static event Action<ulong, ulong, bool, string> EventSetParent;
+
         
 
     }
 
-    public class EntityBase
-    {
-         
-    }
 }

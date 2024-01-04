@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CkfEngine.Core;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -65,10 +66,14 @@ namespace CkfEngine.Editor
             m_itemTree.Nodes.Add(m_rootNode);
 
             ToolStripMenuItem menuItem1 = new ToolStripMenuItem("Create Entity");
-            menuItem1.Click += OnClicked;
+            menuItem1.Click += CreateEntityOnClicked;
             contextMenuStrip.Items.Add(menuItem1);
 
-            Entity.EventSetParent += UpdateParentSetted;
+            ToolStripMenuItem menuItem2 = new ToolStripMenuItem("Create Prefab");
+            menuItem2.Click += CreatePrefabOnClicked;
+            contextMenuStrip.Items.Add(menuItem2);
+
+            Transform.EventSetParent += UpdateParentSetted;
         }
 
         private void UpdateParentSetted(ulong entityID, ulong parentID, bool isDelete, string name)
@@ -93,6 +98,15 @@ namespace CkfEngine.Editor
                 m_nodeTable.Add(entityID, node);
                 node.Tag = entityID;
             }
+            else
+            {
+                if(node.Parent!= null)
+                {
+                    node.Parent.Nodes.Remove(node);
+                }
+
+            }
+
             if(parentID == 0)
             {
                 m_rootNode.Nodes.Add(node);
@@ -112,7 +126,7 @@ namespace CkfEngine.Editor
 
         }
 
-        void OnClicked(object sender, EventArgs e)
+        void CreateEntityOnClicked(object sender, EventArgs e)
         {
             TreeNode selectNode = m_itemTree.SelectedNode;
             Entity selectEntity = null;
@@ -124,9 +138,20 @@ namespace CkfEngine.Editor
             var newEntity = Entity.CreateEntity("NewEntity", selectEntity);
         }
 
-        public void CreateEntity()
+        void CreatePrefabOnClicked(object sender, EventArgs e)
         {
-
+            TreeNode selectNode = m_itemTree.SelectedNode;
+            Entity selectEntity = null;
+            if (selectNode.Tag is ulong)
+            {
+                ulong uid = (ulong)selectNode.Tag;
+                selectEntity = Entity.FindEntity(uid);
+            }
+            if(selectEntity !=null)
+            {
+                Prefab prefab = new Prefab();
+                prefab.CreatePrefabFile(selectEntity);
+            }
         }
 
         private void NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

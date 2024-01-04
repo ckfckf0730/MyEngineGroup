@@ -59,7 +59,6 @@ namespace CkfEngine.Editor
 
             public void Init()
             {
-                m_uid = UID.GetUID();
                 D3DAPICall.CreateRenderTarget(PanelRegister.EditorMainScreen.Handle, m_uid, 800, 600);
                 D3DAPICall.SetCameraProjection((float)(Math.PI / 2), 800.0f / 600.0f, 1.0f, 100.0f);
             }

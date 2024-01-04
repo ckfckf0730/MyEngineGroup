@@ -48,12 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\EngineObject.cs" />
+    <Compile Include="Core\Prefab.cs" />
+    <Compile Include="Core\SerializationToFileExample.cs" />
     <Compile Include="Editor\CkfEditorSystem.cs" />
     <Compile Include="Editor\CkfEditorUI.cs" />
     <Compile Include="Editor\CkfInspectorUI.cs" />
-    <Compile Include="Component.cs" />
-    <Compile Include="D3DAPICall.cs" />
-    <Compile Include="Entity.cs" />
+    <Compile Include="Core\Component.cs" />
+    <Compile Include="Core\D3DAPICall.cs" />
+    <Compile Include="Core\Entity.cs" />
     <Compile Include="Forms\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
