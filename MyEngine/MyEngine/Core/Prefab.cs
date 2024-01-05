@@ -84,6 +84,10 @@ namespace CkfEngine.Core
                         saveCom.floats.Add(trans.Scale.Y);
                         saveCom.floats.Add(trans.Scale.Z);
                     }
+                    else
+                    {
+
+                    }
 
                     m_list.Add(saveCom);
                 }
@@ -131,8 +135,7 @@ namespace CkfEngine.Core
                             entity = Entity.CreateEntity(obj.name);
                             curEntity = entity;
                         }
-
-                        if(type == typeof(Transform))
+                        else if(type == typeof(Transform))
                         {
                             Transform transform = curEntity.Transform;
                             s_mapRelat.Add(obj.uid, transform);
@@ -144,7 +147,7 @@ namespace CkfEngine.Core
                         }
                         else
                         {
-
+                            curEntity.CreateComponent(type);
                         }
                     }
 

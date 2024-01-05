@@ -146,8 +146,9 @@ namespace CkfEngine.Editor
                     //if (field.FieldType.IsValueType)
                     //{
                     FieldUI fieldUI = new FieldUI();
-                    fieldUI.Init(field, m_panel, ref top);
                     fieldUI.CurComponent = component;
+                    fieldUI.Init(field, m_panel, ref top);
+                    
                     fieldUI.UpdateData();
                     m_fieldList.Add(fieldUI);
                     //}
@@ -216,7 +217,7 @@ namespace CkfEngine.Editor
                             button.Text = "Select File";
                             panel.Controls.Add(button);
                             button.Location = new Point(0, locationY);
-                            locationY += offY;
+                            locationY += offY;                
                             button.Click += (sender, e) => 
                             {
                                 OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -227,7 +228,8 @@ namespace CkfEngine.Editor
                                     if (File.Exists(openFileDialog.FileName))
                                     {
                                         m_texts[0].Text = openFileDialog.FileName;
-                                        var test = ((FileLoad)(m_info.GetValue(m_curComponent))).FullPath = openFileDialog.FileName;
+                                        FileLoad curLoad = (FileLoad)(m_info.GetValue(m_curComponent));
+                                        curLoad.FullPath = openFileDialog.FileName;
                                     }
 
                                     
@@ -266,6 +268,12 @@ namespace CkfEngine.Editor
 
                             break;
                         case "FileLoad":
+                            FileLoad curLoad = (FileLoad)(m_info.GetValue(m_curComponent));
+                            m_texts[0].Text = curLoad.FullPath;
+                            curLoad.OnChenged += () =>
+                            {
+                                m_texts[0].Text = curLoad.FullPath;
+                            };
                             break;
                     }
                 }

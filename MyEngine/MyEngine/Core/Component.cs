@@ -144,15 +144,32 @@ namespace CkfEngine
         public FileLoad File
         { get { return m_file; } }
 
+        private bool m_isLoaded;
+
         protected override void OnCreated()
         {
+            m_isLoaded = false;
             m_file = new FileLoad();
             m_file.OnChenged += SetPMDModel;
         }
 
         private void SetPMDModel()
         {
-            D3DAPICall.SetPMDModel(OwnerEntity.Uid, m_file.FullPath);
+            if(m_isLoaded)
+            {
+                //remove currently model
+
+
+                m_isLoaded = false;
+            }
+
+
+            var result = D3DAPICall.SetPMDModel(OwnerEntity.Uid, m_file.FullPath);
+            if(result == 1)
+            {
+                m_isLoaded = true;
+            }
+
             OwnerEntity.Transform.EffectiveTransform();
         }
 
