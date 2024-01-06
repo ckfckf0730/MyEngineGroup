@@ -880,3 +880,356 @@ void PMDModel::UpdateAnimation()
 	m_animation->UpdateAnimation();
 }
 
+
+
+
+int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
+{
+	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+
+	//read pmd file data
+	FILE* fp;
+	errno_t err = fopen_s(&fp, _FileFullName, "rb");
+	if (err != 0)
+	{
+		PrintDebug(L"Load basic model file fault:");
+		PrintDebug(_FileFullName);
+		return -1;
+	}
+
+	fread(&m_vertNum, sizeof(m_vertNum), 1, fp);  //first is vertex count
+
+	constexpr unsigned int basicVertex_size = 32;
+
+	std::vector<unsigned char> vertices(m_vertNum * basicVertex_size);
+	fread(vertices.data(), vertices.size(), 1, fp); //next vertex data
+
+	std::vector<unsigned short> indices;
+	fread(&m_indicesNum, sizeof(m_indicesNum), 1, fp);	//next indices number
+	indices.resize(m_indicesNum);
+	size_t indicesAllData_size = m_indicesNum * sizeof(indices[0]);
+	fread(indices.data(), indicesAllData_size, 1, fp); //next indices data
+
+	fclose(fp);
+
+	//----------vertex buff------------------
+	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto vertBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(vertices.size());
+	//ID3D12Device::CreateHeap() and ID3D12Device::CreatePlaced Resource() similar, this book doesn't teach.
+	HRESULT result = d3ddevice->CreateCommittedResource(
+		&heapTypeUpload,
+		D3D12_HEAP_FLAG_NONE,
+		&vertBuffDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(m_vertBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		PrintDebug("CreateCommittedResource basic Vertex fault.");
+		return -1;
+	}
+
+	unsigned char* s_vertMap = nullptr;
+	result = m_vertBuff->Map(0, nullptr, (void**)&s_vertMap);
+	if (FAILED(result))
+	{
+		PrintDebug(L"vertMap fault.");
+		return -1;
+	}
+
+	memcpy(s_vertMap, vertices.data(), vertices.size());
+
+	m_vertBuff->Unmap(0, nullptr);
+
+	//create vertex buffer view
+	m_vbView.BufferLocation = m_vertBuff->GetGPUVirtualAddress();
+	m_vbView.SizeInBytes = vertices.size();
+	m_vbView.StrideInBytes = basicVertex_size;
+
+	//----------------------index part----------------------------
+
+	auto indicesBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indicesAllData_size);
+	result = d3ddevice->CreateCommittedResource(
+		&heapTypeUpload,
+		D3D12_HEAP_FLAG_NONE,
+		&indicesBufferDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(m_idxBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		PrintDebug(L"CreateCommittedResource index fault.");
+		return -1;
+	}
+
+	unsigned short* mappedIdx = nullptr;
+	result = m_idxBuff->Map(0, nullptr, (void**)&mappedIdx);
+	if (FAILED(result))
+	{
+		PrintDebug(L"index Map fault.");
+		return -1;
+	}
+	std::copy(indices.begin(), indices.end(), mappedIdx);
+	m_idxBuff->Unmap(0, nullptr);
+
+	m_ibView.BufferLocation = m_idxBuff->GetGPUVirtualAddress();
+	m_ibView.Format = DXGI_FORMAT_R16_UINT;
+	m_ibView.SizeInBytes = indicesAllData_size;
+}
+	
+void BasicModel::InitMaterial()
+{
+	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+
+	unsigned int materialNum = 1;
+
+	std::vector<PMDMaterial> pmdMaterials(materialNum);
+
+	m_textureResources.resize(materialNum);
+	m_sphResources.resize(materialNum);
+	m_spaResources.resize(materialNum);
+	m_toonResources.resize(materialNum);
+
+	m_materials.resize(materialNum);
+	for (int i = 0; i < materialNum; i++)
+	{
+		std::string toonFilePath = "toon/";
+		char toonFileName[16];
+		sprintf_s(toonFileName, "toon%02d.bmp",
+			static_cast<unsigned char>(pmdMaterials[i].toonIdx + 1));
+		toonFilePath += toonFileName;
+		m_toonResources[i] = LoadTextureFromFile(toonFilePath, d3ddevice);
+
+		m_materials[i].indicesNum = pmdMaterials[i].indicesNum;
+		m_materials[i].material.diffuse = pmdMaterials[i].diffuse;
+		m_materials[i].material.alpha = pmdMaterials[i].alpha;
+		m_materials[i].material.specular = pmdMaterials[i].specular;
+		m_materials[i].material.specularity = pmdMaterials[i].specularity;
+		m_materials[i].material.ambient = pmdMaterials[i].ambient;
+
+		if (strlen(pmdMaterials[i].texFilePath) == 0)
+		{
+			m_textureResources[i] = nullptr;
+			continue;
+		}
+
+		std::string texFileName = pmdMaterials[i].texFilePath;
+		std::string sphFileName = "";
+		std::string spaFileName = "";
+		if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
+		{
+			auto namepair = SplitFileName(texFileName);
+			auto extension = GetExtension(namepair.first);
+			if (extension == "sph")
+			{
+				texFileName = namepair.second;
+				sphFileName = namepair.first;
+			}
+			else if (extension == "spa")
+			{
+				texFileName = namepair.second;
+				spaFileName = namepair.first;
+			}
+			else
+			{
+				texFileName = namepair.first;
+				extension = GetExtension(namepair.second);
+				if (extension == "sph")
+				{
+					sphFileName = namepair.second;
+				}
+				else if (extension == "spa")
+				{
+					spaFileName = namepair.second;
+				}
+			}
+		}
+		else
+		{
+			auto extension = GetExtension(texFileName);
+			if (extension == "sph")
+			{
+				sphFileName = texFileName;
+				texFileName = "";
+			}
+			else if (extension == "spa")
+			{
+				spaFileName = texFileName;
+				texFileName = "";
+			}
+		}
+
+		if (texFileName != "")
+		{
+			auto texFilePath = GetTexturePathFromModelAndTexPath(
+				_FileFullName, texFileName.c_str());
+			m_textureResources[i] = LoadTextureFromFile(texFilePath, d3ddevice);
+		}
+		if (sphFileName != "")
+		{
+			auto sphFilePath = GetTexturePathFromModelAndTexPath(
+				_FileFullName, sphFileName.c_str());
+			m_sphResources[i] = LoadTextureFromFile(sphFilePath, d3ddevice);
+		}
+		if (spaFileName != "")
+		{
+			auto spaFilePath = GetTexturePathFromModelAndTexPath(
+				_FileFullName, spaFileName.c_str());
+			m_spaResources[i] = LoadTextureFromFile(spaFilePath, d3ddevice);
+		}
+	}
+
+	//-----------material buff---------------------
+	auto materialBuffSize = sizeof(MaterialForHlsl);
+	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
+
+	auto materialResDesc = CD3DX12_RESOURCE_DESC::Buffer(materialBuffSize * materialNum);
+	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	HRESULT result = d3ddevice->CreateCommittedResource(
+		&heapTypeUpload,
+		D3D12_HEAP_FLAG_NONE,
+		&materialResDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(m_materialBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"Create material Resource fault.");
+		return -1;
+	}
+
+	char* mapMaterial = nullptr;
+	result = m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
+	for (auto& m : m_materials)
+	{
+		*((MaterialForHlsl*)mapMaterial) = m.material;
+		mapMaterial += materialBuffSize;
+	}
+	m_materialBuff->Unmap(0, nullptr);
+
+	D3D12_DESCRIPTOR_HEAP_DESC matHeapDesc = {};
+	matHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	matHeapDesc.NodeMask = 0;
+	matHeapDesc.NumDescriptors = materialNum * 5;
+	matHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+
+	result = d3ddevice->CreateDescriptorHeap(
+		&matHeapDesc, IID_PPV_ARGS(&m_materialDescHeap));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"Create material DescHeap fault.");
+		return -1;
+	}
+
+	//------------srv desc--------------
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	//------------cvb desc--------------
+	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
+	matCbvDesc.BufferLocation = m_materialBuff->GetGPUVirtualAddress();
+	matCbvDesc.SizeInBytes = materialBuffSize;
+
+	//------------cvb & srv view-------------
+	auto matDescHeapH = m_materialDescHeap->GetCPUDescriptorHandleForHeapStart();
+	auto inc = d3ddevice->
+		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+
+	auto whiteTex = D3DResourceManage::Instance().WhiteTexture;
+	if (whiteTex == nullptr)
+	{
+		whiteTex = CreateOneColorTexture(d3ddevice, 0xffffffff);
+		D3DResourceManage::Instance().WhiteTexture = whiteTex;
+	}
+	auto blackTex = D3DResourceManage::Instance().BlackTexture;
+	if (blackTex == nullptr)
+	{
+		blackTex = CreateOneColorTexture(d3ddevice, 0x000000ff);
+		D3DResourceManage::Instance().BlackTexture = blackTex;
+	}
+	auto gradTex = D3DResourceManage::Instance().GrayGradationTexture;
+	if (gradTex == nullptr)
+	{
+		gradTex = CreateGrayGradationTexture(d3ddevice);
+		D3DResourceManage::Instance().GrayGradationTexture = gradTex;
+	}
+
+
+	for (int i = 0; i < materialNum; i++)
+	{
+		d3ddevice->CreateConstantBufferView(&matCbvDesc, matDescHeapH);
+		matDescHeapH.ptr += inc;
+		matCbvDesc.BufferLocation += materialBuffSize;
+
+		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		if (m_textureResources[i] != nullptr)
+		{
+			srvDesc.Format = m_textureResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				m_textureResources[i],
+				&srvDesc,
+				matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = whiteTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				whiteTex,
+				&srvDesc,
+				matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+
+		if (m_sphResources[i] != nullptr)
+		{
+			srvDesc.Format = m_sphResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				m_sphResources[i],
+				&srvDesc,
+				matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = whiteTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				whiteTex,
+				&srvDesc,
+				matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+
+		if (m_spaResources[i] != nullptr)
+		{
+			srvDesc.Format = m_spaResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				m_spaResources[i],
+				&srvDesc,
+				matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = blackTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				blackTex,
+				&srvDesc,
+				matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+
+		if (m_toonResources[i] != nullptr)
+		{
+			srvDesc.Format = m_toonResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(m_toonResources[i], &srvDesc, matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = gradTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(gradTex, &srvDesc, matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+	}
+}

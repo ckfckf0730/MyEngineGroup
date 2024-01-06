@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Core\EngineObject.cs" />
     <Compile Include="Core\Prefab.cs" />
+    <Compile Include="Core\ResourceManager.cs" />
     <Compile Include="Core\SerializationToFileExample.cs" />
     <Compile Include="Editor\CkfEditorSystem.cs" />
     <Compile Include="Editor\CkfEditorUI.cs" />
