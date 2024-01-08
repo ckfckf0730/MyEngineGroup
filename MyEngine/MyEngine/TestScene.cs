@@ -14,7 +14,7 @@ namespace CkfEngine
     {
         private  Entity m_camera;
         private Entity m_role1;
-
+        private Entity m_testModel;
 
         private ulong m_model1;
         private float angle;
@@ -28,6 +28,11 @@ namespace CkfEngine
             var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
             renderer.SetPMDModel("Model/初音ミク.pmd");
             D3DAPICall.LoadAnimation(m_role1.Uid, "motion/motion.vmd");
+
+            m_testModel = Entity.CreateEntity("testModel");
+            var renderer2 = m_testModel.CreateComponent<ModelRenderer>();
+            renderer2.SetModel("Model/Cube.vd");
+
 
             CkfEditorSystem.Instance.SetEditorCamera(
                 new Vector3(0, 12, -20), new Vector3(0, 12, 0), new Vector3(0, 1, 0));

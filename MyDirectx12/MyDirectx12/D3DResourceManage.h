@@ -5,6 +5,7 @@
 #include"vector"
 
 class D3DCamera;
+class BasicModel;
 class PMDModel;
 class D3DDevice;
 class D3DPipeline;
@@ -29,8 +30,8 @@ public:
 
     std::map<unsigned long long, D3DCamera*> CameraTable;
     std::map<const char*, D3DPipeline*> PipelineTable;
-    std::map<const char*,std::vector<PMDModel*>*>* PipelineModelTable;     //key is pipeline name
-    std::map <unsigned long long, PMDModel*>* UidModelTable;     //key is uid
+    std::map<const char*,std::vector<BasicModel*>*>* PipelineModelTable;     //key is pipeline name
+    std::map <unsigned long long, BasicModel*>* UidModelTable;     //key is uid
     std::map<std::string, ID3D12Resource*> ResourceTable;
 
     ID3D12Resource* WhiteTexture;

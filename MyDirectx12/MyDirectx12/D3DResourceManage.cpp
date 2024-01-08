@@ -9,24 +9,24 @@ D3DResourceManage& D3DResourceManage::Instance()
 
 void D3DResourceManage::Init()
 {
-    PipelineModelTable = new std::map<const char*, std::vector<PMDModel*>*>();
-    UidModelTable = new std::map<unsigned long long, PMDModel*>();
+    PipelineModelTable = new std::map<const char*, std::vector<BasicModel*>*>();
+    UidModelTable = new std::map<unsigned long long, BasicModel*>();
 
     //creat default pmd pipelineTable
     auto pModelTable = D3DResourceManage::Instance().PipelineModelTable;
     auto iter = pModelTable->find("PmdStandard");
-    std::vector<PMDModel*>* pVector = nullptr;
+    std::vector<BasicModel*>* pVector = nullptr;
     if (iter == pModelTable->end())
     {
-        pVector = new std::vector<PMDModel*>();
-        pModelTable->insert(std::pair<const char*, std::vector<PMDModel*>*>("PmdStandard", pVector));
+        pVector = new std::vector<BasicModel*>();
+        pModelTable->insert(std::pair<const char*, std::vector<BasicModel*>*>("PmdStandard", pVector));
     }
     
     iter = pModelTable->find("NoboneStandard");
     if (iter == pModelTable->end())
     {
-        pVector = new std::vector<PMDModel*>();
-        pModelTable->insert(std::pair<const char*, std::vector<PMDModel*>*>("NoboneStandard", pVector));
+        pVector = new std::vector<BasicModel*>();
+        pModelTable->insert(std::pair<const char*, std::vector<BasicModel*>*>("NoboneStandard", pVector));
     }
 }
 

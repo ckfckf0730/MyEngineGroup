@@ -302,26 +302,10 @@ ID3D12Resource* CreateOneColorTexture(ID3D12Device* _d3dDevive, const uint32_t& 
 //	return -1;
 //}
 
-int PMDModel::SetBasic(D3DDevice* _cD3DDev, const char* _FileFullName)
-{
-	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
-
-	FILE* fp;
-	errno_t err = fopen_s(&fp, _FileFullName, "rb");
-	if (err != 0)
-	{
-		ShowMsgBox(L"error", L"Load basic model file fault.");
-		return -1;
-	}
-
-
-	UINT vertexCount;
-
-}
 
 int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 {
-	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+	auto d3ddevice = _cD3DDev->pD3D12Device;
 	struct PMDHeader
 	{
 		float version;
@@ -977,13 +961,12 @@ int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
 	m_ibView.SizeInBytes = indicesAllData_size;
 }
 	
-void BasicModel::InitMaterial()
+int BasicModel::InitMaterial()
 {
-	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+	auto _cD3DDev = D3DResourceManage::Instance().pGraphicsCard;
+	auto d3ddevice = _cD3DDev->pD3D12Device;
 
 	unsigned int materialNum = 1;
-
-	std::vector<PMDMaterial> pmdMaterials(materialNum);
 
 	m_textureResources.resize(materialNum);
 	m_sphResources.resize(materialNum);
@@ -993,90 +976,17 @@ void BasicModel::InitMaterial()
 	m_materials.resize(materialNum);
 	for (int i = 0; i < materialNum; i++)
 	{
-		std::string toonFilePath = "toon/";
-		char toonFileName[16];
-		sprintf_s(toonFileName, "toon%02d.bmp",
-			static_cast<unsigned char>(pmdMaterials[i].toonIdx + 1));
-		toonFilePath += toonFileName;
-		m_toonResources[i] = LoadTextureFromFile(toonFilePath, d3ddevice);
+		m_materials[i].indicesNum = m_indicesNum;
+		m_materials[i].material.diffuse = XMFLOAT3(1.0f,1.0f,1.0f);
+		m_materials[i].material.alpha = 1.0f;
+		m_materials[i].material.specular = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_materials[i].material.specularity = 0.5f;
+		m_materials[i].material.ambient = XMFLOAT3(0.2f, 0.2f, 0.2f);
 
-		m_materials[i].indicesNum = pmdMaterials[i].indicesNum;
-		m_materials[i].material.diffuse = pmdMaterials[i].diffuse;
-		m_materials[i].material.alpha = pmdMaterials[i].alpha;
-		m_materials[i].material.specular = pmdMaterials[i].specular;
-		m_materials[i].material.specularity = pmdMaterials[i].specularity;
-		m_materials[i].material.ambient = pmdMaterials[i].ambient;
-
-		if (strlen(pmdMaterials[i].texFilePath) == 0)
-		{
-			m_textureResources[i] = nullptr;
-			continue;
-		}
-
-		std::string texFileName = pmdMaterials[i].texFilePath;
-		std::string sphFileName = "";
-		std::string spaFileName = "";
-		if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
-		{
-			auto namepair = SplitFileName(texFileName);
-			auto extension = GetExtension(namepair.first);
-			if (extension == "sph")
-			{
-				texFileName = namepair.second;
-				sphFileName = namepair.first;
-			}
-			else if (extension == "spa")
-			{
-				texFileName = namepair.second;
-				spaFileName = namepair.first;
-			}
-			else
-			{
-				texFileName = namepair.first;
-				extension = GetExtension(namepair.second);
-				if (extension == "sph")
-				{
-					sphFileName = namepair.second;
-				}
-				else if (extension == "spa")
-				{
-					spaFileName = namepair.second;
-				}
-			}
-		}
-		else
-		{
-			auto extension = GetExtension(texFileName);
-			if (extension == "sph")
-			{
-				sphFileName = texFileName;
-				texFileName = "";
-			}
-			else if (extension == "spa")
-			{
-				spaFileName = texFileName;
-				texFileName = "";
-			}
-		}
-
-		if (texFileName != "")
-		{
-			auto texFilePath = GetTexturePathFromModelAndTexPath(
-				_FileFullName, texFileName.c_str());
-			m_textureResources[i] = LoadTextureFromFile(texFilePath, d3ddevice);
-		}
-		if (sphFileName != "")
-		{
-			auto sphFilePath = GetTexturePathFromModelAndTexPath(
-				_FileFullName, sphFileName.c_str());
-			m_sphResources[i] = LoadTextureFromFile(sphFilePath, d3ddevice);
-		}
-		if (spaFileName != "")
-		{
-			auto spaFilePath = GetTexturePathFromModelAndTexPath(
-				_FileFullName, spaFileName.c_str());
-			m_spaResources[i] = LoadTextureFromFile(spaFilePath, d3ddevice);
-		}
+		m_textureResources[i] = nullptr;
+		m_sphResources[i] = nullptr;
+		m_spaResources[i] = nullptr;
+		m_toonResources[i] = nullptr;
 	}
 
 	//-----------material buff---------------------
@@ -1231,5 +1141,64 @@ void BasicModel::InitMaterial()
 			d3ddevice->CreateShaderResourceView(gradTex, &srvDesc, matDescHeapH);
 		}
 		matDescHeapH.ptr += inc;
+
+		CreateTransformView(_cD3DDev);
 	}
+}
+
+int BasicModel::CreateTransformView(D3DDevice* _cD3DDev)
+{
+	auto buffSize = sizeof(Transform);
+	buffSize = (buffSize + 0xff) & ~0xff;
+
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(buffSize);
+
+	auto result = _cD3DDev->pD3D12Device->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&m_transformConstBuff));
+	if (FAILED(result))
+	{
+		PrintDebug("Create Transform const buff fault.");
+		return -1;
+	}
+
+	result = m_transformConstBuff->Map(0, nullptr, (void**)&m_mapMatrices);
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"Map transform const buff fault.");
+		return -1;
+	}
+
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDesc.NodeMask = 0;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+
+	result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
+		&heapDesc, IID_PPV_ARGS(&m_transformDescHeap));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"Create transform const heap fault.");
+		return -1;
+	}
+
+	auto heapHandle = m_transformDescHeap->GetCPUDescriptorHandleForHeapStart();
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = m_transformConstBuff->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = m_transformConstBuff->GetDesc().Width;
+
+	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbvDesc, heapHandle);
+
+
+	m_transform.world = XMMatrixIdentity();
+	*m_mapMatrices = m_transform.world;
+
+	return 1;
 }

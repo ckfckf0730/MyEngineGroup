@@ -77,9 +77,9 @@ int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const ch
 	
 	auto iter = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
 
-	iter->second->push_back(verRes);
+	iter->second->push_back(static_cast<BasicModel*>(verRes));
 	D3DResourceManage::Instance().UidModelTable->insert(
-		pair<unsigned long long, PMDModel*>(_uid, verRes));
+		pair<unsigned long long, BasicModel*>(_uid, verRes));
 
 	return result;
 }
@@ -95,8 +95,9 @@ extern"C"
 
 int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName)
 {
-	PMDModel* verRes = new PMDModel();
-	int result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
+	BasicModel* verRes = new BasicModel();
+	int result = verRes->SetBasicModel(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
+	verRes->InitMaterial();
 	if (result < 1)
 	{
 		return result;
@@ -111,7 +112,7 @@ int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const
 
 	iter->second->push_back(verRes);
 	D3DResourceManage::Instance().UidModelTable->insert(
-		pair<unsigned long long, PMDModel*>(_uid, verRes));
+		pair<unsigned long long, BasicModel*>(_uid, verRes));
 
 	return result;
 }
@@ -155,7 +156,7 @@ void __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, cons
 		PrintDebug("LoadAnimation fault, can't find Entity.");
 		return;
 	}
-	iter->second->LoadAnimation(path);
+	static_cast<PMDModel*>(iter->second)->LoadAnimation(path);
 }
 
 //Update Animation
@@ -176,7 +177,7 @@ void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 		PrintDebug("LoadAnimation fault, can't find Entity.");
 		return;
 	}
-	iter->second->UpdateAnimation();
+	static_cast<PMDModel*>(iter->second)->UpdateAnimation();
 }
 
 #pragma endregion

@@ -180,4 +180,48 @@ namespace CkfEngine
 
 
     }
+
+
+    public class ModelRenderer : Component
+    {
+        private FileLoad m_file;
+        public FileLoad File
+        { get { return m_file; } }
+
+        private bool m_isLoaded;
+
+        protected override void OnCreated()
+        {
+            m_isLoaded = false;
+            m_file = new FileLoad();
+            m_file.OnChenged += SetModel;
+        }
+
+        private void SetModel()
+        {
+            if (m_isLoaded)
+            {
+                //remove currently model
+
+
+                m_isLoaded = false;
+            }
+
+
+            var result = D3DAPICall.SetBasicModel(OwnerEntity.Uid, m_file.FullPath);
+            if (result == 1)
+            {
+                m_isLoaded = true;
+            }
+
+            OwnerEntity.Transform.EffectiveTransform();
+        }
+
+        public void SetModel(string path)
+        {
+            m_file.FullPath = path;
+        }
+
+
+    }
 }
