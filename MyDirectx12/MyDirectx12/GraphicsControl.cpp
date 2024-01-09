@@ -360,10 +360,10 @@ extern"C"
 void __declspec(dllexport) __stdcall SetCameraTransform(
 	DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up)
 {
-	auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
-	if (iter != D3DResourceManage::Instance().PipelineTable.end())
+	//auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
+	for (const auto& iter : D3DResourceManage::Instance().PipelineTable)
 	{
-		iter->second->SetCameraTransform(eye, target, up);
+		iter.second->SetCameraTransform(eye, target, up);
 	}
 }
 
@@ -380,10 +380,14 @@ extern"C"
 #endif
 void __declspec(dllexport) __stdcall SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ,float Far)
 {
-	auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
+	/*auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
 	if (iter != D3DResourceManage::Instance().PipelineTable.end())
 	{
 		iter->second->SetCameraProjection(FovAngleY, AspectRatio, NearZ, Far);
+	}*/
+	for (const auto& iter : D3DResourceManage::Instance().PipelineTable)
+	{
+		iter.second->SetCameraProjection(FovAngleY, AspectRatio, NearZ, Far);
 	}
 }
 

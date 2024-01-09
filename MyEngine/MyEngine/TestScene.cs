@@ -36,10 +36,12 @@ namespace CkfEngine
             m_testModel = Entity.CreateEntity("testModel2");
             var renderer3 = m_testModel.CreateComponent<ModelRenderer>();
             renderer3.SetModel("Model/Cube.vd");
+            m_testModel.Transform.Translation = new Vector3(0, 3, 0);
 
 
             CkfEditorSystem.Instance.SetEditorCamera(
                 new Vector3(0, 12, -20), new Vector3(0, 12, 0), new Vector3(0, 1, 0));
+
 
             Prefab.ReadPrefabFile("role1.prefab");
 
