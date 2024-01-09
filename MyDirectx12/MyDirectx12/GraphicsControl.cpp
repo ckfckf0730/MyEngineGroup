@@ -63,23 +63,46 @@ extern"C"
 
 int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName)
 {
-	PMDModel* verRes = new PMDModel();
-	int result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
-	if (result < 1)
+	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+	PMDModel* verRes = nullptr;
+	int result = -1;
+	if (iter == BasicModel::s_modelTable.end())
 	{
-		return result;
+		//------------create model from file------------------------
+		verRes = new PMDModel();
+		result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
+		if (result < 1)
+		{
+			return result;
+		}
+
+		if (result < 1)
+		{
+			return result;
+		}
+
+		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
+
+		iter2->second->push_back(static_cast<BasicModel*>(verRes));
+	}
+	else
+	{
+		verRes = static_cast<PMDModel*>(iter->second);
+		result = 1;
+		ShowMsgBox(L"error", L"find exist model.");
 	}
 
-	if (result < 1)
-	{
-		return result;
-	}
 	
-	auto iter = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
 
-	iter->second->push_back(static_cast<BasicModel*>(verRes));
-	D3DResourceManage::Instance().UidModelTable->insert(
-		pair<unsigned long long, BasicModel*>(_uid, verRes));
+	//------------create instance------------
+	PMDModelInstance* instance = new PMDModelInstance();
+	instance->m_model = verRes;
+	instance->BindAnimation(verRes->m_animation);
+	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
+
+	verRes->m_instances.push_back(static_cast<ModelInstance*>(instance));
+	ModelInstance::s_uidModelTable.insert(
+		pair<unsigned long long, ModelInstance*>(_uid, static_cast<ModelInstance*>(instance)));
 
 	return result;
 }
@@ -95,24 +118,43 @@ extern"C"
 
 int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName)
 {
-	BasicModel* verRes = new BasicModel();
-	int result = verRes->SetBasicModel(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
-	verRes->InitMaterial();
-	if (result < 1)
+	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+	BasicModel* verRes = nullptr;
+	int result = -1;
+	if (iter == BasicModel::s_modelTable.end())
 	{
-		return result;
+		//------------create model from file------------------------
+		verRes = new BasicModel();
+		int result = verRes->SetBasicModel(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
+		verRes->InitMaterial();
+		if (result < 1)
+		{
+			return result;
+		}
+
+		if (result < 1)
+		{
+			return result;
+		}
+
+		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("NoboneStandard");
+		iter2->second->push_back(verRes);
+	}
+	else
+	{
+		verRes = iter->second;
+		result = 1;
+		ShowMsgBox(L"error", L"find exist model.");
 	}
 
-	if (result < 1)
-	{
-		return result;
-	}
+	//------------create instance------------
+	ModelInstance* instance = new ModelInstance();
+	instance->m_model = verRes;
+	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
 
-	auto iter = D3DResourceManage::Instance().PipelineModelTable->find("NoboneStandard");
-
-	iter->second->push_back(verRes);
-	D3DResourceManage::Instance().UidModelTable->insert(
-		pair<unsigned long long, BasicModel*>(_uid, verRes));
+	verRes->m_instances.push_back(instance);
+	ModelInstance::s_uidModelTable.insert(
+		pair<unsigned long long, ModelInstance*>(_uid, instance));
 
 	return result;
 }
@@ -129,8 +171,8 @@ void __declspec(dllexport) __stdcall SetModelTransform(unsigned long long _uid, 
 
 void __declspec(dllexport) __stdcall SetModelTransform(unsigned long long _uid, DirectX::XMMATRIX matrix)
 {
-	auto iter = D3DResourceManage::Instance().UidModelTable->find(_uid);
-	if (iter == D3DResourceManage::Instance().UidModelTable->end())
+	auto iter = ModelInstance::s_uidModelTable.find(_uid);
+	if (iter == ModelInstance::s_uidModelTable.end())
 	{
 		PrintDebug("SetModelTransform fault, can't find Entity.");
 		return;
@@ -150,13 +192,16 @@ extern"C"
 
 void __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const char* path)
 {
-	auto iter = D3DResourceManage::Instance().UidModelTable->find(_uid);
-	if (iter == D3DResourceManage::Instance().UidModelTable->end())
+	auto iter = ModelInstance::s_uidModelTable.find(_uid);
+	if (iter == ModelInstance::s_uidModelTable.end())
 	{
 		PrintDebug("LoadAnimation fault, can't find Entity.");
 		return;
 	}
-	static_cast<PMDModel*>(iter->second)->LoadAnimation(path);
+	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
+	pInstance->m_animation->LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
+	pInstance->m_animation->StartAnimation();
+	//static_cast<PMDModel*>(iter->second)->LoadAnimation(path);
 }
 
 //Update Animation
@@ -171,13 +216,14 @@ extern"C"
 
 void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 {
-	auto iter = D3DResourceManage::Instance().UidModelTable->find(_uid);
-	if (iter == D3DResourceManage::Instance().UidModelTable->end())
+	auto iter = ModelInstance::s_uidModelTable.find(_uid);
+	if (iter == ModelInstance::s_uidModelTable.end())
 	{
 		PrintDebug("LoadAnimation fault, can't find Entity.");
 		return;
 	}
-	static_cast<PMDModel*>(iter->second)->UpdateAnimation();
+	static_cast<PMDModelInstance*>(iter->second)->m_animation->UpdateAnimation();
+	//static_cast<PMDModel*>(iter->second)->UpdateAnimation();
 }
 
 #pragma endregion

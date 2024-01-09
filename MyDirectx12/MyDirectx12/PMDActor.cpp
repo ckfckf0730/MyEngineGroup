@@ -3,7 +3,8 @@
 #include <sstream>
 using namespace DirectX;
 
-
+std::map<std::string, BasicModel*> BasicModel::s_modelTable;
+std::map <unsigned long long, ModelInstance*> ModelInstance::s_uidModelTable;     //key is uid
 
 std::string GetTexturePathFromModelAndTexPath(const std::string& modelPath, const char* texPath)
 {
@@ -739,8 +740,6 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 	}
 	
 
-	CreateTransformView(_cD3DDev);
-
 	return 1;
 }
 
@@ -791,8 +790,12 @@ int PMDModel::SetBone()
 	return 1;
 }
 
+void PMDModelInstance::BindAnimation(D3DAnimation* bindAnimation)
+{
+	m_animation = bindAnimation;
+}
 
-int PMDModel::CreateTransformView(D3DDevice* _cD3DDev)
+int PMDModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 {
 	auto buffSize = sizeof(Transform) * (1 + m_animation->m_boneMatrices.size());
 	buffSize = (buffSize + 0xff) & ~0xff;
@@ -1141,12 +1144,10 @@ int BasicModel::InitMaterial()
 			d3ddevice->CreateShaderResourceView(gradTex, &srvDesc, matDescHeapH);
 		}
 		matDescHeapH.ptr += inc;
-
-		CreateTransformView(_cD3DDev);
 	}
 }
 
-int BasicModel::CreateTransformView(D3DDevice* _cD3DDev)
+int ModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 {
 	auto buffSize = sizeof(Transform);
 	buffSize = (buffSize + 0xff) & ~0xff;

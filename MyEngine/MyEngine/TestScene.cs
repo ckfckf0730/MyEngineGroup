@@ -33,6 +33,10 @@ namespace CkfEngine
             var renderer2 = m_testModel.CreateComponent<ModelRenderer>();
             renderer2.SetModel("Model/Cube.vd");
 
+            m_testModel = Entity.CreateEntity("testModel2");
+            var renderer3 = m_testModel.CreateComponent<ModelRenderer>();
+            renderer3.SetModel("Model/Cube.vd");
+
 
             CkfEditorSystem.Instance.SetEditorCamera(
                 new Vector3(0, 12, -20), new Vector3(0, 12, 0), new Vector3(0, 1, 0));

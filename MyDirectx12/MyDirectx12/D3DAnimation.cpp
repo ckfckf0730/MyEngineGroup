@@ -203,7 +203,11 @@ void D3DAnimation::UpdateAnimation()
 
 	IKSolve(frameNo);
 
-	std::copy(m_boneMatrices.begin(), m_boneMatrices.end(), m_owner->m_mapMatrices + 1);
+	for (auto& instance : m_owner->m_instances)
+	{
+		std::copy(m_boneMatrices.begin(), m_boneMatrices.end(), instance->m_mapMatrices + 1);
+	}
+
 }
 
 

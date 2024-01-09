@@ -346,36 +346,41 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 
 	for (auto& vertices : *models)
 	{
-		
-		vertices->m_mapMatrices[0] = vertices->m_transform.world;
-
-		_cmdList->IASetVertexBuffers(0, 1, &vertices->m_vbView);
-		_cmdList->IASetIndexBuffer(&vertices->m_ibView);
-
-		//--------------set const buff and texture buff heap-------
-		_cmdList->SetDescriptorHeaps(1, &m_sceneDescHeap);
-		_cmdList->SetGraphicsRootDescriptorTable(0,
-			m_sceneDescHeap->GetGPUDescriptorHandleForHeapStart());
-
-		_cmdList->SetDescriptorHeaps(1, &vertices->m_transformDescHeap);
-		_cmdList->SetGraphicsRootDescriptorTable(1,
-			vertices->m_transformDescHeap->GetGPUDescriptorHandleForHeapStart());
-
-		_cmdList->SetDescriptorHeaps(1, &vertices->m_materialDescHeap);
-		auto cbvsrvIncSize = d3ddevice->
-			GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 5;
-		auto materialH = vertices->m_materialDescHeap->GetGPUDescriptorHandleForHeapStart();
-		unsigned int idxOffset = 0;
-
-		for (auto& m : vertices->m_materials)
+		for (auto& instance : vertices->m_instances)
 		{
-			_cmdList->SetGraphicsRootDescriptorTable(2, materialH);
+			instance->m_mapMatrices[0] = instance->m_transform.world;
 
-			_cmdList->DrawIndexedInstanced(m.indicesNum, 1, idxOffset, 0, 0);
+			_cmdList->IASetVertexBuffers(0, 1, &vertices->m_vbView);
+			_cmdList->IASetIndexBuffer(&vertices->m_ibView);
 
-			materialH.ptr += cbvsrvIncSize;
-			idxOffset += m.indicesNum;
+			//--------------set const buff and texture buff heap-------
+			_cmdList->SetDescriptorHeaps(1, &m_sceneDescHeap);
+			_cmdList->SetGraphicsRootDescriptorTable(0,
+				m_sceneDescHeap->GetGPUDescriptorHandleForHeapStart());
+
+			_cmdList->SetDescriptorHeaps(1, &instance->m_transformDescHeap);
+			_cmdList->SetGraphicsRootDescriptorTable(1,
+				instance->m_transformDescHeap->GetGPUDescriptorHandleForHeapStart());
+
+			_cmdList->SetDescriptorHeaps(1, &vertices->m_materialDescHeap);
+			auto cbvsrvIncSize = d3ddevice->
+				GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 5;
+			auto materialH = vertices->m_materialDescHeap->GetGPUDescriptorHandleForHeapStart();
+			unsigned int idxOffset = 0;
+
+			for (auto& m : vertices->m_materials)
+			{
+				_cmdList->SetGraphicsRootDescriptorTable(2, materialH);
+
+				_cmdList->DrawIndexedInstanced(m.indicesNum, 1, idxOffset, 0, 0);
+
+				materialH.ptr += cbvsrvIncSize;
+				idxOffset += m.indicesNum;
+			}
 		}
+
+
+		
 	}
 
 

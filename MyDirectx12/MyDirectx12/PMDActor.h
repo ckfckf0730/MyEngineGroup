@@ -208,11 +208,13 @@ public:
 	void RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat);
 };
 
-
+class ModelInstance;
 
 class BasicModel
 {
 public:
+
+	static std::map<std::string, BasicModel*> s_modelTable;
 
 	D3D12_VERTEX_BUFFER_VIEW m_vbView = {};
 	D3D12_INDEX_BUFFER_VIEW m_ibView = {};
@@ -223,25 +225,18 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_idxBuff = nullptr;
 
-	ID3D12DescriptorHeap* m_transformDescHeap = nullptr;
-	ID3D12Resource* m_transformConstBuff = nullptr;
-	Transform m_transform;
-	DirectX::XMMATRIX* m_mapMatrices = nullptr;
-
 	std::vector<Material> m_materials;
-
 
 	std::vector<ID3D12Resource*> m_textureResources;
 	std::vector<ID3D12Resource*> m_toonResources;
 	std::vector<ID3D12Resource*> m_sphResources;
 	std::vector<ID3D12Resource*> m_spaResources;
 
-
+	std::vector<ModelInstance*> m_instances;
 
 public:
 	//int SetVertex(D3DDevice* _cD3DDev, Vertex* vertices, int verNum, unsigned short* indices, int indexNum);
 	int SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName);
-	virtual int CreateTransformView(D3DDevice* _cD3DDev);
 
 public:
 	int InitMaterial();
@@ -259,12 +254,36 @@ public:
 	//int SetVertex(D3DDevice* _cD3DDev, Vertex* vertices, int verNum, unsigned short* indices, int indexNum);
 	int SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName);
 	int SetBone();
-	int CreateTransformView(D3DDevice* _cD3DDev);
 
 	void LoadAnimation(const char* path);
 	void UpdateAnimation();
 
 
+};
+
+class ModelInstance
+{
+public:
+	BasicModel* m_model;
+
+	static std::map <unsigned long long, ModelInstance*> s_uidModelTable;     //key is uid
+
+	ID3D12DescriptorHeap* m_transformDescHeap = nullptr;
+	ID3D12Resource* m_transformConstBuff = nullptr;
+	Transform m_transform;
+	DirectX::XMMATRIX* m_mapMatrices = nullptr;
+
+
+	virtual int CreateTransformView(D3DDevice* _cD3DDev);
+};
+
+class PMDModelInstance : public ModelInstance
+{
+public:
+	D3DAnimation* m_animation;
+
+	void BindAnimation(D3DAnimation* bindAnimation);
+	int CreateTransformView(D3DDevice* _cD3DDev);
 };
 
 namespace
