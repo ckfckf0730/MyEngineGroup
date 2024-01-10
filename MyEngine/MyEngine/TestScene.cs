@@ -43,10 +43,11 @@ namespace CkfEngine
                 new Vector3(0, 12, -20), new Vector3(0, 12, 0), new Vector3(0, 1, 0));
 
 
-            Prefab.ReadPrefabFile("role1.prefab");
+            var role2 = Prefab.ReadPrefabFile("role1.prefab");
+            role2.Transform.Translation = new Vector3(10, 0, 0);
 
-            //var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
-            //renderer.File = "Model/初音ミク.pmd";
+            renderer = role2.GetComponent<ModelBoneRenderer>();
+            renderer?.SetPMDModel("Model/初音ミク.pmd");
 
             //m_model1 = UID.GetUID();
             //if (D3DAPICall.SetModel(m_model1, "Model/初音ミク.pmd") < 1)

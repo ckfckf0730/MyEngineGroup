@@ -6,16 +6,26 @@ using namespace DirectX;
 
 constexpr float epsilon = 0.0005f;
 
-int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
+D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 {
-	m_owner = owner;
+	auto iter = D3DResourceManage::Instance().AnimationTable.find(fullFilePath);
+	if (iter != D3DResourceManage::Instance().AnimationTable.end())
+	{
+		return iter->second;
+	}
+
 	FILE* fp;
 	errno_t err = fopen_s(&fp, fullFilePath, "rb");
 	if (err != 0)
 	{
 		PrintDebug(L"Load VMD motion file fault.");
-		return -1;
+		return nullptr;
 	}
+
+	D3DAnimation* animation = new D3DAnimation();
+	animation->m_owner = owner;
+	D3DResourceManage::Instance().AnimationTable.insert(
+		std::pair<const char*, D3DAnimation*>(fullFilePath, animation));
 
 	fseek(fp, 50, SEEK_SET);
 
@@ -35,32 +45,32 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 	//-----------morph data----------------
 	uint32_t morphCount = 0;
 	fread(&morphCount, sizeof(morphCount), 1, fp);
-	m_morphs.resize(morphCount);
-	fread(m_morphs.data(), sizeof(VMDMorph), morphCount, fp);
+	animation->m_morphs.resize(morphCount);
+	fread(animation->m_morphs.data(), sizeof(VMDMorph), morphCount, fp);
 
 	//-----------camera animation data----------------
 	uint32_t vmdCameraCount = 0;
 	fread(&vmdCameraCount, sizeof(vmdCameraCount), 1, fp);
-	m_cameraData.resize(vmdCameraCount);
-	fread(m_cameraData.data(), sizeof(VMDCamera), vmdCameraCount, fp);
+	animation->m_cameraData.resize(vmdCameraCount);
+	fread(animation->m_cameraData.data(), sizeof(VMDCamera), vmdCameraCount, fp);
 
 	//-----------light data----------------
 	uint32_t vmdLightCount = 0;
 	fread(&vmdLightCount, sizeof(vmdLightCount), 1, fp);
-	m_lights.resize(vmdLightCount);
-	fread(m_lights.data(), sizeof(VMDLight), vmdLightCount, fp);
+	animation->m_lights.resize(vmdLightCount);
+	fread(animation->m_lights.data(), sizeof(VMDLight), vmdLightCount, fp);
 	
 	//-----------self shadow data----------------
 	uint32_t selfShadowCount = 0;
 	fread(&selfShadowCount, sizeof(selfShadowCount), 1, fp);
-	m_selfShadowData.resize(selfShadowCount);
-	fread(m_selfShadowData.data(), sizeof(VMDSelfShadow), selfShadowCount, fp);
+	animation->m_selfShadowData.resize(selfShadowCount);
+	fread(animation->m_selfShadowData.data(), sizeof(VMDSelfShadow), selfShadowCount, fp);
 
 	//-----------IK enable data----------------
 	uint32_t ikSwitchCount = 0;
 	fread(&ikSwitchCount, sizeof(ikSwitchCount), 1, fp);
-	m_ikEnableData.resize(ikSwitchCount);
-	for (auto& ikEnable : m_ikEnableData)
+	animation->m_ikEnableData.resize(ikSwitchCount);
+	for (auto& ikEnable : animation->m_ikEnableData)
 	{
 		fread(&ikEnable.frameNo, sizeof(ikEnable.frameNo), 1, fp);
 
@@ -87,15 +97,15 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 	for (auto& vmdMotion : vmdMotionData)
 	{
 		auto quaternion = XMLoadFloat4(&vmdMotion.quaternion);
-		m_motionData[vmdMotion.boneName].emplace_back(
+		animation->m_motionData[vmdMotion.boneName].emplace_back(
 			KeyFrame(vmdMotion.frameNo, 
 				quaternion, vmdMotion.location,
 				XMFLOAT2((float)vmdMotion.bezier[3]/127.0f, (float)vmdMotion.bezier[7]/127.0f),
 				XMFLOAT2((float)vmdMotion.bezier[11] / 127.0f, (float)vmdMotion.bezier[15] / 127.0f)));
-		m_duration = std::max<unsigned int>(m_duration, vmdMotion.frameNo);
+		animation->m_duration = std::max<unsigned int>(animation->m_duration, vmdMotion.frameNo);
 	}
 
-	for (auto& motion : m_motionData)
+	for (auto& motion : animation->m_motionData)
 	{
 		std::sort(motion.second.begin(), motion.second.end(),
 			[](const KeyFrame& lval, const KeyFrame& rval)
@@ -104,7 +114,7 @@ int D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
 			});
 	}
 
-	return 1;
+	return animation;
 }
 
 void D3DAnimation::StartAnimation()
@@ -154,13 +164,13 @@ void D3DAnimation::UpdateAnimation()
 		frameNo = 0;
 	}
 
-	std::fill(m_boneMatrices.begin(),
-		m_boneMatrices.end(), XMMatrixIdentity());
+	std::fill(m_owner->m_boneMatrices.begin(),
+		m_owner->m_boneMatrices.end(), XMMatrixIdentity());
 
 	for (auto& boneMotion : m_motionData)
 	{
-		auto nodeIter = m_boneNodeTable.find(boneMotion.first);
-		if (nodeIter == m_boneNodeTable.end())
+		auto nodeIter = m_owner->m_boneNodeTable.find(boneMotion.first);
+		if (nodeIter == m_owner->m_boneNodeTable.end())
 		{
 			/*PrintDebug("Can't find bone name:");
 			PrintDebug(boneMotion.first.c_str());*/
@@ -196,21 +206,26 @@ void D3DAnimation::UpdateAnimation()
 		auto mat = XMMatrixTranslation(-pos.x, -pos.y, -pos.z) *
 			rotation *
 			XMMatrixTranslation(pos.x, pos.y, pos.z);
-		m_boneMatrices[nodeIter->second.boneIdx] = mat;
+		m_owner->m_boneMatrices[nodeIter->second.boneIdx] = mat;
 	}
 	RecursiveMatrixMultiply(
-		&m_boneNodeTable[m_rootNodeStr], XMMatrixIdentity());
+		&m_owner->m_boneNodeTable[m_owner->m_rootNodeStr], XMMatrixIdentity());
 
 	IKSolve(frameNo);
 
 	for (auto& instance : m_owner->m_instances)
 	{
-		std::copy(m_boneMatrices.begin(), m_boneMatrices.end(), instance->m_mapMatrices + 1);
+		std::copy(m_owner->m_boneMatrices.begin(), m_owner->m_boneMatrices.end(), instance->m_mapMatrices + 1);
 	}
 
 }
 
-
+//"motion/pose.vmd"
+void D3DAnimation::LoadAnimation(const char* path, PMDModel* owner)
+{
+	LoadVMDFile(path, owner);
+	StartAnimation();
+}
 
 void D3DAnimation::IKSolve(int frameNo) 
 {
@@ -220,9 +235,9 @@ void D3DAnimation::IKSolve(int frameNo)
 			return ikenable.frameNo <= frameNo;
 		});
 
-	for (auto& ik : m_ikData)
+	for (auto& ik : m_owner->m_ikData)
 	{
-		auto ikEnableIt = it->ikEnableTable.find(m_boneNameArr[ik.boneIdx]);
+		auto ikEnableIt = it->ikEnableTable.find(m_owner->m_boneNameArr[ik.boneIdx]);
 		if (ikEnableIt != it->ikEnableTable.end())
 		{
 			if (!ikEnableIt->second)
@@ -281,16 +296,16 @@ XMMATRIX LookAtMatrix(const XMVECTOR& origin, const XMVECTOR& lookat,
 
 void D3DAnimation::SolveLookAt(const PMDIK& ik)
 {
-	auto rootNode = m_boneNodeAddressArr[ik.nodeIdxes[0]];
-	auto targetNode = m_boneNodeAddressArr[ik.targetIdx];
+	auto rootNode = m_owner->m_boneNodeAddressArr[ik.nodeIdxes[0]];
+	auto targetNode = m_owner->m_boneNodeAddressArr[ik.targetIdx];
 	
 	auto rpos1 = XMLoadFloat3(&rootNode->startPos);
 	auto tpos1 = XMLoadFloat3(&targetNode->startPos);
 
 	auto rpos2 = XMVector3TransformCoord(
-		rpos1,m_boneMatrices[ik.nodeIdxes[0]]);
+		rpos1, m_owner->m_boneMatrices[ik.nodeIdxes[0]]);
 	auto tpos2 = XMVector3TransformCoord(
-		tpos1, m_boneMatrices[ik.boneIdx]);
+		tpos1, m_owner->m_boneMatrices[ik.boneIdx]);
 
 	auto originVec = XMVectorSubtract(tpos1, rpos1);
 	auto targetVec = XMVectorSubtract(tpos2, rpos2);
@@ -300,7 +315,7 @@ void D3DAnimation::SolveLookAt(const PMDIK& ik)
 
 	auto up = XMFLOAT3(0, 1, 0);
 	auto right = XMFLOAT3(1, 0, 0);
-	m_boneMatrices[ik.nodeIdxes[0]] = LookAtMatrix(
+	m_owner->m_boneMatrices[ik.nodeIdxes[0]] = LookAtMatrix(
 		originVec, targetVec, up, right);
 }
 
@@ -311,16 +326,16 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 
 	std::array<float, 2> edgeLens;
 
-	auto& targetNode = m_boneNodeAddressArr[ik.boneIdx];
+	auto& targetNode = m_owner->m_boneNodeAddressArr[ik.boneIdx];
 	auto targetPos = XMVector3Transform(XMLoadFloat3(&targetNode->startPos),
-		m_boneMatrices[ik.boneIdx]);
+		m_owner->m_boneMatrices[ik.boneIdx]);
 
-	auto endNode = m_boneNodeAddressArr[ik.boneIdx];
+	auto endNode = m_owner->m_boneNodeAddressArr[ik.boneIdx];
 	positions.emplace_back(XMLoadFloat3(&endNode->startPos));
 
 	for (auto& chainBoneIdx : ik.nodeIdxes)
 	{
-		auto boneNode = m_boneNodeAddressArr[chainBoneIdx];
+		auto boneNode = m_owner->m_boneNodeAddressArr[chainBoneIdx];
 		positions.emplace_back(XMLoadFloat3(&boneNode->startPos));
 	}
 
@@ -331,9 +346,9 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 	edgeLens[1] = XMVector3Length(
 		XMVectorSubtract(positions[2], positions[1])).m128_f32[0];
 
-	positions[0] = XMVector3Transform(positions[0], m_boneMatrices[ik.nodeIdxes[1]]);
+	positions[0] = XMVector3Transform(positions[0], m_owner->m_boneMatrices[ik.nodeIdxes[1]]);
 
-	positions[2] = XMVector3Transform(positions[2], m_boneMatrices[ik.boneIdx]);
+	positions[2] = XMVector3Transform(positions[2], m_owner->m_boneMatrices[ik.boneIdx]);
 
 	auto linearVec = XMVectorSubtract(positions[2], positions[0]);
 
@@ -348,8 +363,8 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 
 	//get the axis, if there is a knee in nodes, then get a fixed axis
 	XMVECTOR axis;
-	if (std::find(m_kneeIdxes.begin(), m_kneeIdxes.end(), ik.nodeIdxes[0]) 
-		== m_kneeIdxes.end())             //can't find knee node in ik node list
+	if (std::find(m_owner->m_kneeIdxes.begin(), m_owner->m_kneeIdxes.end(), ik.nodeIdxes[0])
+		== m_owner->m_kneeIdxes.end())             //can't find knee node in ik node list
 	{
 		auto vm = XMVector3Normalize(
 			XMVectorSubtract(positions[2], positions[0]));
@@ -371,32 +386,32 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 	mat2 *= XMMatrixRotationAxis(axis, theta2 - XM_PI);
 	mat2 *= XMMatrixTranslationFromVector(positions[1]);
 
-	m_boneMatrices[ik.nodeIdxes[1]] *= mat1;
-	m_boneMatrices[ik.nodeIdxes[0]] = mat2 * m_boneMatrices[ik.nodeIdxes[1]];
-	m_boneMatrices[ik.targetIdx] = m_boneMatrices[ik.nodeIdxes[0]];
+	m_owner->m_boneMatrices[ik.nodeIdxes[1]] *= mat1;
+	m_owner->m_boneMatrices[ik.nodeIdxes[0]] = mat2 * m_owner->m_boneMatrices[ik.nodeIdxes[1]];
+	m_owner->m_boneMatrices[ik.targetIdx] = m_owner->m_boneMatrices[ik.nodeIdxes[0]];
 }
 
 void D3DAnimation::SolveCCDIK(const PMDIK& ik)
 {
 	std::vector<XMVECTOR> positions;
 
-	auto targetBoneNode = m_boneNodeAddressArr[ik.boneIdx];
+	auto targetBoneNode = m_owner->m_boneNodeAddressArr[ik.boneIdx];
 	auto targetOriginPos = XMLoadFloat3(&targetBoneNode->startPos);
 
-	auto parentMat = m_boneMatrices[m_boneNodeAddressArr[ik.boneIdx]->ikParentBone];
+	auto parentMat = m_owner->m_boneMatrices[m_owner->m_boneNodeAddressArr[ik.boneIdx]->ikParentBone];
 	XMVECTOR det;
 	auto invPatrentMat = XMMatrixInverse(&det, parentMat);
 	auto targetNextPos = XMVector3Transform(
-		targetOriginPos, m_boneMatrices[ik.boneIdx] * invPatrentMat);
+		targetOriginPos, m_owner->m_boneMatrices[ik.boneIdx] * invPatrentMat);
 
 	std::vector<XMVECTOR> bonePositions;
 	auto endPos = XMLoadFloat3(
-		&m_boneNodeAddressArr[ik.targetIdx]->startPos);
+		&m_owner->m_boneNodeAddressArr[ik.targetIdx]->startPos);
 
 	for (auto& cidx : ik.nodeIdxes)
 	{
 		bonePositions.push_back(
-			XMLoadFloat3(&m_boneNodeAddressArr[cidx]->startPos));
+			XMLoadFloat3(&m_owner->m_boneNodeAddressArr[cidx]->startPos));
 	}
 
 	std::vector<XMMATRIX> mats(bonePositions.size());
@@ -460,21 +475,21 @@ void D3DAnimation::SolveCCDIK(const PMDIK& ik)
 	int idx = 0;
 	for (auto& cidx : ik.nodeIdxes)
 	{
-		m_boneMatrices[cidx] = mats[idx];
+		m_owner->m_boneMatrices[cidx] = mats[idx];
 		idx++;
 	}
 
-	auto rootNode = m_boneNodeAddressArr[ik.nodeIdxes.back()];
+	auto rootNode = m_owner->m_boneNodeAddressArr[ik.nodeIdxes.back()];
 	RecursiveMatrixMultiply(rootNode, parentMat);
 
 }
 
 void D3DAnimation::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat)
 {
-	m_boneMatrices[node->boneIdx] *= mat;
+	m_owner->m_boneMatrices[node->boneIdx] *= mat;
 	for (auto& cnode : node->children)
 	{
-		RecursiveMatrixMultiply(cnode, m_boneMatrices[node->boneIdx]);
+		RecursiveMatrixMultiply(cnode, m_owner->m_boneMatrices[node->boneIdx]);
 	}
 }
 

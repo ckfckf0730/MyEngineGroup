@@ -9,7 +9,7 @@ class BasicModel;
 class PMDModel;
 class D3DDevice;
 class D3DPipeline;
-
+class D3DAnimation;
 
 class D3DResourceManage
 {
@@ -31,6 +31,7 @@ public:
     std::map<unsigned long long, D3DCamera*> CameraTable;
     std::map<const char*, D3DPipeline*> PipelineTable;
     std::map<const char*,std::vector<BasicModel*>*>* PipelineModelTable;     //key is pipeline name
+    std::map<const char*, D3DAnimation*> AnimationTable;
     std::map<std::string, ID3D12Resource*> ResourceTable;
 
     ID3D12Resource* WhiteTexture;

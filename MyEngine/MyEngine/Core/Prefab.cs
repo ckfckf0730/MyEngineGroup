@@ -107,6 +107,7 @@ namespace CkfEngine
         public static Entity ReadPrefabFile(string path)
         {
             Entity entity = null;
+            Entity rootEntity = null;
             BinaryFormatter formatter = new BinaryFormatter();
 
             List<SaveObj> deserializedObjectsList;
@@ -125,6 +126,7 @@ namespace CkfEngine
                     s_mapRelat.Clear();
                     entity = Entity.CreateEntity(deserializedObjectsList[0].name);
                     var curEntity = entity;
+                    rootEntity = entity;
 
                     for (int i = 1; i < deserializedObjectsList.Count; i++) 
                     {
@@ -155,7 +157,7 @@ namespace CkfEngine
                 
             }
 
-            return entity;
+            return rootEntity;
         }
     }
 }

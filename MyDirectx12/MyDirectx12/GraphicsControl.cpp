@@ -70,6 +70,8 @@ int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const ch
 	{
 		//------------create model from file------------------------
 		verRes = new PMDModel();
+		BasicModel::s_modelTable.insert(
+			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
 		result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
 		if (result < 1)
 		{
@@ -89,7 +91,6 @@ int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const ch
 	{
 		verRes = static_cast<PMDModel*>(iter->second);
 		result = 1;
-		ShowMsgBox(L"error", L"find exist model.");
 	}
 
 	
@@ -97,7 +98,7 @@ int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const ch
 	//------------create instance------------
 	PMDModelInstance* instance = new PMDModelInstance();
 	instance->m_model = verRes;
-	instance->BindAnimation(verRes->m_animation);
+	//instance->BindAnimation(verRes->m_animation);
 	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
 
 	verRes->m_instances.push_back(static_cast<ModelInstance*>(instance));
@@ -199,8 +200,10 @@ void __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, cons
 		return;
 	}
 	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
-	pInstance->m_animation->LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
-	pInstance->m_animation->StartAnimation();
+	auto animation = D3DAnimation::LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
+	animation->StartAnimation();
+	/*pInstance->m_animation->LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
+	pInstance->m_animation->StartAnimation();*/
 	//static_cast<PMDModel*>(iter->second)->LoadAnimation(path);
 }
 
@@ -222,7 +225,13 @@ void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 		PrintDebug("LoadAnimation fault, can't find Entity.");
 		return;
 	}
-	static_cast<PMDModelInstance*>(iter->second)->m_animation->UpdateAnimation();
+
+	for (auto& animation : D3DResourceManage::Instance().AnimationTable)
+	{
+		animation.second->UpdateAnimation();
+	}
+
+	//static_cast<PMDModelInstance*>(iter->second)->m_animation->UpdateAnimation();
 	//static_cast<PMDModel*>(iter->second)->UpdateAnimation();
 }
 

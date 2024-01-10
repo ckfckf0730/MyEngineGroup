@@ -349,17 +349,16 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 	fread(pmdMaterials.data(), pmdMaterials.size() * sizeof(PMDMaterial), 1, fp);
 
 	//------------------bone data & aniamtion-----------------------
-	m_animation = new D3DAnimation();
 	unsigned short boneNum = 0;
 	fread(&boneNum, sizeof(boneNum), 1,fp);
-	m_animation->m_pmdBones.resize(boneNum);
-	fread(m_animation->m_pmdBones.data(), sizeof(PMDBone), boneNum, fp);
+	m_pmdBones.resize(boneNum);
+	fread(m_pmdBones.data(), sizeof(PMDBone), boneNum, fp);
 
 	uint16_t ikNum = 0;
 	fread(&ikNum, sizeof(ikNum), 1, fp);
 	
-	m_animation->m_ikData.resize(ikNum);
-	for (auto& ik : m_animation->m_ikData)
+	m_ikData.resize(ikNum);
+	for (auto& ik : m_ikData)
 	{
 		fread(&ik.boneIdx, sizeof(ik.boneIdx), 1, fp);
 		fread(&ik.targetIdx, sizeof(ik.targetIdx), 1, fp);
@@ -707,12 +706,12 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 	//------Debug Ik bone info------------
 	auto getNameFromIdx = [&](uint16_t idx)->std::string
 	{
-		auto it = std::find_if(m_animation->m_boneNodeTable.begin(), m_animation->m_boneNodeTable.end(),
+		auto it = std::find_if(m_boneNodeTable.begin(), m_boneNodeTable.end(),
 			[idx](const std::pair<std::string, BoneNode>& obj)
 			{
 				return obj.second.boneIdx == idx;
 			});
-		if (it != m_animation->m_boneNodeTable.end())
+		if (it != m_boneNodeTable.end())
 		{
 			return it->first;
 		}
@@ -721,7 +720,7 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 			return "";
 		}
 	};
-	for (auto& ik : m_animation->m_ikData)
+	for (auto& ik : m_ikData)
 	{
 		std::ostringstream oss;
 		oss << "IK bone number = " << ik.boneIdx << ":"
@@ -746,58 +745,58 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 
 int PMDModel::SetBone()
 {
-	m_animation->m_boneMatrices.resize(m_animation->m_pmdBones.size());
-	m_animation->m_boneNameArr.resize(m_animation->m_pmdBones.size());
-	m_animation->m_boneNodeAddressArr.resize(m_animation->m_pmdBones.size());
+	m_boneMatrices.resize(m_pmdBones.size());
+	m_boneNameArr.resize(m_pmdBones.size());
+	m_boneNodeAddressArr.resize(m_pmdBones.size());
 
-	if (m_animation->m_pmdBones.size() > 0)
+	if (m_pmdBones.size() > 0)
 	{
-		m_animation->m_rootNodeStr = m_animation->m_pmdBones[0].boneName;
+		m_rootNodeStr = m_pmdBones[0].boneName;
 	}
 	
-	m_animation->m_kneeIdxes.clear();
-	for (int i = 0; i < m_animation->m_pmdBones.size(); i++)
+	m_kneeIdxes.clear();
+	for (int i = 0; i < m_pmdBones.size(); i++)
 	{
-		auto& pb = m_animation->m_pmdBones[i];
-		auto* node = &m_animation->m_boneNodeTable[pb.boneName];
+		auto& pb = m_pmdBones[i];
+		auto* node = &m_boneNodeTable[pb.boneName];
 		node->boneIdx = i;
 		node->startPos = pb.pos;
 
-		m_animation->m_boneNameArr[i] = pb.boneName;
-		m_animation->m_boneNodeAddressArr[i] = node;
+		m_boneNameArr[i] = pb.boneName;
+		m_boneNodeAddressArr[i] = node;
 
 		std::string boneName = pb.boneName;
 		//the knee data is a special one, a common bone data struct may be not like this
 		if (boneName.find("ひざ") != std::string::npos)
 		{
-			m_animation->m_kneeIdxes.emplace_back(i);
+			m_kneeIdxes.emplace_back(i);
 		}
 	}
 
-	for (auto& pb : m_animation->m_pmdBones)
+	for (auto& pb : m_pmdBones)
 	{
-		if (pb.parentNo >= m_animation->m_pmdBones.size())
+		if (pb.parentNo >= m_pmdBones.size())
 		{
 			continue;
 		}
 
-		auto parentName = m_animation->m_boneNameArr[pb.parentNo];
-		m_animation->m_boneNodeTable[parentName].children.emplace_back(
-			&m_animation->m_boneNodeTable[pb.boneName]);
+		auto parentName = m_boneNameArr[pb.parentNo];
+		m_boneNodeTable[parentName].children.emplace_back(
+			&m_boneNodeTable[pb.boneName]);
 	}
-	std::fill(m_animation->m_boneMatrices.begin(), m_animation->m_boneMatrices.end(), XMMatrixIdentity());
+	std::fill(m_boneMatrices.begin(), m_boneMatrices.end(), XMMatrixIdentity());
 
 	return 1;
 }
 
-void PMDModelInstance::BindAnimation(D3DAnimation* bindAnimation)
-{
-	m_animation = bindAnimation;
-}
+//void PMDModelInstance::BindAnimation(D3DAnimation* bindAnimation)
+//{
+//	m_animation = bindAnimation;
+//}
 
 int PMDModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 {
-	auto buffSize = sizeof(Transform) * (1 + m_animation->m_boneMatrices.size());
+	auto buffSize = sizeof(Transform) * (1 + static_cast<PMDModel*>(m_model)->m_boneMatrices.size());
 	buffSize = (buffSize + 0xff) & ~0xff;
 
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -849,26 +848,11 @@ int PMDModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 	m_transform.world = XMMatrixIdentity();
 	m_mapMatrices[0] = m_transform.world;
 
-	std::copy(m_animation->m_boneMatrices.begin(), 
-		m_animation->m_boneMatrices.end(), m_mapMatrices + 1);
+	std::copy(static_cast<PMDModel*>(m_model)->m_boneMatrices.begin(),
+		static_cast<PMDModel*>(m_model)->m_boneMatrices.end(), m_mapMatrices + 1);
 
 	return 1;
 }
-
-//"motion/pose.vmd"
-void PMDModel::LoadAnimation(const char* path)
-{
-	m_animation->LoadVMDFile(path,this);
-	m_animation->StartAnimation();
-}
-
-void PMDModel::UpdateAnimation()
-{
-	m_animation->UpdateAnimation();
-}
-
-
-
 
 int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
 {
