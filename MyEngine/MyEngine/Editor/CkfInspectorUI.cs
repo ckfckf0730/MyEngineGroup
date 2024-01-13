@@ -217,12 +217,15 @@ namespace CkfEngine.Editor
                             button.Text = "Select File";
                             panel.Controls.Add(button);
                             button.Location = new Point(0, locationY);
-                            locationY += offY;                
+                            locationY += offY;
+
+                            var customAttribute = (MyAttributeLoadFileType)Attribute.GetCustomAttribute(info, typeof(MyAttributeLoadFileType));
+                            var loadTypeStr = customAttribute?.Description;
                             button.Click += (sender, e) => 
                             {
                                 OpenFileDialog openFileDialog = new OpenFileDialog();
                                 openFileDialog.Title = "Select a File";
-                                openFileDialog.Filter = "PMD Files (*.pmd)|*.pmd";
+                                openFileDialog.Filter = loadTypeStr + " Files (*." + loadTypeStr + ")|*."+ loadTypeStr;
                                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                                 {
                                     if (File.Exists(openFileDialog.FileName))

@@ -200,8 +200,6 @@ public:
 
 	void RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat);
 
-	
-
 	void LoadAnimation(const char* path, PMDModel* owner);
 };
 

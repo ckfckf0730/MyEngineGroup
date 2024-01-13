@@ -36,7 +36,7 @@ namespace CkfEngine
         public static extern void SetModelTransform(ulong uid, Matrix4x4 matrix);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern void LoadAnimation(ulong uid, string path);
+        public static extern int LoadAnimation(ulong uid, string path);
 
         [DllImport("MyDirectx12.dll")]
         public static extern void UpdateAnimation(ulong uid);

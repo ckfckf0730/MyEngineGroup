@@ -27,7 +27,7 @@ namespace CkfEngine
             //m_role1.Transform.Rotation = new Vector3(0, (float)(Math.PI * 1) / 2, 0);
             var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
             renderer.SetPMDModel("Model/初音ミク.pmd");
-            D3DAPICall.LoadAnimation(m_role1.Uid, "motion/motion.vmd");
+            //D3DAPICall.LoadAnimation(m_role1.Uid, "motion/motion.vmd");
 
             m_testModel = Entity.CreateEntity("testModel");
             var renderer2 = m_testModel.CreateComponent<ModelRenderer>();

@@ -186,22 +186,24 @@ void __declspec(dllexport) __stdcall SetModelTransform(unsigned long long _uid, 
 extern"C"
 {
 #endif
-	void __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const char* path);
+	int __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const char* path);
 #ifdef __cplusplus 
 }
 #endif
 
-void __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const char* path)
+int __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const char* path)
 {
 	auto iter = ModelInstance::s_uidModelTable.find(_uid);
 	if (iter == ModelInstance::s_uidModelTable.end())
 	{
 		PrintDebug("LoadAnimation fault, can't find Entity.");
-		return;
+		return -1;
 	}
 	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
 	auto animation = D3DAnimation::LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
 	animation->StartAnimation();
+
+	return 1;
 	/*pInstance->m_animation->LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
 	pInstance->m_animation->StartAnimation();*/
 	//static_cast<PMDModel*>(iter->second)->LoadAnimation(path);

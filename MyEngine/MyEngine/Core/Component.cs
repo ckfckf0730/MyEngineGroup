@@ -140,6 +140,7 @@ namespace CkfEngine
 
     public class ModelBoneRenderer : Component
     {
+        [MyAttributeLoadFileType("PMD")]
         private  FileLoad m_file;
         public FileLoad File
         { get { return m_file; } }
@@ -184,6 +185,7 @@ namespace CkfEngine
 
     public class ModelRenderer : Component
     {
+        [MyAttributeLoadFileType("VD")]
         private FileLoad m_file;
         public FileLoad File
         { get { return m_file; } }
@@ -224,4 +226,60 @@ namespace CkfEngine
 
 
     }
+
+    public class Animation : Component
+    {
+        [MyAttributeLoadFileType("VMD")]
+        private FileLoad m_file;
+        public FileLoad File
+        { get { return m_file; } }
+
+        private bool m_isLoaded;
+
+        protected override void OnCreated()
+        {
+            m_isLoaded = false;
+            m_file = new FileLoad();
+            m_file.OnChenged += SetAnimation;
+        }
+
+        private void SetAnimation()
+        {
+            if (m_isLoaded)
+            {
+                //remove currently 
+
+
+                m_isLoaded = false;
+            }
+
+
+            var result = D3DAPICall.LoadAnimation(OwnerEntity.Uid, m_file.FullPath);
+            if (result == 1)
+            {
+                m_isLoaded = true;
+            }
+
+        }
+
+        public void SetAnimation(string path)
+        {
+            m_file.FullPath = path;
+        }
+    }
+
+
+
+
+    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = true)]
+    sealed class MyAttributeLoadFileType : Attribute
+    {
+        public string Description { get; }
+
+        public MyAttributeLoadFileType(string description)
+        {
+            Description = description;
+        }
+    }
+
 }
