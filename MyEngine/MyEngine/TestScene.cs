@@ -32,11 +32,12 @@ namespace CkfEngine
             m_testModel = Entity.CreateEntity("testModel");
             var renderer2 = m_testModel.CreateComponent<ModelRenderer>();
             renderer2.SetModel("Model/Cube.vd");
+            m_testModel.Transform.Translation = new Vector3(-4, 0, 0);
 
             m_testModel = Entity.CreateEntity("testModel2");
             var renderer3 = m_testModel.CreateComponent<ModelRenderer>();
-            renderer3.SetModel("Model/Cube.vd");
-            m_testModel.Transform.Translation = new Vector3(0, 3, 0);
+            renderer3.SetModel("Model/Sphere.vd");
+            m_testModel.Transform.Translation = new Vector3(-4, 3, 0);
 
 
             CkfEditorSystem.Instance.SetEditorCamera(

@@ -127,6 +127,39 @@ void WriteModel(const char* dir, const char* fileName,
 	fclose(fp);
 }
 
+void WriteModel(const char* dir, const char* fileName,
+	std::vector<Vertex> vertices, std::vector<unsigned short> indices)
+{
+	int vertexCount = vertices.size();
+	int indexCount = indices.size();
+	float(*coords)[3] = new float[vertexCount][3];
+	float(*uv)[2] = new float[vertexCount][2];
+	float(*nomals)[3] = new float[vertexCount][3];
+	unsigned short* indexArr = new unsigned short[indexCount];
+	
+	for (int i = 0; i < vertexCount; i++)
+	{
+		coords[i][0] = vertices[i].xCoord;
+		coords[i][1] = vertices[i].yCoord;
+		coords[i][2] = vertices[i].zCoord;
+
+		uv[i][0] = vertices[i].xUV;
+		uv[i][1] = vertices[i].yUV;
+
+		nomals[i][0] = vertices[i].xNormal;
+		nomals[i][1] = vertices[i].yNormal;
+		nomals[i][2] = vertices[i].zNormal;
+	}
+
+	for (int i =0 ;i< indexCount;i++)
+	{
+		indexArr[i] = indices[i];
+	}
+
+	WriteModel(dir, fileName, vertexCount, indexCount,
+		coords, uv, nomals, indexArr);
+}
+
 void Cube()
 {
 
@@ -352,4 +385,43 @@ void Sphere()
 
 	vertices.push_back(Vertex(bottomPoint, bottomNormal, bottomUV));
 
+
+	std::vector<unsigned short> indices;
+	unsigned short curIndex = 0;
+	for (unsigned short i = 0; i < xCount; i++)
+	{
+		indices.push_back(curIndex);
+		indices.push_back(i + 1);
+		indices.push_back(i + 2);
+	}
+	curIndex += 1;
+
+	for (unsigned short y = 1; y < yCount - 2; y++)
+	{
+		for (unsigned short x = 0; x < xCount; x++)
+		{
+			indices.push_back(curIndex + x);
+			indices.push_back(curIndex + x + 1);
+			indices.push_back(curIndex + x + xCount + 1);
+
+			indices.push_back(curIndex + x + xCount + 1);
+			indices.push_back(curIndex + x + 1);
+			indices.push_back(curIndex + x + xCount + 2);
+		}
+		curIndex += xCount + 1;
+	}
+
+	unsigned short lastInd = curIndex + xCount + 1;
+	for (unsigned short i = 0; i < xCount; i++)
+	{
+		
+
+		indices.push_back(curIndex + i);
+		indices.push_back(curIndex + i + 1);
+		indices.push_back(lastInd);
+	}
+
+
+
+	WriteModel(direction, "Sphere.vd",vertices, indices);
 }
