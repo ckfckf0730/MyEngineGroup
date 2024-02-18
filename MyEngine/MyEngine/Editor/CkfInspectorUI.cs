@@ -18,7 +18,6 @@ namespace CkfEngine.Editor
         public Entity CurrentEntity;
 
         private Dictionary<string, ComponentUI> m_componentPanelTable;
-        private Control m_lastEmptyPanel;
         private System.Windows.Forms.Button m_button;
         private CkfAddComponentUI m_addComponentUI;
 
@@ -73,7 +72,6 @@ namespace CkfEngine.Editor
         {
             CkfSelectUI.EventChangeSelect += OnEntitySelect;
             m_componentPanelTable = new Dictionary<string, ComponentUI>();
-            m_lastEmptyPanel = m_bindControl;
             m_addComponentUI = new CkfAddComponentUI();
             m_button = new System.Windows.Forms.Button();
             m_button.Name = "Add Component";
@@ -81,30 +79,31 @@ namespace CkfEngine.Editor
             m_button.Size = new System.Drawing.Size(142, 23);
             m_button.TabIndex = 0;
             m_button.UseVisualStyleBackColor = true;
+            m_button.Location = new System.Drawing.Point((m_bindControl.Width - m_button.Width) / 2, 10);
             m_addComponentUI.Init(m_button);
+            m_bindControl.Controls.Add(m_button);
             ResetButton();
             //CreateTransformPanel();
         }
 
         private void ResetButton()
         {
-            m_lastEmptyPanel.Controls.Add(m_button);
-            m_button.Location = new System.Drawing.Point((m_lastEmptyPanel.Width - m_button.Width) / 2, 10);
+            m_bindControl.Controls.Remove(m_button);
+            m_bindControl.Controls.Add(m_button);    
         }
 
         private Control AddPanel()
         {
-            var newPanel = new SplitContainer();
-            newPanel.Orientation = Orientation.Horizontal;
-            newPanel.Panel1.BackColor = Color.FromArgb(180, 180, 200);
-            newPanel.Panel2.BackColor = Color.FromArgb(200, 200, 200);
-            m_lastEmptyPanel.Controls.Add(newPanel);
-            newPanel.Dock = DockStyle.Fill;
-            newPanel.SplitterDistance = 200;
-            m_lastEmptyPanel.Controls.Remove(m_button);
-            m_lastEmptyPanel = newPanel.Panel2;
+            var newPanel = new Panel();
+            newPanel.BackColor = Color.FromArgb(180, 180, 200);
+
+            m_bindControl.Controls.Add(newPanel);
+
+            //newPanel.Dock = DockStyle.Fill;
+
+ 
             ResetButton();
-            return newPanel.Panel1;
+            return newPanel;
         }
 
         private class ComponentUI
@@ -154,7 +153,10 @@ namespace CkfEngine.Editor
                     //}
                 }
                 m_panelHeight = top + 20;
-                (m_panel.Parent as SplitContainer).SplitterDistance = m_panelHeight;
+
+                Panel.Height = m_panelHeight;
+                Panel.Width = Panel.Parent.Width;
+                //(m_panel.Parent as SplitContainer).SplitterDistance = m_panelHeight;
             }
 
             public void Hide()

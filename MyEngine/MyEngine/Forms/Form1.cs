@@ -59,7 +59,25 @@ namespace CkfEngine
             SceneMenuStrip = new ContextMenuStrip();
             Editor.CkfEditorUI.Instance.Init(this);
             Editor.CkfEditorUI.Instance.CkfSceneItem.SetItemTree(this.SceneItemTree, this.SceneMenuStrip);
-            Editor.CkfEditorUI.Instance.CkfInspectorItem.SetControl(this.splitContainer1.Panel2);
+
+            FlowLayoutPanel panel = new FlowLayoutPanel();
+            panel.FlowDirection = FlowDirection.TopDown;
+            panel.AutoScroll = true;
+            panel.Dock = DockStyle.Fill;
+            panel.Size = new Size(panel.Size.Width, 2000);
+
+            //VScrollBar vScrollBar = new VScrollBar();
+            //vScrollBar.Dock = DockStyle.Right;
+            //vScrollBar.Scroll += (sender, e) =>
+            //{
+            //    panel.VerticalScroll.Value = vScrollBar.Value;
+            //};
+
+            //panel.Controls.Add(vScrollBar);
+
+            this.splitContainer1.Panel2.Controls.Add(panel);
+
+            Editor.CkfEditorUI.Instance.CkfInspectorItem.SetControl(panel);
             testScene = new TestScene();
             testScene.Init();
         }
