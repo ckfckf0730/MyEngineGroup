@@ -1,47 +1,7 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(503,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
   D3DAnimation.cpp
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(83,21): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(159,23): warning C4244: 'initializing': conversion from 'float' to 'unsigned int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(235,28): warning C4018: '<=': signed/unsigned mismatch
-  D3DCamera.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(63,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(135,21): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(136,22): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
-  D3DDevice.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-  D3DMulPassRender.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-  D3DPipeline.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(312,51): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
-  GraphicsControl.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-  PMDActor.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(11,39): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(12,40): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(55,37): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(56,50): warning C4267: '=': conversion from 'size_t' to 'UINT16', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(59,43): warning C4267: '=': conversion from 'size_t' to 'UINT16', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(86,2): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(149,37): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(203,32): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(385,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(398,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(518,40): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(549,44): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(602,43): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(630,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(843,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(917,40): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(948,44): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(964,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1031,43): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1059,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1180,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
-  Generating Code...
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(949): warning C4715: 'BasicModel::SetBasicModel': not all control paths return a value
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1132): warning C4715: 'BasicModel::InitMaterial': not all control paths return a value
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(82,21): warning C4018: '<': signed/unsigned mismatch
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(158,23): warning C4244: 'initializing': conversion from 'float' to 'unsigned int', possible loss of data
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(229,28): warning C4018: '<=': signed/unsigned mismatch
   MyDirectx12.vcxproj -> D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll

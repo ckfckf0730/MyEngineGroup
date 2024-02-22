@@ -200,8 +200,14 @@ int __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const
 		return -1;
 	}
 	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
-	auto animation = D3DAnimation::LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
-	animation->StartAnimation();
+	auto animation = D3DAnimation::LoadVMDFile(path);
+	if (animation != nullptr)
+	{
+		PrintDebug(path);
+		pInstance->InitAnimation(animation);
+		pInstance->m_animationInstance->StartAnimation();
+	}
+
 
 	return 1;
 	/*pInstance->m_animation->LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
@@ -228,12 +234,16 @@ void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 		return;
 	}
 
-	for (auto& animation : D3DResourceManage::Instance().AnimationTable)
+	/*for (auto& animation : D3DResourceManage::Instance().AnimationTable)
 	{
 		animation.second->UpdateAnimation();
-	}
+	}*/
 
-	//static_cast<PMDModelInstance*>(iter->second)->m_animation->UpdateAnimation();
+	auto animationIns = static_cast<PMDModelInstance*>(iter->second)->m_animationInstance;
+	if (animationIns != nullptr)
+	{
+		animationIns->UpdateAnimation();
+	}
 	//static_cast<PMDModel*>(iter->second)->UpdateAnimation();
 }
 

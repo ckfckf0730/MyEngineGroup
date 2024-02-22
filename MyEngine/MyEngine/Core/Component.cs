@@ -26,6 +26,8 @@ namespace CkfEngine
 
         internal void BindEntity(Entity entity)
         {
+            EngineRunTime.Instance.UpdateEvent += Update;
+
             m_owner = entity;
             try
             {
@@ -36,6 +38,11 @@ namespace CkfEngine
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
             }
+        }
+
+        internal void Release()
+        {
+            EngineRunTime.Instance.UpdateEvent -= Update;
         }
     }
 
@@ -265,6 +272,11 @@ namespace CkfEngine
         public void SetAnimation(string path)
         {
             m_file.FullPath = path;
+        }
+
+        protected override void Update() 
+        {
+            D3DAPICall.UpdateAnimation(OwnerEntity.Uid);
         }
     }
 

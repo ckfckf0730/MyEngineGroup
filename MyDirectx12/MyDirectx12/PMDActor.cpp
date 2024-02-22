@@ -745,7 +745,7 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 
 int PMDModel::SetBone()
 {
-	m_boneMatrices.resize(m_pmdBones.size());
+	
 	m_boneNameArr.resize(m_pmdBones.size());
 	m_boneNodeAddressArr.resize(m_pmdBones.size());
 
@@ -784,19 +784,23 @@ int PMDModel::SetBone()
 		m_boneNodeTable[parentName].children.emplace_back(
 			&m_boneNodeTable[pb.boneName]);
 	}
-	std::fill(m_boneMatrices.begin(), m_boneMatrices.end(), XMMatrixIdentity());
 
 	return 1;
 }
 
-//void PMDModelInstance::BindAnimation(D3DAnimation* bindAnimation)
-//{
-//	m_animation = bindAnimation;
-//}
+void PMDModelInstance::InitAnimation(D3DAnimation* animationRes)
+{
+	m_animationInstance = new D3DAnimationInstance();
+	m_animationInstance->m_animation = animationRes;
+
+	m_animationInstance->m_owner = this;
+}
 
 int PMDModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 {
-	auto buffSize = sizeof(Transform) * (1 + static_cast<PMDModel*>(m_model)->m_boneMatrices.size());
+	m_boneMatrices.resize(Model()->m_pmdBones.size());
+	std::fill(m_boneMatrices.begin(), m_boneMatrices.end(), XMMatrixIdentity());
+	auto buffSize = sizeof(Transform) * (1 + m_boneMatrices.size());
 	buffSize = (buffSize + 0xff) & ~0xff;
 
 	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -848,8 +852,7 @@ int PMDModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 	m_transform.world = XMMatrixIdentity();
 	m_mapMatrices[0] = m_transform.world;
 
-	std::copy(static_cast<PMDModel*>(m_model)->m_boneMatrices.begin(),
-		static_cast<PMDModel*>(m_model)->m_boneMatrices.end(), m_mapMatrices + 1);
+	std::copy(m_boneMatrices.begin(),m_boneMatrices.end(), m_mapMatrices + 1);
 
 	return 1;
 }

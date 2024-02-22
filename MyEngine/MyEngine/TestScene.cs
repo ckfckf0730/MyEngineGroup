@@ -27,6 +27,8 @@ namespace CkfEngine
             //m_role1.Transform.Rotation = new Vector3(0, (float)(Math.PI * 1) / 2, 0);
             var renderer = m_role1.CreateComponent<ModelBoneRenderer>();
             renderer.SetPMDModel("Model/初音ミク.pmd");
+            var animation = m_role1.CreateComponent<Animation>();
+            animation.SetAnimation("motion/motion.vmd");
             //D3DAPICall.LoadAnimation(m_role1.Uid, "motion/motion.vmd");
 
             m_testModel = Entity.CreateEntity("testModel");
@@ -62,14 +64,9 @@ namespace CkfEngine
 
         public void TestUpdate()
         {
-            //var worldMat = Matrix4x4.CreateRotationY(angle);
-            //angle += 0.1f;
+            EngineRunTime.Instance.Update();
 
-            //var offMat = Matrix4x4.CreateTranslation(-5,0,0);
-
-            //worldMat= worldMat * offMat;
-
-            D3DAPICall.UpdateAnimation(m_role1.Uid);
+            
         }
 
 

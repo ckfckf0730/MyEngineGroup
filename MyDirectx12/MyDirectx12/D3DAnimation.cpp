@@ -6,7 +6,7 @@ using namespace DirectX;
 
 constexpr float epsilon = 0.0005f;
 
-D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owner)
+D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath)
 {
 	auto iter = D3DResourceManage::Instance().AnimationTable.find(fullFilePath);
 	if (iter != D3DResourceManage::Instance().AnimationTable.end())
@@ -23,7 +23,6 @@ D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owne
 	}
 
 	D3DAnimation* animation = new D3DAnimation();
-	animation->m_owner = owner;
 	D3DResourceManage::Instance().AnimationTable.insert(
 		std::pair<const char*, D3DAnimation*>(fullFilePath, animation));
 
@@ -117,7 +116,7 @@ D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath, PMDModel* owne
 	return animation;
 }
 
-void D3DAnimation::StartAnimation()
+void D3DAnimationInstance::StartAnimation()
 {
 	m_startTime = timeGetTime();
 	
@@ -153,12 +152,12 @@ float GetYFromXOnBezier(float x, const XMFLOAT2& a, const XMFLOAT2& b, uint8_t n
 }
 
 
-void D3DAnimation::UpdateAnimation()
+void D3DAnimationInstance::UpdateAnimation()
 {
 	DWORD elapsedTime = timeGetTime() - m_startTime;
 	unsigned int frameNo = 30 * (elapsedTime / 1000.0f);
 
-	if (frameNo > m_duration)
+	if (frameNo > m_animation->Duration())
 	{
 		m_startTime = timeGetTime();
 		frameNo = 0;
@@ -167,10 +166,10 @@ void D3DAnimation::UpdateAnimation()
 	std::fill(m_owner->m_boneMatrices.begin(),
 		m_owner->m_boneMatrices.end(), XMMatrixIdentity());
 
-	for (auto& boneMotion : m_motionData)
+	for (auto& boneMotion : m_animation->m_motionData)
 	{
-		auto nodeIter = m_owner->m_boneNodeTable.find(boneMotion.first);
-		if (nodeIter == m_owner->m_boneNodeTable.end())
+		auto nodeIter = m_owner->Model()->m_boneNodeTable.find(boneMotion.first);
+		if (nodeIter == m_owner->Model()->m_boneNodeTable.end())
 		{
 			/*PrintDebug("Can't find bone name:");
 			PrintDebug(boneMotion.first.c_str());*/
@@ -209,35 +208,30 @@ void D3DAnimation::UpdateAnimation()
 		m_owner->m_boneMatrices[nodeIter->second.boneIdx] = mat;
 	}
 	RecursiveMatrixMultiply(
-		&m_owner->m_boneNodeTable[m_owner->m_rootNodeStr], XMMatrixIdentity());
+		&m_owner->Model()->m_boneNodeTable[m_owner->Model()->m_rootNodeStr], XMMatrixIdentity());
 
 	IKSolve(frameNo);
 
-	for (auto& instance : m_owner->m_instances)
-	{
-		std::copy(m_owner->m_boneMatrices.begin(), m_owner->m_boneMatrices.end(), instance->m_mapMatrices + 1);
-	}
-
+	std::copy(m_owner->m_boneMatrices.begin(), m_owner->m_boneMatrices.end(), m_owner->m_mapMatrices + 1);
 }
 
 //"motion/pose.vmd"
-void D3DAnimation::LoadAnimation(const char* path, PMDModel* owner)
+void D3DAnimation::LoadAnimation(const char* path)
 {
-	LoadVMDFile(path, owner);
-	StartAnimation();
+	LoadVMDFile(path);
 }
 
-void D3DAnimation::IKSolve(int frameNo) 
+void D3DAnimationInstance::IKSolve(int frameNo)
 {
-	auto it = find_if(m_ikEnableData.rbegin(), m_ikEnableData.rend(),
+	auto it = find_if(m_animation->m_ikEnableData.rbegin(), m_animation->m_ikEnableData.rend(),
 		[frameNo](const VMDIKEnable& ikenable)
 		{
 			return ikenable.frameNo <= frameNo;
 		});
 
-	for (auto& ik : m_owner->m_ikData)
+	for (auto& ik : m_owner->Model()->m_ikData)
 	{
-		auto ikEnableIt = it->ikEnableTable.find(m_owner->m_boneNameArr[ik.boneIdx]);
+		auto ikEnableIt = it->ikEnableTable.find(m_owner->Model()->m_boneNameArr[ik.boneIdx]);
 		if (ikEnableIt != it->ikEnableTable.end())
 		{
 			if (!ikEnableIt->second)
@@ -294,10 +288,10 @@ XMMATRIX LookAtMatrix(const XMVECTOR& origin, const XMVECTOR& lookat,
 		LookAtMatrix(lookat, up, right);
 }
 
-void D3DAnimation::SolveLookAt(const PMDIK& ik)
+void D3DAnimationInstance::SolveLookAt(const PMDIK& ik)
 {
-	auto rootNode = m_owner->m_boneNodeAddressArr[ik.nodeIdxes[0]];
-	auto targetNode = m_owner->m_boneNodeAddressArr[ik.targetIdx];
+	auto rootNode = m_owner->Model()->m_boneNodeAddressArr[ik.nodeIdxes[0]];
+	auto targetNode = m_owner->Model()->m_boneNodeAddressArr[ik.targetIdx];
 	
 	auto rpos1 = XMLoadFloat3(&rootNode->startPos);
 	auto tpos1 = XMLoadFloat3(&targetNode->startPos);
@@ -320,22 +314,22 @@ void D3DAnimation::SolveLookAt(const PMDIK& ik)
 }
 
 
-void D3DAnimation::SolveCosineIK(const PMDIK& ik)
+void D3DAnimationInstance::SolveCosineIK(const PMDIK& ik)
 {
 	std::vector<XMVECTOR> positions;
 
 	std::array<float, 2> edgeLens;
 
-	auto& targetNode = m_owner->m_boneNodeAddressArr[ik.boneIdx];
+	auto& targetNode = m_owner->Model()->m_boneNodeAddressArr[ik.boneIdx];
 	auto targetPos = XMVector3Transform(XMLoadFloat3(&targetNode->startPos),
 		m_owner->m_boneMatrices[ik.boneIdx]);
 
-	auto endNode = m_owner->m_boneNodeAddressArr[ik.boneIdx];
+	auto endNode = m_owner->Model()->m_boneNodeAddressArr[ik.boneIdx];
 	positions.emplace_back(XMLoadFloat3(&endNode->startPos));
 
 	for (auto& chainBoneIdx : ik.nodeIdxes)
 	{
-		auto boneNode = m_owner->m_boneNodeAddressArr[chainBoneIdx];
+		auto boneNode = m_owner->Model()->m_boneNodeAddressArr[chainBoneIdx];
 		positions.emplace_back(XMLoadFloat3(&boneNode->startPos));
 	}
 
@@ -363,8 +357,8 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 
 	//get the axis, if there is a knee in nodes, then get a fixed axis
 	XMVECTOR axis;
-	if (std::find(m_owner->m_kneeIdxes.begin(), m_owner->m_kneeIdxes.end(), ik.nodeIdxes[0])
-		== m_owner->m_kneeIdxes.end())             //can't find knee node in ik node list
+	if (std::find(m_owner->Model()->m_kneeIdxes.begin(), m_owner->Model()->m_kneeIdxes.end(), ik.nodeIdxes[0])
+		== m_owner->Model()->m_kneeIdxes.end())             //can't find knee node in ik node list
 	{
 		auto vm = XMVector3Normalize(
 			XMVectorSubtract(positions[2], positions[0]));
@@ -391,14 +385,14 @@ void D3DAnimation::SolveCosineIK(const PMDIK& ik)
 	m_owner->m_boneMatrices[ik.targetIdx] = m_owner->m_boneMatrices[ik.nodeIdxes[0]];
 }
 
-void D3DAnimation::SolveCCDIK(const PMDIK& ik)
+void D3DAnimationInstance::SolveCCDIK(const PMDIK& ik)
 {
 	std::vector<XMVECTOR> positions;
 
-	auto targetBoneNode = m_owner->m_boneNodeAddressArr[ik.boneIdx];
+	auto targetBoneNode = m_owner->Model()->m_boneNodeAddressArr[ik.boneIdx];
 	auto targetOriginPos = XMLoadFloat3(&targetBoneNode->startPos);
 
-	auto parentMat = m_owner->m_boneMatrices[m_owner->m_boneNodeAddressArr[ik.boneIdx]->ikParentBone];
+	auto parentMat = m_owner->m_boneMatrices[m_owner->Model()->m_boneNodeAddressArr[ik.boneIdx]->ikParentBone];
 	XMVECTOR det;
 	auto invPatrentMat = XMMatrixInverse(&det, parentMat);
 	auto targetNextPos = XMVector3Transform(
@@ -406,12 +400,12 @@ void D3DAnimation::SolveCCDIK(const PMDIK& ik)
 
 	std::vector<XMVECTOR> bonePositions;
 	auto endPos = XMLoadFloat3(
-		&m_owner->m_boneNodeAddressArr[ik.targetIdx]->startPos);
+		&m_owner->Model()->m_boneNodeAddressArr[ik.targetIdx]->startPos);
 
 	for (auto& cidx : ik.nodeIdxes)
 	{
 		bonePositions.push_back(
-			XMLoadFloat3(&m_owner->m_boneNodeAddressArr[cidx]->startPos));
+			XMLoadFloat3(&m_owner->Model()->m_boneNodeAddressArr[cidx]->startPos));
 	}
 
 	std::vector<XMMATRIX> mats(bonePositions.size());
@@ -479,12 +473,12 @@ void D3DAnimation::SolveCCDIK(const PMDIK& ik)
 		idx++;
 	}
 
-	auto rootNode = m_owner->m_boneNodeAddressArr[ik.nodeIdxes.back()];
+	auto rootNode = m_owner->Model()->m_boneNodeAddressArr[ik.nodeIdxes.back()];
 	RecursiveMatrixMultiply(rootNode, parentMat);
 
 }
 
-void D3DAnimation::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat)
+void D3DAnimationInstance::RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat)
 {
 	m_owner->m_boneMatrices[node->boneIdx] *= mat;
 	for (auto& cnode : node->children)

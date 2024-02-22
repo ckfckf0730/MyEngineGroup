@@ -159,6 +159,7 @@ struct KeyFrame
 };
 
 class PMDModel;
+class PMDModelInstance;
 
 struct PMDIK
 {
@@ -175,32 +176,50 @@ class D3DAnimation
 private:
 	D3DAnimation() = default;
 
-	DWORD m_startTime;
-	PMDModel* m_owner;
 	unsigned int m_duration;
 
 public:
+
+	unsigned int Duration()
+	{
+		return m_duration;
+	}
 
 	std::vector<VMDMorph> m_morphs;
 	std::vector<VMDCamera> m_cameraData;
 	std::vector<VMDLight> m_lights;
 	std::vector<VMDSelfShadow> m_selfShadowData;
 	std::vector<VMDIKEnable> m_ikEnableData;
-
 	std::unordered_map<std::string,std::vector<KeyFrame>> m_motionData;
 
-	static D3DAnimation* LoadVMDFile(const char* fullFilePath, PMDModel* owner);
+	static D3DAnimation* LoadVMDFile(const char* fullFilePath);
+	
+	
+
+	
+
+	void LoadAnimation(const char* path);
+};
+
+class D3DAnimationInstance
+{
+public:
+
+	D3DAnimation* m_animation;
+
+	PMDModelInstance* m_owner;
+
+	DWORD m_startTime;
+
+
 	void StartAnimation();
 	void UpdateAnimation();
 
+	void RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat);
 	void IKSolve(int fremeNo);
 	void SolveCCDIK(const PMDIK& ik);
 	void SolveCosineIK(const PMDIK& ik);
 	void SolveLookAt(const PMDIK& ik);
-
-	void RecursiveMatrixMultiply(BoneNode* node, const DirectX::XMMATRIX& mat);
-
-	void LoadAnimation(const char* path, PMDModel* owner);
 };
 
 class ModelInstance;
@@ -244,7 +263,7 @@ public:
 	std::map<std::string, BoneNode> m_boneNodeTable;
 	std::vector<PMDBone> m_pmdBones;
 	std::vector<PMDIK> m_ikData;
-	std::vector<DirectX::XMMATRIX> m_boneMatrices;
+
 	std::vector<std::string> m_boneNameArr;
 	std::vector<BoneNode*> m_boneNodeAddressArr;
 	std::string m_rootNodeStr;
@@ -277,7 +296,16 @@ public:
 class PMDModelInstance : public ModelInstance
 {
 public:
-	//D3DAnimation* m_animation;
+	std::vector<DirectX::XMMATRIX> m_boneMatrices;
+
+	PMDModel* Model()
+	{
+		return static_cast<PMDModel*>(m_model);
+	}
+
+	D3DAnimationInstance* m_animationInstance;
+
+	void InitAnimation(D3DAnimation* animationRes);
 
 	//void BindAnimation(D3DAnimation* bindAnimation);
 	int CreateTransformView(D3DDevice* _cD3DDev);
