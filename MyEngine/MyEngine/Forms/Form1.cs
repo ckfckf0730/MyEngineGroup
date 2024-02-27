@@ -55,31 +55,40 @@ namespace CkfEngine
             m_editorSystem = CkfEditorSystem.Instance;
             m_editorSystem.Init();
 
-            //Init UI module
+            //-----------Init UI module--------------
+            this.Size = new Size(1500, 900);
+
+
+            //-----------SceneItems-------
             SceneMenuStrip = new ContextMenuStrip();
             Editor.CkfEditorUI.Instance.Init(this);
             Editor.CkfEditorUI.Instance.CkfSceneItem.SetItemTree(this.SceneItemTree, this.SceneMenuStrip);
+            //----------------------------
 
+            //-----------Inspector--------
             FlowLayoutPanel panel = new FlowLayoutPanel();
-            panel.FlowDirection = FlowDirection.TopDown;
+            panel.FlowDirection = FlowDirection.LeftToRight;
             panel.AutoScroll = true;
             panel.Dock = DockStyle.Fill;
             panel.Size = new Size(panel.Size.Width, 2000);
-
-            //VScrollBar vScrollBar = new VScrollBar();
-            //vScrollBar.Dock = DockStyle.Right;
-            //vScrollBar.Scroll += (sender, e) =>
-            //{
-            //    panel.VerticalScroll.Value = vScrollBar.Value;
-            //};
-
-            //panel.Controls.Add(vScrollBar);
-
+            
             this.splitContainer1.Panel2.Controls.Add(panel);
 
             Editor.CkfEditorUI.Instance.CkfInspectorItem.SetControl(panel);
             testScene = new TestScene();
             testScene.Init();
+            //----------------------------
+
+
+            //---------------Assets------------------
+            var assetsPanel = this.splitContainer2.Panel2;
+            SplitContainer splitContainer = new SplitContainer();
+            assetsPanel.Controls.Add(splitContainer);
+            splitContainer.Dock  = DockStyle.Fill;
+            
+
+            Editor.CkfEditorUI.Instance.CkfAssetsUI.SetControl(splitContainer);
+            //----------------------------
         }
 
 
