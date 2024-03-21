@@ -79,6 +79,10 @@ namespace CkfEngine.Editor
             menuItem2.Click += CreatePrefabOnClicked;
             contextMenuStrip.Items.Add(menuItem2);
 
+            ToolStripMenuItem menuItem3 = new ToolStripMenuItem("Delete Entity");
+            menuItem3.Click += DeleteEntityOnClicked;
+            contextMenuStrip.Items.Add(menuItem3);
+
             Transform.EventSetParent += UpdateParentSetted;
         }
 
@@ -158,6 +162,17 @@ namespace CkfEngine.Editor
                 Prefab prefab = new Prefab();
                 prefab.CreatePrefabFile(selectEntity);
             }
+        }
+
+        void DeleteEntityOnClicked(object sender, EventArgs e)
+        {
+            TreeNode selectNode = m_itemTree.SelectedNode;
+            if (selectNode.Tag is ulong)
+            {
+                ulong uid = (ulong)selectNode.Tag;
+                Entity.DeleteEntity(uid);
+            }
+            
         }
 
         private void NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)

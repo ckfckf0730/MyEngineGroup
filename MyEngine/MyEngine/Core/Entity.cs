@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,9 +11,9 @@ namespace CkfEngine
 
     public class Entity : EngineObject
     {
-        private Entity() { }
-
         private Entity(string name) { Name = name; }
+
+        #region EntityTable
 
         private static Dictionary<ulong,Entity> m_entityTable = new Dictionary<ulong, Entity>();
 
@@ -31,6 +32,21 @@ namespace CkfEngine
             return entity;
         }
 
+        public static void DeleteEntity(ulong uid)
+        {
+            Entity entity = null;
+            m_entityTable.TryGetValue(uid, out entity);
+            if(entity != null)
+            {
+                entity.Released();
+                m_entityTable.Remove(uid);
+            }
+        }
+        public static void DeleteEntity(Entity entity)
+        {
+            DeleteEntity(entity.Uid);
+        }
+
         public static Entity FindEntity(ulong UID)
         {
             Entity entity = null;
@@ -38,6 +54,18 @@ namespace CkfEngine
             return entity;
         }
 
+        #endregion
+
+        private Entity() { }
+
+        private void Released()
+        {
+            foreach(var component in m_components.Values)
+            {
+                component.Release();
+            }
+            m_components.Clear();
+        }
 
 
         private Dictionary<Type, Component> m_components = new Dictionary<Type, Component>();

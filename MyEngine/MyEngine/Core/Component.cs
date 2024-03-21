@@ -43,6 +43,8 @@ namespace CkfEngine
         internal void Release()
         {
             EngineRunTime.Instance.UpdateEvent -= Update;
+            OnDestroyed();
+            m_owner = null;
         }
     }
 
@@ -112,6 +114,14 @@ namespace CkfEngine
             }
         }
 
+        protected override void OnDestroyed()
+        {
+            base.OnDestroyed();
+
+            UnsetParent();
+            EventSetParent?.Invoke(OwnerEntity.Uid,0,true, OwnerEntity.Name);
+        }
+
         // entity UID, parent UID(null = 0), is delete
         internal static event Action<ulong, ulong, bool, string> EventSetParent;
     }
@@ -159,6 +169,13 @@ namespace CkfEngine
             m_isLoaded = false;
             m_file = new FileLoad();
             m_file.OnChenged += SetPMDModel;
+        }
+
+        protected override void OnDestroyed()
+        {
+            base.OnDestroyed();
+
+            D3DAPICall.DeletePMDInstance(OwnerEntity.Uid);
         }
 
         private void SetPMDModel()
@@ -248,6 +265,12 @@ namespace CkfEngine
             m_isLoaded = false;
             m_file = new FileLoad();
             m_file.OnChenged += SetAnimation;
+        }
+
+        protected override void OnDestroyed()
+        {
+            base.OnDestroyed();
+
         }
 
         private void SetAnimation()
