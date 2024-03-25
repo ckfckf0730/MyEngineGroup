@@ -175,7 +175,7 @@ namespace CkfEngine
         {
             base.OnDestroyed();
 
-            D3DAPICall.DeletePMDInstance(OwnerEntity.Uid);
+            D3DAPICall.DeleteModelInstance(OwnerEntity.Uid);
         }
 
         private void SetPMDModel()
@@ -221,6 +221,13 @@ namespace CkfEngine
             m_isLoaded = false;
             m_file = new FileLoad();
             m_file.OnChenged += SetModel;
+        }
+
+        protected override void OnDestroyed()
+        {
+            base.OnDestroyed();
+
+            D3DAPICall.DeleteModelInstance(OwnerEntity.Uid);
         }
 
         private void SetModel()

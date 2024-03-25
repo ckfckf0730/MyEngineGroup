@@ -112,12 +112,12 @@ int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const ch
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall DeletePMDInstance(unsigned long long _uid);
+	int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall DeletePMDInstance(unsigned long long _uid)
+int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 {
 	auto iter = ModelInstance::s_uidModelTable.find(_uid);
 	if (iter != ModelInstance::s_uidModelTable.end())

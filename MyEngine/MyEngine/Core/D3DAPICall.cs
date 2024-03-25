@@ -30,7 +30,7 @@ namespace CkfEngine
         public static extern int SetPMDModel(ulong uid,string fileFullName);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int DeletePMDInstance(ulong uid);
+        public static extern int DeleteModelInstance(ulong uid);
 
         [DllImport("MyDirectx12.dll")]
         public static extern int SetBasicModel(ulong uid, string fileFullName);
