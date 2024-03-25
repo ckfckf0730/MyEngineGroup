@@ -70,6 +70,7 @@ namespace CkfEngine.Editor
             m_itemTree.NodeMouseClick += NodeMouseClick;
             m_rootNode = new TreeNode("Scene");
             m_itemTree.Nodes.Add(m_rootNode);
+            m_itemTree.LabelEdit = true;
 
             ToolStripMenuItem menuItem1 = new ToolStripMenuItem("Create Entity");
             menuItem1.Click += CreateEntityOnClicked;
@@ -82,6 +83,10 @@ namespace CkfEngine.Editor
             ToolStripMenuItem menuItem3 = new ToolStripMenuItem("Delete Entity");
             menuItem3.Click += DeleteEntityOnClicked;
             contextMenuStrip.Items.Add(menuItem3);
+
+            ToolStripMenuItem menuItem4 = new ToolStripMenuItem("Rename");
+            menuItem4.Click += RenameOnClicked;
+            contextMenuStrip.Items.Add(menuItem4);
 
             Transform.EventSetParent += UpdateParentSetted;
         }
@@ -173,6 +178,12 @@ namespace CkfEngine.Editor
                 Entity.DeleteEntity(uid);
             }
             
+        }
+
+        void RenameOnClicked(object sender, EventArgs e)
+        {
+            TreeNode selectNode = m_itemTree.SelectedNode;
+            selectNode.BeginEdit();
         }
 
         private void NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
