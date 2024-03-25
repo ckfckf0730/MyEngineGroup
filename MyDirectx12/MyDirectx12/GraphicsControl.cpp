@@ -56,6 +56,33 @@ int __declspec(dllexport) __stdcall ReleaseD3d(HWND hwnd)
 extern"C"
 {
 #endif
+	int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid);
+#ifdef __cplusplus 
+}
+#endif
+
+int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(_uid);
+	if (iter != ModelInstance::s_uidModelTable.end())
+	{
+		auto instance = (*iter).second;
+		auto& list = instance->m_model->m_instances;
+		auto iter2 = std::find(list.begin(), list.end(), instance);
+
+		list.erase(iter2);
+
+		delete instance;
+		ModelInstance::s_uidModelTable.erase(iter);
+		return 1;
+	}
+	return -1;
+}
+
+#ifdef __cplusplus 
+extern"C"
+{
+#endif
 	int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName);
 #ifdef __cplusplus 
 }
@@ -93,7 +120,8 @@ int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const ch
 		result = 1;
 	}
 
-	
+	//------------delete if exist instance-------------
+	DeleteModelInstance(_uid);
 
 	//------------create instance------------
 	PMDModelInstance* instance = new PMDModelInstance();
@@ -108,31 +136,7 @@ int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const ch
 	return result;
 }
 
-#ifdef __cplusplus 
-extern"C"
-{
-#endif
-	int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid);
-#ifdef __cplusplus 
-}
-#endif
 
-int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
-{
-	auto iter = ModelInstance::s_uidModelTable.find(_uid);
-	if (iter != ModelInstance::s_uidModelTable.end())
-	{
-		auto instance = (*iter).second;
-		auto &list = instance->m_model->m_instances;
-		auto iter2 = std::find(list.begin(), list.end(), instance);
-
-		list.erase(iter2);
-
-		ModelInstance::s_uidModelTable.erase(iter);
-		return 1;
-	}
-	return -1;
-}
 
 #ifdef __cplusplus 
 extern"C"
@@ -174,6 +178,7 @@ int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const
 		ShowMsgBox(L"error", L"find exist model.");
 	}
 
+	DeleteModelInstance(_uid);
 	//------------create instance------------
 	ModelInstance* instance = new ModelInstance();
 	instance->m_model = verRes;

@@ -1195,3 +1195,8 @@ int ModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 
 	return 1;
 }
+
+ModelInstance::~ModelInstance()
+{
+	m_transformDescHeap->Release();
+}

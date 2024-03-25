@@ -291,6 +291,8 @@ public:
 
 
 	virtual int CreateTransformView(D3DDevice* _cD3DDev);
+
+	~ModelInstance();
 };
 
 class PMDModelInstance : public ModelInstance
