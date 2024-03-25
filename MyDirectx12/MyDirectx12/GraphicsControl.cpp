@@ -226,9 +226,12 @@ int __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const
 		return -1;
 	}
 	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
+	PrintDebug("Begin LoadVMDFile:");
+	PrintDebug(path);
 	auto animation = D3DAnimation::LoadVMDFile(path);
 	if (animation != nullptr)
 	{
+		PrintDebug("LoadAnimation success:");
 		PrintDebug(path);
 		pInstance->InitAnimation(animation);
 		pInstance->m_animationInstance->StartAnimation();
@@ -268,6 +271,13 @@ void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 	auto animationIns = static_cast<PMDModelInstance*>(iter->second)->m_animationInstance;
 	if (animationIns != nullptr)
 	{
+		/*static DWORD last = 0;
+		if (timeGetTime() > last + 1000)
+		{
+			last = timeGetTime();
+			PrintDebug(animationIns->m_animation->m_fileName.c_str());
+		}*/
+
 		animationIns->UpdateAnimation();
 	}
 	//static_cast<PMDModel*>(iter->second)->UpdateAnimation();

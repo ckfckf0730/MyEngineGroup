@@ -23,6 +23,9 @@ D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath)
 	}
 
 	D3DAnimation* animation = new D3DAnimation();
+	PrintDebug("AnimationTable Insert:");
+	PrintDebug(fullFilePath);
+
 	D3DResourceManage::Instance().AnimationTable.insert(
 		std::pair<const char*, D3DAnimation*>(fullFilePath, animation));
 
@@ -112,6 +115,8 @@ D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath)
 				return lval.frameNo <= rval.frameNo;
 			});
 	}
+
+	animation->m_fileName = fullFilePath;
 
 	return animation;
 }

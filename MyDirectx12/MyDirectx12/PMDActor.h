@@ -194,7 +194,7 @@ public:
 
 	static D3DAnimation* LoadVMDFile(const char* fullFilePath);
 	
-	
+	std::string m_fileName;
 
 	
 

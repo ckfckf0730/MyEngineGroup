@@ -790,7 +790,12 @@ int PMDModel::SetBone()
 
 void PMDModelInstance::InitAnimation(D3DAnimation* animationRes)
 {
-	m_animationInstance = new D3DAnimationInstance();
+	if (m_animationInstance == nullptr)
+	{
+		m_animationInstance = new D3DAnimationInstance();
+	}
+	PrintDebug("Set m_animation to：");
+	PrintDebug(animationRes->m_fileName.c_str());
 	m_animationInstance->m_animation = animationRes;
 
 	m_animationInstance->m_owner = this;
