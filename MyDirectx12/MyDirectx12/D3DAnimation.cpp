@@ -318,6 +318,11 @@ void D3DAnimationInstance::SolveLookAt(const PMDIK& ik)
 		originVec, targetVec, up, right);
 }
 
+bool IsZeroVector(const DirectX::XMVECTOR& vec)
+{
+	DirectX::XMVECTOR zeroVec = DirectX::XMVectorZero();
+	return DirectX::XMVector3Equal(vec, zeroVec); 
+}
 
 void D3DAnimationInstance::SolveCosineIK(const PMDIK& ik)
 {
@@ -377,12 +382,20 @@ void D3DAnimationInstance::SolveCosineIK(const PMDIK& ik)
 		axis = XMLoadFloat3(&right);
 	}
 
+	bool isAxisZero = IsZeroVector(axis);
+
 	auto mat1 = XMMatrixTranslationFromVector(-positions[0]);
-	mat1 *= XMMatrixRotationAxis(axis, theta1);
+	if (!isAxisZero)
+	{
+		mat1 *= XMMatrixRotationAxis(axis, theta1);
+	}
 	mat1 *= XMMatrixTranslationFromVector(positions[0]);
 
 	auto mat2 = XMMatrixTranslationFromVector(-positions[1]);
-	mat2 *= XMMatrixRotationAxis(axis, theta2 - XM_PI);
+	if (!isAxisZero)
+	{
+		mat2 *= XMMatrixRotationAxis(axis, theta2 - XM_PI);
+	}
 	mat2 *= XMMatrixTranslationFromVector(positions[1]);
 
 	m_owner->m_boneMatrices[ik.nodeIdxes[1]] *= mat1;
