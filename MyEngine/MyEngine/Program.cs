@@ -18,8 +18,15 @@ namespace CkfEngine
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TitleForm());
-            //Application.Run(new Form1());
+
+            TitleForm titleForm = new TitleForm();
+            Application.Run(titleForm);
+
+            if(titleForm.IsOpenProject)
+            {
+                Application.Run(new Form1());
+            }
+
         }
     }
 }

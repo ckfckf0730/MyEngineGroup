@@ -17,7 +17,12 @@ namespace CkfEngine.Forms
         public TitleForm()
         {
             InitializeComponent();
+
+            EditorEventManager.OpenProject += ChangeEditorForm;
+            IsOpenProject = false;
         }
+
+        internal bool IsOpenProject;
 
         private void buttonNew_Click(object sender, EventArgs e)
         {
@@ -32,6 +37,20 @@ namespace CkfEngine.Forms
 
         private void buttonSelect_Click(object sender, EventArgs e)
         {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Title = "Select a project";
+            openFileDialog.Filter = "Files (*.cepj) | *.cepj" ;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var proName = openFileDialog.FileName;
+                ProjectManager.OpenProject(proName);
+            }
+        }
+
+        internal void ChangeEditorForm(string path)
+        {
+            IsOpenProject = true;
+            this.Close();
 
         }
     }

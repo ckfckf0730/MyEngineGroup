@@ -33,6 +33,8 @@ namespace CkfEngine.Editor
 
             CopyBasicAssets(AssetsPath);
             CopyLibrary(LibraryPath);
+
+            OpenProject(prjFilePath);
         }
 
         internal static void CopyBasicAssets(string AssetsPath)
@@ -67,11 +69,21 @@ namespace CkfEngine.Editor
                 CopyAllDirectory(dir, newDir);
             }
         }
+
+
+        internal static void OpenProject(string path)
+        {
+            var dir = Path.GetDirectoryName(path);
+
+            EditorEventManager.OpenProject(dir);
+        }
     }
 
 
     internal class CkfProject
     {
-        string Path;
+        private string m_path;
+
+
     }
 }
