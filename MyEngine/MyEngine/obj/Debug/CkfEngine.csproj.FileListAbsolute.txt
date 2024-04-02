@@ -22,3 +22,4 @@ D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.GenerateR
 D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.CoreCompileInputs.cache
 D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.exe
 D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.pdb
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.Forms.TitleForm.resources
