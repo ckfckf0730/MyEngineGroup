@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CkfEngine.Editor;
 
 namespace CkfEngine.Forms
 {
@@ -20,12 +22,11 @@ namespace CkfEngine.Forms
         private void buttonNew_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Title = "Select a File";
+            saveFileDialog.Title = "Create a new project";
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-   
-
-
+                var proName = saveFileDialog.FileName;
+                ProjectManager.CreateNewProject(proName);
             }
         }
 
