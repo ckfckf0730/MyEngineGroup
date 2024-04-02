@@ -9,6 +9,8 @@ namespace CkfEngine.Editor
 {
     internal static class ProjectManager
     {
+        internal static CkfProject CurProject = null;
+
         internal static void CreateNewProject(string fullPath)
         {
             string directory = Path.GetDirectoryName(fullPath);
@@ -76,6 +78,9 @@ namespace CkfEngine.Editor
             var dir = Path.GetDirectoryName(path);
 
             EditorEventManager.OpenProject(dir);
+
+            CurProject = new CkfProject();
+            CurProject.Path = dir + "/";
         }
     }
 
@@ -83,7 +88,11 @@ namespace CkfEngine.Editor
     internal class CkfProject
     {
         private string m_path;
-
+        internal string Path
+        {
+            set { m_path = value; }
+            get { return m_path; }
+        }
 
     }
 }

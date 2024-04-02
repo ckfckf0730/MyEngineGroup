@@ -19,7 +19,7 @@ namespace CkfEngine.Editor
         private ListView m_fileListView;
 
         private string m_curDir;
-
+        private TreeNode m_curNode;
 
         protected override void Init()
         {
@@ -75,11 +75,12 @@ namespace CkfEngine.Editor
         private void AfterSelect(object sender, TreeViewEventArgs e)
         {
             var tree = sender as TreeView;
-            var path  =  GetFullPath(tree.SelectedNode);
+            var path  =  GetRelativePath(tree.SelectedNode);
 
             if(m_curDir!= path)
             {
                 m_curDir = path;
+                m_curNode = tree.SelectedNode;
                 UpdateFIleIcons();
 
                 Console.WriteLine(m_curDir);
@@ -96,7 +97,8 @@ namespace CkfEngine.Editor
                 return;
             }
 
-            var files = Directory.GetFiles(m_curDir);
+            var fullPath = ProjectManager.CurProject.Path + m_curDir;
+            var files = Directory.GetFiles(fullPath);
 
             foreach (string file in files)
             {
@@ -107,19 +109,36 @@ namespace CkfEngine.Editor
                 item.ImageKey = fileInfo.Extension; 
                 m_fileListView.Items.Add(item);
             }
+
+            m_fileListView.DoubleClick += ItemViewOnDoubleClicked;
+        }
+
+        private void ItemViewOnDoubleClicked(object sender, EventArgs e)
+        {
+            if(m_fileListView.SelectedItems.Count > 0)
+            {
+                var file = m_fileListView.SelectedItems[0].Text;
+                var dir = GetRelativePath(m_curNode);
+                var fullPath = ProjectManager.CurProject.Path + dir + "/" + file;
+
+                if(Path.GetExtension(file).ToLower() == "scene")
+                {
+
+                }
+            }
         }
 
 
         private void UpdateNodeUI(TreeNode node)
         {
-            var dirs = Directory.GetDirectories(GetFullPath(node));
+            var dirs = Directory.GetDirectories(GetRelativePath(node));
             foreach (var dir in dirs)
             {
                 node.Nodes.Add(new TreeNode(GetFinalDirName(dir)));
             }
         }
 
-        private string GetFullPath(TreeNode node)
+        private string GetRelativePath(TreeNode node)
         {
             if(node?.Text == null)
             {
