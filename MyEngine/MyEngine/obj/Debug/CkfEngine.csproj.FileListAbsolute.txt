@@ -24,3 +24,6 @@ D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.exe
 D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.pdb
 D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.Forms.TitleForm.resources
 D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.Forms.TitleForm.resources
+D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\Newtonsoft.Json.dll
+D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\Newtonsoft.Json.xml
+D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.CopyComplete

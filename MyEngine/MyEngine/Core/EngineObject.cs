@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace CkfEngine.Core
 {
+    [Serializable]
     public class EngineObject
     {
         private static class UID

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CkfEngine
 {
-
+    [Serializable]
     public class Entity : EngineObject
     {
         private Entity(string name) { Name = name; }

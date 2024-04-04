@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -52,6 +55,7 @@
     <Compile Include="Core\EngineRunTime.cs" />
     <Compile Include="Core\Prefab.cs" />
     <Compile Include="Core\ResourceManager.cs" />
+    <Compile Include="Core\Scene.cs" />
     <Compile Include="Core\SerializationToFileExample.cs" />
     <Compile Include="Editor\CkfAssetsUI.cs" />
     <Compile Include="Editor\CkfEditorSystem.cs" />
@@ -62,6 +66,7 @@
     <Compile Include="Core\Entity.cs" />
     <Compile Include="Editor\EditorEventManager.cs" />
     <Compile Include="Editor\ProjectManager.cs" />
+    <Compile Include="Editor\SceneItemUI.cs" />
     <Compile Include="Forms\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,6 +107,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

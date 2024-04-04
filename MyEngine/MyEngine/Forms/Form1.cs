@@ -75,8 +75,8 @@ namespace CkfEngine
             this.splitContainer1.Panel2.Controls.Add(panel);
 
             Editor.CkfEditorUI.Instance.CkfInspectorItem.SetControl(panel);
-            testScene = new TestScene();
-            testScene.Init();
+            //testScene = new TestScene();
+            //testScene.Init();
             //----------------------------
 
 
@@ -96,7 +96,7 @@ namespace CkfEngine
         private void Tick(object sender, EventArgs e)
         {
             m_editorSystem.Update();
-            testScene.TestUpdate();
+            //testScene.TestUpdate();
 
             if (isD3dSuc)
             {

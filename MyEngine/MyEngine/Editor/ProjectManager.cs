@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using CkfEngine.Core;
+
 
 namespace CkfEngine.Editor
 {
@@ -81,6 +84,20 @@ namespace CkfEngine.Editor
 
             CurProject = new CkfProject();
             CurProject.Path = dir + "/";
+
+
+        }
+
+
+        internal static void SaveScene(Scene scene, string path)
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignore roop Handling
+            };
+            string json = JsonConvert.SerializeObject(scene, settings);
+
+            File.WriteAllText(path, json);
         }
     }
 
@@ -95,4 +112,5 @@ namespace CkfEngine.Editor
         }
 
     }
+
 }

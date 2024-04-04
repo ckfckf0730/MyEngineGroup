@@ -21,6 +21,8 @@ namespace CkfEngine.Editor
         private string m_curDir;
         private TreeNode m_curNode;
 
+        private ContextMenuStrip m_contextMenuStrip;
+
         protected override void Init()
         {
             base.Init();
@@ -62,11 +64,50 @@ namespace CkfEngine.Editor
             ImageList smallImageList = new ImageList();
             smallImageList.ImageSize = new System.Drawing.Size(16, 16);
             m_fileListView.SmallImageList = smallImageList;
+
+
+            //------------ContextMenuStrip----------------
+            m_contextMenuStrip = new ContextMenuStrip();
+            m_tree.NodeMouseClick += NodeMouseClick;
+
+            //create menu
+            ToolStripDropDownButton menuItem1 = new ToolStripDropDownButton("Create");
+            ToolStripMenuItem subMenuItem1 = new ToolStripMenuItem("Scene");
+            subMenuItem1.Click += (sender, e) =>
+            {
+                ProjectManager.SaveScene(null,"test");
+            };
+            ToolStripDropDownMenu subMenu = new ToolStripDropDownMenu();
+            subMenu.Items.Add(subMenuItem1);
+            menuItem1.DropDown = subMenu;
+            m_contextMenuStrip.Items.Add(menuItem1);
+
+            //ToolStripMenuItem menuItem2 = new ToolStripMenuItem("");
+            ////menuItem2.Click += OnClicked;
+            //m_contextMenuStrip.Items.Add(menuItem2);
+
+        }
+
+        private void NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            //right click: show menu (example: add entity, delete, ...)
+            if (e.Button == MouseButtons.Right)
+            {
+                m_tree.SelectedNode = e.Node;
+
+                m_contextMenuStrip.Show(m_tree, e.Location);
+            }
+            //select enetity
+            else if (e.Button == MouseButtons.Left)
+            {
+                m_tree.SelectedNode = e.Node;
+
+            }
         }
 
         private void NodeExpanded(object sender, TreeViewEventArgs e)
         {
-            foreach(var node in e.Node.Nodes)
+            foreach (var node in e.Node.Nodes)
             {
                 UpdateNodeUI(node as TreeNode);
             }
@@ -75,9 +116,9 @@ namespace CkfEngine.Editor
         private void AfterSelect(object sender, TreeViewEventArgs e)
         {
             var tree = sender as TreeView;
-            var path  =  GetRelativePath(tree.SelectedNode);
+            var path = GetRelativePath(tree.SelectedNode);
 
-            if(m_curDir!= path)
+            if (m_curDir != path)
             {
                 m_curDir = path;
                 m_curNode = tree.SelectedNode;
@@ -106,7 +147,7 @@ namespace CkfEngine.Editor
                 ListViewItem item = new ListViewItem(fileInfo.Name);
                 item.SubItems.Add(fileInfo.Length.ToString());
                 item.SubItems.Add(fileInfo.LastWriteTime.ToString());
-                item.ImageKey = fileInfo.Extension; 
+                item.ImageKey = fileInfo.Extension;
                 m_fileListView.Items.Add(item);
             }
 
@@ -115,13 +156,13 @@ namespace CkfEngine.Editor
 
         private void ItemViewOnDoubleClicked(object sender, EventArgs e)
         {
-            if(m_fileListView.SelectedItems.Count > 0)
+            if (m_fileListView.SelectedItems.Count > 0)
             {
                 var file = m_fileListView.SelectedItems[0].Text;
                 var dir = GetRelativePath(m_curNode);
                 var fullPath = ProjectManager.CurProject.Path + dir + "/" + file;
 
-                if(Path.GetExtension(file).ToLower() == "scene")
+                if (Path.GetExtension(file).ToLower() == "scene")
                 {
 
                 }
@@ -140,17 +181,17 @@ namespace CkfEngine.Editor
 
         private string GetRelativePath(TreeNode node)
         {
-            if(node?.Text == null)
+            if (node?.Text == null)
             {
                 return null;
             }
 
             var curNode = node;
             string path = node.Text;
-            while(curNode.Parent != null) 
+            while (curNode.Parent != null)
             {
                 curNode = curNode.Parent;
-                path = curNode.Text + '/'+ path;
+                path = curNode.Text + '/' + path;
 
             }
             return path;
@@ -158,9 +199,9 @@ namespace CkfEngine.Editor
 
         private string GetFinalDirName(string dir)
         {
-            var strs = dir.Split('/','\\');
+            var strs = dir.Split('/', '\\');
             if (strs.Length == 0)
-            { 
+            {
                 return null;
             }
 
