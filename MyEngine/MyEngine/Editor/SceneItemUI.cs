@@ -21,7 +21,7 @@ namespace CkfEngine.Editor
             m_itemTree = itemTree;
             m_contextMenuStrip = contextMenuStrip; ;
             m_itemTree.NodeMouseClick += NodeMouseClick;
-            m_rootNode = new TreeNode("Scene");
+            m_rootNode = new TreeNode("None");
             m_itemTree.Nodes.Add(m_rootNode);
             m_itemTree.LabelEdit = true;
 
@@ -42,6 +42,13 @@ namespace CkfEngine.Editor
             contextMenuStrip.Items.Add(menuItem4);
 
             Transform.EventSetParent += UpdateParentSetted;
+        }
+
+        internal void RefreshScene()
+        {
+            m_itemTree.Nodes.Clear();
+            m_rootNode = new TreeNode(ProjectManager.Instance.CurScene.Name);
+            m_itemTree.Nodes.Add(m_rootNode);
         }
 
         private void UpdateParentSetted(ulong entityID, ulong parentID, bool isDelete, string name)

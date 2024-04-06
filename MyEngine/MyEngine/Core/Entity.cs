@@ -17,6 +17,30 @@ namespace CkfEngine
 
         private static Dictionary<ulong,Entity> m_entityTable = new Dictionary<ulong, Entity>();
 
+        public static Entity[] GetAllEntities()
+        {
+            return m_entityTable.Values.ToArray();
+        }
+
+        internal static void CloseScene()
+        {
+            m_entityTable.Clear();
+        }
+
+        internal static void InitScene(Scene scene)
+        {
+            foreach(var entity in scene.m_entities)
+            {
+                InstantiateEntityBySceneData(entity);
+            }
+        }
+
+        private static void InstantiateEntityBySceneData(Entity obj)
+        {
+            obj.ReacquireUID();
+            m_entityTable.Add(obj.Uid, obj);
+        }
+
         public static Entity CreateEntity(string name = null, Entity parent = null)
         {
             if (string.IsNullOrEmpty(name))
@@ -29,6 +53,9 @@ namespace CkfEngine
             entity.m_transform = entity.CreateComponent<Transform>();
             m_entityTable.Add(entity.Uid, entity);
             entity.m_transform.SetParent(parent?.m_transform);
+
+            CoreEvents.EntityCreated?.Invoke(entity);
+
             return entity;
         }
 

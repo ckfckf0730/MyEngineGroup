@@ -25,6 +25,8 @@ namespace CkfEngine.Editor
             m_ckfSceneItem = new CkfSceneItemUI();
             m_ckfInspectorItem = new CkfInspectorUI();
             m_ckfAssetsUI = new CkfAssetsUI();
+
+            m_windowForm.Text = ProjectManager.Instance.CurProject.Path;
         }
 
         private CkfSceneItemUI m_ckfSceneItem;
@@ -38,6 +40,7 @@ namespace CkfEngine.Editor
         {
             get { return m_ckfAssetsUI; }
         }
+
     }
 
     abstract class CkfUIPanel

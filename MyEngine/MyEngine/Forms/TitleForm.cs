@@ -31,9 +31,9 @@ namespace CkfEngine.Forms
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 var proName = saveFileDialog.FileName;
-                ProjectManager.CreateNewProject(proName);
+                ProjectManager.Instance.CreateNewProject(proName);
                 var fileName = Path.GetFileName(proName) + ".cepj";
-                ProjectManager.OpenProject(proName + "/"+ fileName);
+                ProjectManager.Instance.OpenProject(proName + "/"+ fileName);
             }
         }
 
@@ -45,7 +45,7 @@ namespace CkfEngine.Forms
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 var proName = openFileDialog.FileName;
-                ProjectManager.OpenProject(proName);
+                ProjectManager.Instance.OpenProject(proName);
             }
         }
 

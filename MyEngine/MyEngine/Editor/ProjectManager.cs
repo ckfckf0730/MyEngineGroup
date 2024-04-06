@@ -10,12 +10,34 @@ using CkfEngine.Core;
 
 namespace CkfEngine.Editor
 {
-    internal static class ProjectManager
+    internal class ProjectManager
     {
-        internal static CkfProject CurProject = null;
-        internal static Scene CurScene = null;
+        private ProjectManager() { }
 
-        internal static void CreateNewProject(string fullPath)
+        public static ProjectManager Instance
+        {
+            get
+            {
+                return instance != null ? instance : (instance = new ProjectManager());
+            }
+        }
+        private static ProjectManager instance;
+
+        internal CkfProject CurProject = null;
+        internal Scene CurScene = null;
+        internal string CurScenePath = null;
+
+        internal void Init()
+        {
+            CoreEvents.EntityCreated += EntityOnCreated;
+        }
+
+        internal void EntityOnCreated(Entity entity)
+        {
+            CurScene.m_entities .Add(entity);
+        }
+
+        internal void CreateNewProject(string fullPath)
         {
             string directory = Path.GetDirectoryName(fullPath);
             string proName = Path.GetFileName(fullPath);
@@ -43,18 +65,18 @@ namespace CkfEngine.Editor
             OpenProject(prjFilePath);
         }
 
-        internal static void CopyBasicAssets(string AssetsPath)
+        internal void CopyBasicAssets(string AssetsPath)
         {
             string engineAssetsPath = "Assets";
             CopyAllDirectory(engineAssetsPath, AssetsPath);
         }
 
-        internal static void CopyLibrary(string AssetsPath)
+        internal void CopyLibrary(string AssetsPath)
         {
 
         }
 
-        internal static void CopyAllDirectory(string scrPath, string descPath)
+        internal void CopyAllDirectory(string scrPath, string descPath)
         {
             var dirs= Directory.GetDirectories(scrPath);
             var files = Directory.GetFiles(scrPath);
@@ -77,7 +99,7 @@ namespace CkfEngine.Editor
         }
 
 
-        internal static void OpenProject(string path)
+        internal void OpenProject(string path)
         {
             var dir = Path.GetDirectoryName(path);
 
@@ -86,12 +108,13 @@ namespace CkfEngine.Editor
             CurProject = new CkfProject();
             CurProject.Path = dir + "/";
 
-
         }
 
 
-        internal static void SaveScene(Scene scene, string path)
+        internal void SaveScene(Scene scene, string path)
         {
+            var name = Path.GetFileNameWithoutExtension(path);
+            scene.Name = name;
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignore roop Handling
@@ -102,13 +125,18 @@ namespace CkfEngine.Editor
         }
 
 
-        internal static void OpenScene(string path)
+        internal void OpenScene(string path)
         {
             var jsonText = File.ReadAllText(path);
-            var scene = JsonConvert.DeserializeObject<Scene>(jsonText);
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignore roop Handling
+            };
+            var scene = JsonConvert.DeserializeObject<Scene>(jsonText, settings);
             if(scene != null)
             {
-                CurScene = scene;
+                OpenScene(scene);
+                CurScenePath = path;
             }
             else
             {
@@ -116,10 +144,43 @@ namespace CkfEngine.Editor
             }
         }
 
-        internal static void OpenScene(Scene scene)
+        internal void OpenScene(Scene scene)
         {
-
+            if (CurScene != scene)
+            {
+                CloseCurScene();
+                CurScene = scene;
+                InitScene();
+            }
         }
+
+        internal void CloseCurScene()
+        {
+            Entity.CloseScene();
+        }
+
+        private void InitScene()
+        {
+            Entity.InitScene(CurScene);
+            CkfEditorUI.Instance.CkfSceneItem.RefreshScene();
+            foreach (var entity in Entity.GetAllEntities())
+            {
+                if (entity.Transform.Parent == null)
+                {
+                    entity.Transform.SetParent(null);
+                }
+            }
+        }
+
+        private static void ResetTransform(Transform trans)
+        {
+            trans.SetParent(trans.Parent);
+            foreach(var child in trans.Children)
+            {
+                ResetTransform(child);
+            }
+        }
+        
     }
 
 

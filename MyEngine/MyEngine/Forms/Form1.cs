@@ -112,6 +112,11 @@ namespace CkfEngine
                 Console.WriteLine(msg);
             }
         }
+
+        private void buttonSaveScene_Click(object sender, EventArgs e)
+        {
+            ProjectManager.Instance.SaveScene(ProjectManager.Instance.CurScene, ProjectManager.Instance.CurScenePath);
+        }
     }
 
     public static class PanelRegister

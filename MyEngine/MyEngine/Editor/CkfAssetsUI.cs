@@ -76,7 +76,7 @@ namespace CkfEngine.Editor
             ToolStripMenuItem subMenuItem1 = new ToolStripMenuItem("Scene");
             subMenuItem1.Click += (sender, e) =>
             {
-                string path = ProjectManager.CurProject.Path +  GetRelativePath(m_tree.SelectedNode) + "/";
+                string path = ProjectManager.Instance.CurProject.Path +  GetRelativePath(m_tree.SelectedNode) + "/";
                 for(int i = 0; i<10000; i++)
                 {
                     string fileName = "NewScene";
@@ -88,7 +88,7 @@ namespace CkfEngine.Editor
                     string fulName = path + fileName;
                     if(!File.Exists(fulName))
                     {
-                        ProjectManager.SaveScene(new Core.Scene(), fulName);
+                        ProjectManager.Instance.SaveScene(new Core.Scene(), fulName);
                         UpdateFIleIcons();
                         break;
                     }
@@ -156,7 +156,7 @@ namespace CkfEngine.Editor
                 return;
             }
 
-            var fullPath = ProjectManager.CurProject.Path + m_curDir;
+            var fullPath = ProjectManager.Instance.CurProject.Path + m_curDir;
             var files = Directory.GetFiles(fullPath);
 
             foreach (string file in files)
@@ -175,7 +175,7 @@ namespace CkfEngine.Editor
         private void FileListOnDoubleClicked(object sender, EventArgs e)
         {
             var fileName = (sender as ListView).FocusedItem.Text;
-            var path = ProjectManager.CurProject.Path + GetRelativePath(m_tree.SelectedNode);
+            var path = ProjectManager.Instance.CurProject.Path + GetRelativePath(m_tree.SelectedNode);
             var fullFIlePath = path + "/" + fileName;
 
             var fileType = Path.GetExtension(fileName).ToLower();
@@ -183,7 +183,7 @@ namespace CkfEngine.Editor
             switch(fileType)
             {
                 case ".ckf":
-                    ProjectManager.OpenScene(fullFIlePath);
+                    ProjectManager.Instance.OpenScene(fullFIlePath);
                 break;
                     default: 
                     
@@ -198,7 +198,7 @@ namespace CkfEngine.Editor
             {
                 var file = m_fileListView.SelectedItems[0].Text;
                 var dir = GetRelativePath(m_curNode);
-                var fullPath = ProjectManager.CurProject.Path + dir + "/" + file;
+                var fullPath = ProjectManager.Instance.CurProject.Path + dir + "/" + file;
 
                 if (Path.GetExtension(file).ToLower() == "scene")
                 {

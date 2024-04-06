@@ -91,6 +91,23 @@ namespace CkfEngine
 
         public void SetParent(Transform parent)
         {
+            var temp = parent;
+            int timeOut = 0;
+            while (temp != null)
+            {
+                if(temp == this)
+                {
+                    Console.WriteLine("SetParent Error!! roop reference!!   " + this.Name);
+                }
+                temp = temp.Parent;
+                timeOut++;
+
+                if (timeOut > 10000)
+                {
+                    throw new Exception("SetParent Time Out " + this.Name);
+                }
+            }
+
             UnsetParent();
             if (parent != null && parent != this)
             {

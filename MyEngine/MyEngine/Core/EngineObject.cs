@@ -36,5 +36,10 @@ namespace CkfEngine.Core
         {
             m_uid = UID.GetUID();
         }
+
+        internal void ReacquireUID()
+        {
+            m_uid = UID.GetUID();
+        }
     }
 }

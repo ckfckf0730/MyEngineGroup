@@ -14,11 +14,16 @@ namespace CkfEngine.Core
         internal Scene() 
         {
             m_entities = new List<Entity>();
-            var entity = new Entity("test1");
+           
+        }
 
-            entity.CreateComponent<Transform>();
+        [JsonProperty]
+        private string m_name;
 
-            m_entities.Add(entity);
+        public string Name
+        {
+            internal set { m_name = value; }
+            get { return m_name; }
         }
 
         [JsonProperty]

@@ -31,6 +31,8 @@ namespace CkfEngine.Editor
             m_camera.Init();
             m_camera.SetTransform(new Vector3(0, 20, -15), new Vector3(0, 0, 10), new Vector3(0, 1, 0));
             UpdateEvent += m_camera.Render;
+
+            ProjectManager.Instance.Init();
         }
 
         internal void Update()
