@@ -64,7 +64,7 @@
     <Compile Include="Core\Component.cs" />
     <Compile Include="Core\D3DAPICall.cs" />
     <Compile Include="Core\Entity.cs" />
-    <Compile Include="Editor\EditorEventManager.cs" />
+    <Compile Include="Editor\EditorEvents.cs" />
     <Compile Include="Editor\ProjectManager.cs" />
     <Compile Include="Editor\SceneItemUI.cs" />
     <Compile Include="Forms\Form1.cs">

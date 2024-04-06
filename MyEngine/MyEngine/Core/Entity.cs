@@ -11,7 +11,7 @@ namespace CkfEngine
     [Serializable]
     public class Entity : EngineObject
     {
-        private Entity(string name) { Name = name; }
+        internal Entity(string name) { Name = name; }
 
         #region EntityTable
 

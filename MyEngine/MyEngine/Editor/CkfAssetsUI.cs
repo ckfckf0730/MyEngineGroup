@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using static System.Net.WebRequestMethods;
 
 namespace CkfEngine.Editor
 {
@@ -65,6 +64,8 @@ namespace CkfEngine.Editor
             smallImageList.ImageSize = new System.Drawing.Size(16, 16);
             m_fileListView.SmallImageList = smallImageList;
 
+            m_fileListView.DoubleClick += FileListOnDoubleClicked;
+
 
             //------------ContextMenuStrip----------------
             m_contextMenuStrip = new ContextMenuStrip();
@@ -75,7 +76,24 @@ namespace CkfEngine.Editor
             ToolStripMenuItem subMenuItem1 = new ToolStripMenuItem("Scene");
             subMenuItem1.Click += (sender, e) =>
             {
-                ProjectManager.SaveScene(null,"test");
+                string path = ProjectManager.CurProject.Path +  GetRelativePath(m_tree.SelectedNode) + "/";
+                for(int i = 0; i<10000; i++)
+                {
+                    string fileName = "NewScene";
+                    if(i > 0)
+                    {
+                        fileName += "_" + i.ToString();
+                    }
+                    fileName += ".ckf";
+                    string fulName = path + fileName;
+                    if(!File.Exists(fulName))
+                    {
+                        ProjectManager.SaveScene(new Core.Scene(), fulName);
+                        UpdateFIleIcons();
+                        break;
+                    }
+                    
+                }
             };
             ToolStripDropDownMenu subMenu = new ToolStripDropDownMenu();
             subMenu.Items.Add(subMenuItem1);
@@ -152,6 +170,26 @@ namespace CkfEngine.Editor
             }
 
             m_fileListView.DoubleClick += ItemViewOnDoubleClicked;
+        }
+
+        private void FileListOnDoubleClicked(object sender, EventArgs e)
+        {
+            var fileName = (sender as ListView).FocusedItem.Text;
+            var path = ProjectManager.CurProject.Path + GetRelativePath(m_tree.SelectedNode);
+            var fullFIlePath = path + "/" + fileName;
+
+            var fileType = Path.GetExtension(fileName).ToLower();
+            
+            switch(fileType)
+            {
+                case ".ckf":
+                    ProjectManager.OpenScene(fullFIlePath);
+                break;
+                    default: 
+                    
+                    break;
+            }
+
         }
 
         private void ItemViewOnDoubleClicked(object sender, EventArgs e)

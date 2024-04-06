@@ -48,7 +48,7 @@ namespace CkfEngine
 
         private CkfEditorSystem m_editorSystem;
 
-        private TestScene testScene;
+        //private TestScene testScene;
 
         private void InitEditor()
         {

@@ -13,6 +13,7 @@ namespace CkfEngine.Editor
     internal static class ProjectManager
     {
         internal static CkfProject CurProject = null;
+        internal static Scene CurScene = null;
 
         internal static void CreateNewProject(string fullPath)
         {
@@ -80,7 +81,7 @@ namespace CkfEngine.Editor
         {
             var dir = Path.GetDirectoryName(path);
 
-            EditorEventManager.OpenProject(dir);
+            EditorEvents.OpenProject(dir);
 
             CurProject = new CkfProject();
             CurProject.Path = dir + "/";
@@ -98,6 +99,26 @@ namespace CkfEngine.Editor
             string json = JsonConvert.SerializeObject(scene, settings);
 
             File.WriteAllText(path, json);
+        }
+
+
+        internal static void OpenScene(string path)
+        {
+            var jsonText = File.ReadAllText(path);
+            var scene = JsonConvert.DeserializeObject<Scene>(jsonText);
+            if(scene != null)
+            {
+                CurScene = scene;
+            }
+            else
+            {
+                Console.WriteLine("Can't Load Scene file: " + path);
+            }
+        }
+
+        internal static void OpenScene(Scene scene)
+        {
+
         }
     }
 

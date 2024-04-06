@@ -18,7 +18,7 @@ namespace CkfEngine.Forms
         {
             InitializeComponent();
 
-            EditorEventManager.OpenProject += ChangeEditorForm;
+            EditorEvents.OpenProject += ChangeEditorForm;
             IsOpenProject = false;
         }
 
