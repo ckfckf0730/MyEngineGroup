@@ -1,19 +1,21 @@
 ﻿using CkfEngine.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CkfEngine
+namespace CkfEngine.Core
 {
     [Serializable]
     public class Entity : EngineObject
     {
         internal Entity(string name) { Name = name; }
 
-        #region EntityTable
+        #region StaticFunction
 
         private static Dictionary<ulong,Entity> m_entityTable = new Dictionary<ulong, Entity>();
 
@@ -27,17 +29,42 @@ namespace CkfEngine
             m_entityTable.Clear();
         }
 
+        internal static void ResetParentByUid(List<Entity> entities)
+        {
+            Dictionary<ulong,Transform> transMap = new Dictionary<ulong,Transform>();
+
+
+            foreach(var entity in entities)
+            {
+                var trans = entity.Transform;
+                transMap.Add(trans.Uid, trans);
+            }
+
+            foreach(var trans in  transMap.Values)
+            {
+                if(trans.m_parentUid ==0)
+                {
+                    trans.SetParent(null);
+                }
+                else
+                {
+                    trans.SetParent(transMap[trans.m_parentUid]);
+                }
+            }
+        }
+
         internal static void InitScene(Scene scene)
         {
             foreach(var entity in scene.m_entities)
             {
                 InstantiateEntityBySceneData(entity);
             }
+            ResetParentByUid(m_entityTable.Values.ToList());
         }
 
         private static void InstantiateEntityBySceneData(Entity obj)
         {
-            obj.ReacquireUID();
+            //obj.ReacquireUID();
             m_entityTable.Add(obj.Uid, obj);
         }
 
@@ -94,16 +121,23 @@ namespace CkfEngine
             m_components.Clear();
         }
 
-
-        private Dictionary<Type, Component> m_components = new Dictionary<Type, Component>();
+        [JsonIgnore]
+        internal Dictionary<Type, Component> m_components = new Dictionary<Type, Component>();
+        [JsonIgnore]
         public Component[] Components
         {
             get { return m_components.Values.ToArray(); }
         }
 
+        [JsonProperty]
         private Transform m_transform;
+        [JsonIgnore]
         public Transform Transform { get { return m_transform; } }
 
+        internal void ResetTransform(Transform  trans)
+        {
+            m_transform = trans;
+        }
 
         public T CreateComponent<T>() where T : Component, new()
         {
@@ -158,4 +192,50 @@ namespace CkfEngine
 
     }
 
+    [Serializable]
+    internal class EntitySerialize
+    {
+        public EntitySerialize() { }
+
+        [JsonProperty]
+        internal Entity Obj;
+
+        [JsonProperty]
+        internal Dictionary<string, string> SerializedComponents;
+
+        internal EntitySerialize(Entity obj)
+        { 
+            Obj = obj;
+            SerializedComponents = new Dictionary<string, string>();
+            foreach (var pair in Obj.m_components)
+            {
+                var valueJson = JsonConvert.SerializeObject(pair.Value);
+                SerializedComponents.Add(pair.Key.FullName, valueJson);
+            }
+        }
+
+        internal Entity Deserialize()
+        {
+            Obj.m_components.Clear();
+
+            foreach(var pair in SerializedComponents)
+            {
+                Type type = Type.GetType(pair.Key);
+                Component component =  JsonConvert.DeserializeObject(pair.Value, type) as Component;
+
+                component.BindEntity(Obj);
+                Obj.m_components.Add(type, component);
+            }
+
+            foreach(var item in Obj.m_components)
+            {
+                if(item.Value is Transform)
+                {
+                    Obj.ResetTransform(item.Value as Transform);
+                }
+            }
+
+            return Obj;
+        }
+    }
 }

@@ -6,7 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using CkfEngine.Core;
-
+using System.Security.Cryptography;
+using CkfEngine.Properties;
+using System.Windows.Forms;
 
 namespace CkfEngine.Editor
 {
@@ -34,7 +36,7 @@ namespace CkfEngine.Editor
 
         internal void EntityOnCreated(Entity entity)
         {
-            CurScene.m_entities .Add(entity);
+            CurScene?.m_entities .Add(entity);
         }
 
         internal void CreateNewProject(string fullPath)
@@ -115,11 +117,9 @@ namespace CkfEngine.Editor
         {
             var name = Path.GetFileNameWithoutExtension(path);
             scene.Name = name;
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignore roop Handling
-            };
-            string json = JsonConvert.SerializeObject(scene, settings);
+
+            scene.SerialzeEntities();
+            string json = JsonConvert.SerializeObject(scene);
 
             File.WriteAllText(path, json);
         }
@@ -128,12 +128,10 @@ namespace CkfEngine.Editor
         internal void OpenScene(string path)
         {
             var jsonText = File.ReadAllText(path);
-            JsonSerializerSettings settings = new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignore roop Handling
-            };
-            var scene = JsonConvert.DeserializeObject<Scene>(jsonText, settings);
-            if(scene != null)
+
+            var scene = JsonConvert.DeserializeObject<Scene>(jsonText);
+            scene.ClearAndDeserialzeEntities();
+            if (scene != null)
             {
                 OpenScene(scene);
                 CurScenePath = path;
@@ -172,13 +170,29 @@ namespace CkfEngine.Editor
             }
         }
 
-        private static void ResetTransform(Transform trans)
+        private void ResetTransform(Transform trans)
         {
             trans.SetParent(trans.Parent);
             foreach(var child in trans.Children)
             {
                 ResetTransform(child);
             }
+        }
+
+        public void TestFunc()
+        {
+            Entity entity = Entity.CreateEntity("testEntity");
+
+            //JsonSerializerSettings settings = new JsonSerializerSettings
+            //{
+            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignore roop Handling
+            //};
+            //string json = JsonConvert.SerializeObject(entity, settings);
+
+            //var dEntity = JsonConvert.DeserializeObject<Entity>(json, settings);
+
+            EntitySerialize es = new EntitySerialize(entity);
+
         }
         
     }

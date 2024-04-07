@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CkfEngine
+namespace CkfEngine.Core
 {
     internal class D3DAPICall
     {

@@ -14,23 +14,43 @@ namespace CkfEngine.Core
         internal Scene() 
         {
             m_entities = new List<Entity>();
-           
         }
 
         [JsonProperty]
         private string m_name;
 
+        [JsonIgnore]
         public string Name
         {
             internal set { m_name = value; }
             get { return m_name; }
         }
 
-        [JsonProperty]
         internal List<Entity> m_entities;
 
+        [JsonProperty]
+        internal List<EntitySerialize> m_entitySerialzes;
 
+        internal void SerialzeEntities()
+        {
+            m_entitySerialzes = new List<EntitySerialize>();
 
+            foreach (Entity entity in m_entities)
+            {
+                m_entitySerialzes.Add(new EntitySerialize(entity));
+            }
+        }
+
+        internal void ClearAndDeserialzeEntities()
+        {
+            m_entities.Clear();
+            foreach (EntitySerialize item in m_entitySerialzes)
+            {
+                m_entities.Add(item.Deserialize());
+            }
+
+            m_entitySerialzes.Clear();
+        }
 
     }
 }

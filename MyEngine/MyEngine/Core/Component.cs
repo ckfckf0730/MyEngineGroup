@@ -1,4 +1,5 @@
 ﻿using CkfEngine.Core;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
@@ -10,11 +11,13 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
-namespace CkfEngine
+namespace CkfEngine.Core
 {
+    [Serializable]
     public abstract class Component : EngineObject
     {
         private Entity m_owner;
+        [JsonIgnore]
         public Entity OwnerEntity
         { get { return m_owner; } }
 
@@ -71,10 +74,14 @@ namespace CkfEngine
             set { m_scale = value; EffectiveTransform(); }
         }
 
+        [JsonProperty]
+        internal ulong m_parentUid;
 
         private Transform m_parent;
         public Transform Parent { get { return m_parent; } }
         private List<Transform> m_children = new List<Transform>();
+
+        [JsonIgnore]
         public Transform[] Children
         {
             get { return m_children.ToArray();}
@@ -86,7 +93,11 @@ namespace CkfEngine
                 Matrix4x4.CreateFromYawPitchRoll(m_rotation.Y, m_rotation.X, m_rotation.Z) *
                 Matrix4x4.CreateTranslation(m_translation);
 
-            D3DAPICall.SetModelTransform(OwnerEntity.Uid, worldMat);
+            if(OwnerEntity!= null)
+            {
+                D3DAPICall.SetModelTransform(OwnerEntity.Uid, worldMat);
+            }
+
         }
 
         public void SetParent(Transform parent)
@@ -112,9 +123,8 @@ namespace CkfEngine
             if (parent != null && parent != this)
             {
                 m_parent = parent;
+                m_parentUid = parent.Uid;
                 parent.m_children.Add(this);
-
-
                 
             }
             EventSetParent?.Invoke(OwnerEntity.Uid, parent == null ? 0 : parent.OwnerEntity.Uid,

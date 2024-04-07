@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,14 +20,19 @@ namespace CkfEngine.Core
             }
         }
 
+        [JsonProperty]
         private string m_name;
+        [JsonProperty]
         private ulong m_uid;
 
+        [JsonIgnore]
         public string Name
         {
             protected set { m_name = value; }
             get { return m_name; }
         }
+
+        [JsonIgnore]
         public ulong Uid
         {
             get { return m_uid; }

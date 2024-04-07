@@ -1,4 +1,5 @@
 ﻿using CkfEngine.Editor;
+using CkfEngine.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -116,6 +117,11 @@ namespace CkfEngine
         private void buttonSaveScene_Click(object sender, EventArgs e)
         {
             ProjectManager.Instance.SaveScene(ProjectManager.Instance.CurScene, ProjectManager.Instance.CurScenePath);
+        }
+
+        private void TestButton_Click(object sender, EventArgs e)
+        {
+            ProjectManager.Instance.TestFunc();
         }
     }
 
