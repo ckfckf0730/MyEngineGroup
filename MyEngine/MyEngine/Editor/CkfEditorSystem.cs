@@ -43,6 +43,11 @@ namespace CkfEngine.Editor
             var panel = PanelRegister.GetExtendScreen();
             D3DAPICall.CreateRenderTarget(panel.Handle, camera.Uid, camera.m_width, camera.m_height);
             D3DAPICall.SetRenderTargetBackColor(camera.Uid,new float[4] {1.0f, 1.0f, 0.0f, 1.0f });
+            camera.OwnerEntity.Transform.CalculateForwardAndUp();
+            D3DAPICall.SetCameraTransform(
+                    camera.OwnerEntity.Transform.Translation,
+                    camera.OwnerEntity.Transform.m_forward,
+                    camera.OwnerEntity.Transform.m_up);
             D3DAPICall.Render(camera.Uid);
 
             panel.Show();
@@ -92,6 +97,7 @@ namespace CkfEngine.Editor
 
             public void Render()
             {
+                Implement();
                 D3DAPICall.Render(m_uid);
             }
         }

@@ -68,6 +68,10 @@ namespace CkfEngine.Core
             set { m_rotation = value; EffectiveTransform(); }
         }
         private Vector3 m_scale = Vector3.One;
+
+        internal Vector3 m_forward;
+        internal Vector3 m_up;
+
         public Vector3 Scale
         {
             get { return m_scale; }
@@ -141,6 +145,22 @@ namespace CkfEngine.Core
             }
         }
 
+        internal void CalculateForwardAndUp()
+        {
+            Vector3 rotation = this.OwnerEntity.Transform.Rotation;
+            Matrix4x4 rY = Matrix4x4.CreateFromAxisAngle(new Vector3(0, 1, 0), rotation.Y);
+            Matrix4x4 rX = Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), rotation.X);
+            Matrix4x4 rZ = Matrix4x4.CreateFromAxisAngle(new Vector3(0, 0, 1), rotation.Z);
+
+            Matrix4x4 m = rZ * rX * rY;
+
+            Vector3 forward = new Vector3(0, 0, 1);
+            Vector3 up = new Vector3(0, 1, 0);
+
+            m_forward = Vector3.Transform(forward, m);
+            m_up = Vector3.Transform(up, m);
+        }
+
         protected override void OnDestroyed()
         {
             base.OnDestroyed();
@@ -159,7 +179,7 @@ namespace CkfEngine.Core
         internal uint m_width;
         internal uint m_height;
         internal float m_near;
-        internal float m_far;
+        internal float m_far; 
 
         public Camera()
         {
@@ -185,8 +205,14 @@ namespace CkfEngine.Core
 
         protected override void Update()
         {
+            this.OwnerEntity.Transform.CalculateForwardAndUp();
+            D3DAPICall.SetCameraTransform(
+                    this.OwnerEntity.Transform.Translation,
+                    this.OwnerEntity.Transform.m_forward,
+                    this.OwnerEntity.Transform.m_up);
             D3DAPICall.Render(this.Uid);
         }
+
     }
 
     [Serializable]

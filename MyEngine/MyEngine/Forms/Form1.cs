@@ -158,7 +158,7 @@ namespace CkfEngine
             return panel;
         }
 
-        private static float ExtendScale = 0.15f;
+        private static float ExtendScale = 0.25f;
         private static void ReplaceExtendScreen()
         {
             float width =  EditorMainScreen.Width * ExtendScale;

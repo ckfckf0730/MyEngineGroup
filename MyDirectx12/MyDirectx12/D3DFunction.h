@@ -82,6 +82,7 @@ public:
 	int SetPipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
 		LPCWSTR vsShader, LPCWSTR psShader);
 	int CreateSceneView(D3DDevice* _cD3DDev);
+
 	void SetCameraTransform(DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	//void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);
 	void Draw(ID3D12GraphicsCommandList*, ID3D12Device*);
