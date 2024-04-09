@@ -28,7 +28,7 @@ namespace CkfEngine.Core
         [JsonIgnore]
         public string Name
         {
-            protected set { m_name = value; }
+            set { m_name = value; }
             get { return m_name; }
         }
 

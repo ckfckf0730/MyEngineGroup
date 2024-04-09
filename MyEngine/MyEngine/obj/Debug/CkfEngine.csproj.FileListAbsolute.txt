@@ -27,3 +27,6 @@ D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.Forms
 D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\Newtonsoft.Json.dll
 D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\Newtonsoft.Json.xml
 D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.CopyComplete
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\Newtonsoft.Json.dll
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\Newtonsoft.Json.xml
+D:\Projects\MyEngineGroup\MyEngine\MyEngine\obj\Debug\CkfEngine.csproj.CopyComplete

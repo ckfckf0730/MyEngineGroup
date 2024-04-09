@@ -171,21 +171,28 @@ namespace CkfEngine.Core
         }
     }
 
+    [Serializable]
     public class FileLoad
     {
+        [JsonProperty]
         private string fullpath;
+        [JsonIgnore]
         public string FullPath
         {
             set { fullpath = value; OnChenged?.Invoke(); }
             get { return fullpath; }
         }
+
         public event Action OnChenged;
     }
 
+    [Serializable]
     public class ModelBoneRenderer : Component
     {
+        [JsonProperty]
         [MyAttributeLoadFileType("PMD")]
         private  FileLoad m_file;
+        [JsonIgnore]
         public FileLoad File
         { get { return m_file; } }
 
@@ -194,7 +201,18 @@ namespace CkfEngine.Core
         protected override void OnCreated()
         {
             m_isLoaded = false;
-            m_file = new FileLoad();
+            if(m_file == null)
+            {
+                m_file = new FileLoad();
+
+            }
+            else
+            {
+                var path = m_file.FullPath;
+                m_file = new FileLoad();
+                m_file.FullPath = path;
+                SetPMDModel();
+            }
             m_file.OnChenged += SetPMDModel;
         }
 
@@ -233,11 +251,13 @@ namespace CkfEngine.Core
 
     }
 
-
+    [Serializable]
     public class ModelRenderer : Component
     {
         [MyAttributeLoadFileType("VD")]
+        [JsonProperty]
         private FileLoad m_file;
+        [JsonIgnore]
         public FileLoad File
         { get { return m_file; } }
 
@@ -246,7 +266,18 @@ namespace CkfEngine.Core
         protected override void OnCreated()
         {
             m_isLoaded = false;
-            m_file = new FileLoad();
+            if (m_file == null)
+            {
+                m_file = new FileLoad();
+
+            }
+            else
+            {
+                var path = m_file.FullPath;
+                m_file = new FileLoad();
+                m_file.FullPath = path;
+                SetModel();
+            }
             m_file.OnChenged += SetModel;
         }
 
@@ -287,8 +318,10 @@ namespace CkfEngine.Core
 
     public class Animation : Component
     {
+        [JsonProperty]
         [MyAttributeLoadFileType("VMD")]
         private FileLoad m_file;
+        [JsonIgnore]
         public FileLoad File
         { get { return m_file; } }
 

@@ -166,6 +166,7 @@ namespace CkfEngine.Editor
                 if (entity.Transform.Parent == null)
                 {
                     entity.Transform.SetParent(null);
+                    entity.Transform.EffectiveTransform();
                 }
             }
         }

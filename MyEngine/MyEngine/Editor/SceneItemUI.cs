@@ -25,6 +25,7 @@ namespace CkfEngine.Editor
             m_rootNode = new TreeNode("None");
             m_itemTree.Nodes.Add(m_rootNode);
             m_itemTree.LabelEdit = true;
+            m_itemTree.AfterLabelEdit += AfterLabelEdit;
 
             ToolStripMenuItem menuItem1 = new ToolStripMenuItem("Create Entity");
             menuItem1.Click += CreateEntityOnClicked;
@@ -43,6 +44,16 @@ namespace CkfEngine.Editor
             contextMenuStrip.Items.Add(menuItem4);
 
             Transform.EventSetParent += UpdateParentSetted;
+        }
+
+        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            TreeNode selectNode = m_itemTree.SelectedNode;
+            if (selectNode.Tag is ulong)
+            {
+                ulong uid = (ulong)selectNode.Tag;
+                Entity.FindEntity(uid).Name = e.Label;
+            }
         }
 
         internal void RefreshScene()

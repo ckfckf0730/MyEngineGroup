@@ -123,6 +123,16 @@ namespace CkfEngine
         {
             ProjectManager.Instance.TestFunc();
         }
+
+        private void buttonRunScene_Click(object sender, EventArgs e)
+        {
+            var runForm = new Form();
+            int width = 800;
+            int height = 600;
+            runForm.Size = new Size(width, height);
+            runForm.Show();
+            EngineRunTime.Instance.Boot(runForm.Handle, (uint)width, (uint)height);
+        }
     }
 
     public static class PanelRegister

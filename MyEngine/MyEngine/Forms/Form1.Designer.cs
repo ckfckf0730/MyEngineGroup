@@ -43,6 +43,7 @@ namespace CkfEngine
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.TestButton = new System.Windows.Forms.Button();
             this.buttonSaveScene = new System.Windows.Forms.Button();
+            this.buttonRunScene = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -137,12 +138,23 @@ namespace CkfEngine
             this.buttonSaveScene.UseVisualStyleBackColor = true;
             this.buttonSaveScene.Click += new System.EventHandler(this.buttonSaveScene_Click);
             // 
+            // buttonRunScene
+            // 
+            this.buttonRunScene.Location = new System.Drawing.Point(502, 1);
+            this.buttonRunScene.Name = "buttonRunScene";
+            this.buttonRunScene.Size = new System.Drawing.Size(75, 23);
+            this.buttonRunScene.TabIndex = 5;
+            this.buttonRunScene.Text = "Run";
+            this.buttonRunScene.UseVisualStyleBackColor = true;
+            this.buttonRunScene.Click += new System.EventHandler(this.buttonRunScene_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1389, 597);
             this.Controls.Add(this.buttonSaveScene);
+            this.Controls.Add(this.buttonRunScene);
             this.Controls.Add(this.TestButton);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
@@ -175,6 +187,7 @@ namespace CkfEngine
         private System.Windows.Forms.TreeView SceneItemTree;
         private System.Windows.Forms.Button TestButton;
         private System.Windows.Forms.Button buttonSaveScene;
+        private System.Windows.Forms.Button buttonRunScene;
     }
 }
 

@@ -90,6 +90,11 @@ extern"C"
 
 int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName)
 {
+	if (_FileFullName == nullptr)
+	{
+		return -1;
+	}
+
 	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
 	PMDModel* verRes = nullptr;
 	int result = -1;
@@ -149,6 +154,11 @@ extern"C"
 
 int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName)
 {
+	if (_FileFullName == nullptr)
+	{
+		return -1;
+	}
+
 	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
 	BasicModel* verRes = nullptr;
 	int result = -1;
