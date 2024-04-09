@@ -30,6 +30,9 @@ public:
 class D3DCamera
 {
 public:
+	UINT64 Uid;
+
+	float m_backColor[4] = { 0.0f,0.0f,1.0f,1.0f };
 
 	IDXGISwapChain4* m_swapchain = nullptr;
 	ID3D12DescriptorHeap* m_rtvHeap = nullptr;
@@ -37,6 +40,7 @@ public:
 	D3D12_VIEWPORT m_viewport = {};
 	D3D12_RECT m_scissorrect = {};
 	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
+
 
 	D3DMulPassRender* m_mulPassRender;
 
@@ -79,6 +83,6 @@ public:
 		LPCWSTR vsShader, LPCWSTR psShader);
 	int CreateSceneView(D3DDevice* _cD3DDev);
 	void SetCameraTransform(DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
-	void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);
+	//void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);
 	void Draw(ID3D12GraphicsCommandList*, ID3D12Device*);
 };

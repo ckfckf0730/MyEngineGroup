@@ -33,7 +33,19 @@ namespace CkfEngine.Editor
             m_camera.SetTransform(new Vector3(0, 20, -15), new Vector3(0, 0, 10), new Vector3(0, 1, 0));
             UpdateEvent += m_camera.Render;
 
+            CoreEvents.CameraCreated += CameraCreated;
+
             ProjectManager.Instance.Init();
+        }
+
+        private void CameraCreated(Camera camera)
+        {
+            var panel = PanelRegister.GetExtendScreen();
+            D3DAPICall.CreateRenderTarget(panel.Handle, camera.Uid, camera.m_width, camera.m_height);
+            D3DAPICall.SetRenderTargetBackColor(camera.Uid,new float[4] {1.0f, 1.0f, 0.0f, 1.0f });
+            D3DAPICall.Render(camera.Uid);
+
+            panel.Show();
         }
 
         internal void Update()
@@ -63,7 +75,6 @@ namespace CkfEngine.Editor
             public void Init()
             {
                 D3DAPICall.CreateRenderTarget(PanelRegister.EditorMainScreen.Handle, m_uid, 800, 600);
-                D3DAPICall.SetCameraProjection((float)(Math.PI / 2), 800.0f / 600.0f, 1.0f, 100.0f);
             }
 
             public void SetTransform(Vector3 eye, Vector3 target, Vector3 up)

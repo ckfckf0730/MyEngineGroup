@@ -388,7 +388,9 @@ extern"C"
 
 int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long long uid, UINT width, UINT height)
 {
+
 	D3DCamera* mainCamera = new D3DCamera();
+	mainCamera->Uid = uid;
 	mainCamera->CreateSwapChain(hwnd,width,height);
 	mainCamera->CreateRenderTargetView();
 	mainCamera->CreateDepthStencilView(width, height);
@@ -443,24 +445,19 @@ void __declspec(dllexport) __stdcall SetCameraTransform(
 extern"C"
 {
 #endif
-	void __declspec(dllexport) __stdcall SetCameraProjection(float FovAngleY,  //View angle
-	float AspectRatio,      //width : height
-	float NearZ,
-	float Far);
+	void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid,float*  color);
 #ifdef __cplusplus 
 }
 #endif
-void __declspec(dllexport) __stdcall SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ,float Far)
+void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid,float* color)
 {
-	/*auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
-	if (iter != D3DResourceManage::Instance().PipelineTable.end())
+	float* backColor = D3DResourceManage::Instance().CameraTable[uid]->m_backColor;
+
+	for (int i = 0; i < 4; i++)
 	{
-		iter->second->SetCameraProjection(FovAngleY, AspectRatio, NearZ, Far);
-	}*/
-	for (const auto& iter : D3DResourceManage::Instance().PipelineTable)
-	{
-		iter.second->SetCameraProjection(FovAngleY, AspectRatio, NearZ, Far);
+		backColor[i] = color[i];
 	}
+
 }
 
 #pragma endregion

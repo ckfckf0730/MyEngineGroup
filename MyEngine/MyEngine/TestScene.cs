@@ -64,7 +64,7 @@ namespace CkfEngine
 
         public void TestUpdate()
         {
-            EngineRunTime.Instance.Update();
+            //EngineRunTime.Instance.Update();
 
             
         }

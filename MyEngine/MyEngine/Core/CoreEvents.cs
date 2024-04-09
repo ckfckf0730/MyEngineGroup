@@ -9,5 +9,7 @@ namespace CkfEngine.Core
     internal class CoreEvents
     {
         internal static Action<Entity> EntityCreated;
+
+        internal static Action<Camera> CameraCreated;
     }
 }

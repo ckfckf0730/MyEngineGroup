@@ -52,11 +52,10 @@ namespace CkfEngine.Core
             Vector3 eye, Vector3 target, Vector3 up);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern void SetCameraProjection(
-            float FovAngleY, float AspectRatio, float NearZ, float Far);
+        public static extern int SetPmdStandardPipeline();
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int SetPmdStandardPipeline();
+        public static extern int SetRenderTargetBackColor(UInt64 uid, float[] color);
 
         #endregion
 

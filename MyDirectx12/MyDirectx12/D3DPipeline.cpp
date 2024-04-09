@@ -324,13 +324,13 @@ void D3DPipeline::SetCameraTransform(XMFLOAT3 eye, XMFLOAT3 target, XMFLOAT3 up)
 	m_mapSceneMatrix->eye = eye;
 }
 
-void D3DPipeline::SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far)
-{
-	XMMATRIX projMat = XMMatrixPerspectiveFovLH(FovAngleY,
-		AspectRatio,
-		NearZ,  //nearest
-		Far);  //farthest
-}
+//void D3DPipeline::SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far)
+//{
+//	XMMATRIX projMat = XMMatrixPerspectiveFovLH(FovAngleY,
+//		AspectRatio,
+//		NearZ,  //nearest
+//		Far);  //farthest
+//}
 
 void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddevice)
 {

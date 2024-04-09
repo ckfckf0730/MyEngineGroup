@@ -44,6 +44,12 @@ namespace CkfEngine
             this.timer1.Tick += this.Tick;
             this.timer1.Enabled = true;
             this.timer1.Start();
+            //
+            // timer2
+            //
+            this.timer2.Interval = 1000 / 20;
+            this.timer2.Enabled = true;
+            this.timer2.Start();
         }
 
 
@@ -114,6 +120,7 @@ namespace CkfEngine
             }
         }
 
+
         private void buttonSaveScene_Click(object sender, EventArgs e)
         {
             ProjectManager.Instance.SaveScene(ProjectManager.Instance.CurScene, ProjectManager.Instance.CurScenePath);
@@ -131,12 +138,39 @@ namespace CkfEngine
             int height = 600;
             runForm.Size = new Size(width, height);
             runForm.Show();
-            EngineRunTime.Instance.Boot(runForm.Handle, (uint)width, (uint)height);
+            EngineRunTime.Instance.Init(runForm.Handle);
+
+
+            this.timer2.Tick += EngineRunTime.Instance.Update;
         }
     }
 
-    public static class PanelRegister
+    internal static class PanelRegister
     {
-        public static Control EditorMainScreen;
+        internal static Control EditorMainScreen;
+
+        internal static Control GetExtendScreen()
+        {
+            Panel panel = new Panel();
+            EditorMainScreen.Controls.Add(panel);
+            ReplaceExtendScreen();
+
+            return panel;
+        }
+
+        private static float ExtendScale = 0.15f;
+        private static void ReplaceExtendScreen()
+        {
+            float width =  EditorMainScreen.Width * ExtendScale;
+            float height = EditorMainScreen.Height * ExtendScale;
+
+            for(int i = 0; i< EditorMainScreen.Controls.Count; i++)
+            {
+                var panel = EditorMainScreen.Controls[i];
+                panel.Size = new Size((int)width, (int)height);
+                panel.Location = new Point((int)width * i, (int)0);
+            }
+        }
+
     }
 }

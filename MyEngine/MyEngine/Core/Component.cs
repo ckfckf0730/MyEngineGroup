@@ -155,9 +155,27 @@ namespace CkfEngine.Core
 
     public class Camera : Component
     {
+        internal float m_fovAngleY;
+        internal uint m_width;
+        internal uint m_height;
+        internal float m_near;
+        internal float m_far;
+
+        public Camera()
+        {
+            m_fovAngleY = (float)Math.PI / 2;
+            m_width = 800;
+            m_height= 600;
+            m_near = 1.0f;
+            m_far = 100.0f;
+        }
+
         protected override void OnCreated()
         {
+            CoreEvents.CameraCreated?.Invoke(this);
 
+            //D3DAPICall.CreateRenderTarget(PanelRegister.EditorMainScreen.Handle, this.Uid, 800, 600);
+            //D3DAPICall.SetCameraProjection((float)(Math.PI / 2), 800.0f / 600.0f, 1.0f, 100.0f);
         }
 
         protected override void OnDestroyed()
@@ -167,7 +185,7 @@ namespace CkfEngine.Core
 
         protected override void Update()
         {
-
+            D3DAPICall.Render(this.Uid);
         }
     }
 

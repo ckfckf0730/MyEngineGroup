@@ -177,10 +177,7 @@ void D3DCamera::Clear()
 		cmdList->ResourceBarrier(1, &barrierRes);
 	}
 
-	//clear screen
-	float clearColor[] = { 1.0f,1.0f,0.0f,1.0f };//yellow
-	//float clearColor[] = { 1.0f,1.0f,1.0f,1.0f };
-	cmdList->ClearRenderTargetView(rtvH, clearColor, 0, nullptr);
+	cmdList->ClearRenderTargetView(rtvH, m_backColor, 0, nullptr);
 	cmdList->ClearDepthStencilView(dsvh, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 	cmdList->RSSetViewports(1, &m_viewport);
 	cmdList->RSSetScissorRects(1, &m_scissorrect);
