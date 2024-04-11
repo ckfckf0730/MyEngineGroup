@@ -54,6 +54,7 @@
     <Compile Include="Core\CoreEvents.cs" />
     <Compile Include="Core\EngineObject.cs" />
     <Compile Include="Core\EngineRunTime.cs" />
+    <Compile Include="Core\GraphAlgorithms.cs" />
     <Compile Include="Core\Prefab.cs" />
     <Compile Include="Core\ResourceManager.cs" />
     <Compile Include="Core\Scene.cs" />

@@ -102,6 +102,7 @@ namespace CkfEngine.Core
                 D3DAPICall.SetModelTransform(OwnerEntity.Uid, worldMat);
             }
 
+            EventValueChanged?.Invoke(this);
         }
 
         public void SetParent(Transform parent)
@@ -147,18 +148,13 @@ namespace CkfEngine.Core
 
         internal void CalculateForwardAndUp()
         {
-            Vector3 rotation = this.OwnerEntity.Transform.Rotation;
-            Matrix4x4 rY = Matrix4x4.CreateFromAxisAngle(new Vector3(0, 1, 0), rotation.Y);
-            Matrix4x4 rX = Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), rotation.X);
-            Matrix4x4 rZ = Matrix4x4.CreateFromAxisAngle(new Vector3(0, 0, 1), rotation.Z);
-
-            Matrix4x4 m = rZ * rX * rY;
+            var mat = GraphAlgorithms.MatRotateFrom3Axis(this.OwnerEntity.Transform.Rotation);
 
             Vector3 forward = new Vector3(0, 0, 1);
             Vector3 up = new Vector3(0, 1, 0);
 
-            m_forward = Vector3.Transform(forward, m);
-            m_up = Vector3.Transform(up, m);
+            m_forward = Vector3.Transform(forward, mat);
+            m_up = Vector3.Transform(up, mat);
         }
 
         protected override void OnDestroyed()
@@ -171,6 +167,7 @@ namespace CkfEngine.Core
 
         // entity UID, parent UID(null = 0), is delete
         internal static event Action<ulong, ulong, bool, string> EventSetParent;
+        internal event Action<Transform> EventValueChanged;
     }
 
     public class Camera : Component
@@ -194,6 +191,19 @@ namespace CkfEngine.Core
         {
             CoreEvents.CameraCreated?.Invoke(this);
 
+            this.OwnerEntity.Transform.EventValueChanged += (trans) =>
+            {
+                trans.CalculateForwardAndUp();
+                Vector3 target = trans.m_forward + trans.Translation;
+                Vector3 up = trans.m_up;
+
+                D3DAPICall.SetCameraTransform(
+                        trans.Translation,
+                        target,
+                        up);
+                D3DAPICall.Render(this.Uid);
+            };
+
             //D3DAPICall.CreateRenderTarget(PanelRegister.EditorMainScreen.Handle, this.Uid, 800, 600);
             //D3DAPICall.SetCameraProjection((float)(Math.PI / 2), 800.0f / 600.0f, 1.0f, 100.0f);
         }
@@ -205,11 +215,6 @@ namespace CkfEngine.Core
 
         protected override void Update()
         {
-            this.OwnerEntity.Transform.CalculateForwardAndUp();
-            D3DAPICall.SetCameraTransform(
-                    this.OwnerEntity.Transform.Translation,
-                    this.OwnerEntity.Transform.m_forward,
-                    this.OwnerEntity.Transform.m_up);
             D3DAPICall.Render(this.Uid);
         }
 
