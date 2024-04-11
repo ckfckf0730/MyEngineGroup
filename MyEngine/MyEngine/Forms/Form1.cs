@@ -29,12 +29,10 @@ namespace CkfEngine
 
             d3dCall = new D3DAPICall();
 
-            PanelRegister.EditorMainScreen = this.splitContainer3.Panel2;
-            if (d3dCall.Init(this.splitContainer3.Panel2.Handle)> 0)
-            {
-                isD3dSuc = true;
-            }
+            //----------main editor scene window-----------
+            InitMainSceneWindow();
 
+            //--------other editor panel------------
             InitEditor();
 
             //
@@ -57,6 +55,15 @@ namespace CkfEngine
 
         //private TestScene testScene;
 
+        private void InitMainSceneWindow()
+        {
+            PanelRegister.EditorMainScreen = this.splitContainer3.Panel2;
+            if (d3dCall.Init(this.splitContainer3.Panel2.Handle) > 0)
+            {
+                isD3dSuc = true;
+            }
+        }
+
         private void InitEditor()
         {
             m_editorSystem = CkfEditorSystem.Instance;
@@ -78,7 +85,7 @@ namespace CkfEngine
             panel.AutoScroll = true;
             panel.Dock = DockStyle.Fill;
             panel.Size = new Size(panel.Size.Width, 2000);
-            
+
             this.splitContainer1.Panel2.Controls.Add(panel);
 
             Editor.CkfEditorUI.Instance.CkfInspectorItem.SetControl(panel);
@@ -91,8 +98,8 @@ namespace CkfEngine
             var assetsPanel = this.splitContainer2.Panel2;
             SplitContainer splitContainer = new SplitContainer();
             assetsPanel.Controls.Add(splitContainer);
-            splitContainer.Dock  = DockStyle.Fill;
-            
+            splitContainer.Dock = DockStyle.Fill;
+
 
             Editor.CkfEditorUI.Instance.CkfAssetsUI.SetControl(splitContainer);
             //----------------------------
@@ -107,8 +114,8 @@ namespace CkfEngine
 
             if (isD3dSuc)
             {
-                
-                
+
+
             }
             StringBuilder msg = new StringBuilder(255);
             int isGet = 0;
@@ -161,10 +168,10 @@ namespace CkfEngine
         private static float ExtendScale = 0.25f;
         private static void ReplaceExtendScreen()
         {
-            float width =  EditorMainScreen.Width * ExtendScale;
+            float width = EditorMainScreen.Width * ExtendScale;
             float height = EditorMainScreen.Height * ExtendScale;
 
-            for(int i = 0; i< EditorMainScreen.Controls.Count; i++)
+            for (int i = 0; i < EditorMainScreen.Controls.Count; i++)
             {
                 var panel = EditorMainScreen.Controls[i];
                 panel.Size = new Size((int)width, (int)height);
