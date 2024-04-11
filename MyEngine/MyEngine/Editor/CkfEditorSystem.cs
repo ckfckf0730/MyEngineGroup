@@ -161,6 +161,7 @@ namespace CkfEngine.Editor
                 right.Y = 0;
                 right = Vector3.Normalize(right);
                 Forward = Vector3.Normalize(Forward);
+                //Matrix4x4.CreateWorld dose use the right hand coord system, but this engine use left hand one. so make a reversed forward.+
                 var forward = -Forward;
                 Vector3 selfUp = Vector3.Cross(Forward, right);
 
