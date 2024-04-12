@@ -140,13 +140,18 @@ namespace CkfEngine
 
         private void buttonRunScene_Click(object sender, EventArgs e)
         {
+            if(ProjectManager.Instance.CurScene == null)
+            {
+                Console.WriteLine("Error, no CurScene");
+                return;
+            }
+
             var runForm = new Form();
             int width = 800;
             int height = 600;
             runForm.Size = new Size(width, height);
             runForm.Show();
-            EngineRunTime.Instance.Init(runForm.Handle);
-
+            EngineRunTime.Instance.Init(runForm.Handle,ProjectManager.Instance.CurScene);
 
             this.timer2.Tick += EngineRunTime.Instance.Update;
         }

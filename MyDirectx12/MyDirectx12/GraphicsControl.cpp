@@ -388,6 +388,13 @@ extern"C"
 
 int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long long uid, UINT width, UINT height)
 {
+	auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
+	if (iter != D3DResourceManage::Instance().CameraTable.end())
+	{
+		iter->second->Release();
+		delete (iter->second);
+		D3DResourceManage::Instance().CameraTable.erase(iter);
+	}
 
 	D3DCamera* mainCamera = new D3DCamera();
 	mainCamera->Uid = uid;

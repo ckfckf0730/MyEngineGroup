@@ -103,6 +103,12 @@ namespace CkfEngine.Editor
 
         private void CameraCreated(Camera camera)
         {
+            if(ProjectManager.Instance.CurScene != null &&
+                ProjectManager.Instance.CurScene.MainCamera ==null)
+            {
+                ProjectManager.Instance.CurScene.MainCamera = camera;
+            }
+
             var panel = PanelRegister.GetExtendScreen();
             D3DAPICall.CreateRenderTarget(panel.Handle, camera.Uid, camera.m_width, camera.m_height);
             D3DAPICall.SetRenderTargetBackColor(camera.Uid,new float[4] {1.0f, 1.0f, 0.0f, 1.0f });

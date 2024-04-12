@@ -57,6 +57,7 @@ public:
 
 	void InitMulPassRender();
 
+	void Release();
 };
 
 class D3DPipeline

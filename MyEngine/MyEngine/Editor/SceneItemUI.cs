@@ -53,6 +53,7 @@ namespace CkfEngine.Editor
             {
                 ulong uid = (ulong)selectNode.Tag;
                 Entity.FindEntity(uid).Name = e.Label;
+                selectNode.Text = e.Label;
             }
         }
 

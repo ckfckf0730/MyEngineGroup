@@ -271,3 +271,28 @@ void D3DCamera::InitMulPassRender()
 	m_mulPassRender->CreatePeraPolygon();
 	m_mulPassRender->SetPipeline();
 }
+
+void D3DCamera::Release()
+{
+	if (m_swapchain != nullptr)
+	{
+		m_swapchain->Release();
+		m_swapchain = nullptr;
+	}
+	if (m_rtvHeap != nullptr)
+	{
+		m_rtvHeap->Release();
+		m_rtvHeap = nullptr;
+	}
+	if (m_dsvHeap != nullptr)
+	{
+		m_dsvHeap->Release();
+		m_dsvHeap = nullptr;
+	}
+
+	if (m_mulPassRender != nullptr)
+	{
+		delete(m_mulPassRender);
+		m_mulPassRender = nullptr;
+	}
+}

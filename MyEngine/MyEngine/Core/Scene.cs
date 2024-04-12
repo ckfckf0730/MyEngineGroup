@@ -31,6 +31,20 @@ namespace CkfEngine.Core
         [JsonProperty]
         internal List<EntitySerialize> m_entitySerialzes;
 
+        internal Camera MainCamera;
+
+
+        internal void Boot()
+        {
+            if(MainCamera != null)
+            {
+                D3DAPICall.CreateRenderTarget(EngineRunTime.Instance.MainHandle, MainCamera.Uid,
+                    MainCamera.m_width, MainCamera.m_height);
+            }
+
+            CoreEvents.SceneRunned?.Invoke(this);
+        }
+
         internal void SerialzeEntities()
         {
             m_entitySerialzes = new List<EntitySerialize>();

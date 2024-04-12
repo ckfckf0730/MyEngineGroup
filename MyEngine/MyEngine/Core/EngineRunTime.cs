@@ -27,9 +27,11 @@ namespace CkfEngine.Core
         }
 
 
-        internal void Init(IntPtr hwnd)
+        internal void Init(IntPtr hwnd, Scene curScene)
         {
             m_mainHandle = hwnd;
+
+            curScene.Boot();
         }
 
         internal Action UpdateEvent = null;
