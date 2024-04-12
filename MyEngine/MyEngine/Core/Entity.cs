@@ -222,16 +222,12 @@ namespace CkfEngine.Core
             {
                 Type type = Type.GetType(pair.Key);
                 Component component =  JsonConvert.DeserializeObject(pair.Value, type) as Component;
-
                 component.BindEntity(Obj);
                 Obj.m_components.Add(type, component);
-            }
 
-            foreach(var item in Obj.m_components)
-            {
-                if(item.Value is Transform)
+                if(component is Transform)
                 {
-                    Obj.ResetTransform(item.Value as Transform);
+                    Obj.ResetTransform(component as Transform);
                 }
             }
 

@@ -172,10 +172,15 @@ namespace CkfEngine.Core
 
     public class Camera : Component
     {
+        [JsonProperty]
         internal float m_fovAngleY;
+        [JsonProperty]
         internal uint m_width;
+        [JsonProperty]
         internal uint m_height;
+        [JsonProperty]
         internal float m_near;
+        [JsonProperty]
         internal float m_far; 
 
         public Camera()
