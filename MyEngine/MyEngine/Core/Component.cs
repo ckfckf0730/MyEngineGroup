@@ -172,6 +172,8 @@ namespace CkfEngine.Core
 
     public class Camera : Component
     {
+        internal static Dictionary<ulong, Camera> CameraTable = new Dictionary<ulong, Camera>();
+
         [JsonProperty]
         internal float m_fovAngleY;
         [JsonProperty]
@@ -195,6 +197,7 @@ namespace CkfEngine.Core
         protected override void OnCreated()
         {
             CoreEvents.CameraCreated?.Invoke(this);
+            CameraTable.Add(Uid, this);
 
             this.OwnerEntity.Transform.EventValueChanged += (trans) =>
             {
@@ -215,11 +218,19 @@ namespace CkfEngine.Core
 
         protected override void OnDestroyed()
         {
+            CameraTable.Remove(Uid);
+        }
 
+        private void Implement()
+        {
+            var trans = OwnerEntity.Transform;
+            Vector3 target = trans.m_forward + trans.Translation;
+            D3DAPICall.SetCameraTransform(trans.Translation, target, trans.m_up);
         }
 
         protected override void Update()
         {
+            Implement();
             D3DAPICall.Render(this.Uid);
         }
 

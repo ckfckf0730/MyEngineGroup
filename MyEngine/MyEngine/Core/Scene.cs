@@ -31,8 +31,18 @@ namespace CkfEngine.Core
         [JsonProperty]
         internal List<EntitySerialize> m_entitySerialzes;
 
-        internal Camera MainCamera;
-
+        internal Camera MainCamera
+        {
+            set 
+            { 
+                m_mainCamera = value;
+                m_mainCameraUid  = m_mainCamera == null ? 0 : m_mainCamera.Uid;
+            }
+            get { return m_mainCamera; }
+        }
+        private Camera m_mainCamera;
+        [JsonProperty]
+        private ulong m_mainCameraUid;
 
         internal void Boot()
         {
@@ -61,6 +71,20 @@ namespace CkfEngine.Core
             foreach (EntitySerialize item in m_entitySerialzes)
             {
                 m_entities.Add(item.Deserialize());
+            }
+
+            if (m_mainCameraUid != 0)
+            {
+                Camera camera;
+                Camera.CameraTable.TryGetValue(m_mainCameraUid, out camera);
+                if(camera != null)
+                {
+                    m_mainCamera = camera;
+                }
+                else
+                {
+                    Console.WriteLine("Can't find Main Camera, UID: " + m_mainCamera);
+                }
             }
 
             m_entitySerialzes.Clear();

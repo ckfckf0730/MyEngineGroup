@@ -146,7 +146,7 @@ namespace CkfEngine.Editor
             public float NearZ;
             public float Far;
 
-            private ulong m_uid;
+            private ulong m_uid =99999989; //temp editor camera uid
 
             public void Init()
             {
