@@ -34,3 +34,14 @@ EntityはUnityのGameOjbectのようなものです。
 左のTreeViewはSceneの全てのEntity展示します。
 真ん中の画面はエディターカメラの画面で、３Dのモデル展示します。
 右のPanelは選択したEntityの全てのComponentを示す。見えるFieldはPublic、又は[MyAttributeShowInspector] 属性加えたのです。
+![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/editor.jpg)
+
+ゲームプロジェクトの構築：
+
+
+
+Sceneデータの直列化：
+
+
+
+SceneのRun、runtimeカメラの転換：
