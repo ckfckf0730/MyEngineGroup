@@ -464,4 +464,12 @@ namespace CkfEngine.Core
         }
     }
 
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
+    sealed class MyAttributeHideAddComponent : Attribute
+    {
+        public MyAttributeHideAddComponent()
+        {
+
+        }
+    }
 }

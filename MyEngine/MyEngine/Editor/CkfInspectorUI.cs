@@ -336,6 +336,12 @@ namespace CkfEngine.Editor
                 .Where(t => t != baseType && baseType.IsAssignableFrom(t));
             foreach (Type derivedType in m_derivedTypes)
             {
+                var attribute = derivedType.GetCustomAttribute<MyAttributeHideAddComponent>();
+                if(attribute != null)
+                {
+                    continue;
+                }
+
                 m_derivedTypeTable.Add(derivedType.Name, derivedType);
             }
                 CreateButtons();
@@ -351,6 +357,12 @@ namespace CkfEngine.Editor
             int locationY = 20;
             foreach (Type derivedType in m_derivedTypes)
             {
+                var attribute = derivedType.GetCustomAttribute<MyAttributeHideAddComponent>();
+                if (attribute != null)
+                {
+                    continue;
+                }
+
                 Button newButton = new Button();
                 newButton.Name = derivedType.Name;
                 newButton.Text = derivedType.Name;
