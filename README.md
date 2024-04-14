@@ -1,4 +1,5 @@
-<span style="font-size: 24px;">個人作品の紹介：</span>
+<span style="font-size:1.5em;">Test Test</span>
+<span style="font-size:24px;">個人作品の紹介：</span>
 .net Windows Formの基づくエンジン。
 UnityEngineの使い方参考して作っています。
 ゲームエンジンの基礎技術の学習、および求職の展示を目的として作られます。
