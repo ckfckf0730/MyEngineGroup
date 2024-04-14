@@ -143,8 +143,11 @@ namespace CkfEngine.Editor
                 int top = 30;
                 foreach (FieldInfo field in m_fieldInfos)
                 {
-                    //if (field.FieldType.IsValueType)
-                    //{
+                    var attribute = field.GetCustomAttribute<MyAttributeShowInspector>();
+                    if (!field.IsPublic && attribute == null)
+                    {
+                        continue;
+                    }
                     FieldUI fieldUI = new FieldUI();
                     fieldUI.CurComponent = component;
                     fieldUI.Init(field, m_panel, ref top);

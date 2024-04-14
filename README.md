@@ -1,5 +1,4 @@
-<span style="font-size:1.5em;">Test Test</span>
-<span style="font-size:24px;">個人作品の紹介：</span>
+個人作品の紹介：
 .net Windows Formの基づくエンジン。
 UnityEngineの使い方参考して作っています。
 ゲームエンジンの基礎技術の学習、および求職の展示を目的として作られます。
@@ -23,5 +22,15 @@ UnityEngineの使い方参考して作っています。
 
 ３Dレンダープロジェクト；
 レンダーのため作られたC++プロジェクトです。
-Directx12を使用して、モジュール化でC＃のメインプロジェクトに各図形のAPI提供しています。
+Directx12を使用して、モジュール化で、DLLファイルを作成して、C＃のメインプロジェクトに各図形のAPI提供しています。
+![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/d3dapi.jpg)
+ロード可能のモデルは、本「Directx12の魔導書」に教えられたPMDフォーマット、Boneデータ含めて、付属アニメ機能のVMD動画ファイルを使えるモデルです。
+もう一つ使うモデルは、自分が規範を設定した基本モデルです。Boneなど動画データはなくて、Cube、Sphereのような普通のモデルに使われる。
+![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/vd1.jpg) ![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/vd2.jpg)
 
+
+Scene、Entity、Component：
+EntityはUnityのGameOjbectのようなものです。
+左のTreeViewはSceneの全てのEntity展示します。
+真ん中の画面はエディターカメラの画面で、３Dのモデル展示します。
+右のPanelは選択したEntityの全てのComponentを示す。見えるFieldはPublic、又は[MyAttributeShowInspector] 属性加えたのです。

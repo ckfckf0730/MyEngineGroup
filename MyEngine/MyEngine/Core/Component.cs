@@ -55,28 +55,31 @@ namespace CkfEngine.Core
     {
         //private Matrix4x4 m_matrix;
         //public Matrix4x4 Matrix { get { return m_matrix; } }
+        [MyAttributeShowInspector]
         private Vector3 m_translation;
         public Vector3 Translation
         {
             get { return m_translation; }
             set { m_translation = value; EffectiveTransform(); }
         }
+        [MyAttributeShowInspector]
         private Vector3 m_rotation;
         public Vector3 Rotation
         {
             get { return m_rotation; }
             set { m_rotation = value; EffectiveTransform(); }
         }
+        [MyAttributeShowInspector]
         private Vector3 m_scale = Vector3.One;
-
-        internal Vector3 m_forward;
-        internal Vector3 m_up;
-
         public Vector3 Scale
         {
             get { return m_scale; }
             set { m_scale = value; EffectiveTransform(); }
         }
+
+
+        internal Vector3 m_forward;
+        internal Vector3 m_up;
 
         [JsonProperty]
         internal ulong m_parentUid;
@@ -256,6 +259,7 @@ namespace CkfEngine.Core
     {
         [JsonProperty]
         [MyAttributeLoadFileType("PMD")]
+        [MyAttributeShowInspector]
         private  FileLoad m_file;
         [JsonIgnore]
         public FileLoad File
@@ -320,6 +324,7 @@ namespace CkfEngine.Core
     public class ModelRenderer : Component
     {
         [MyAttributeLoadFileType("VD")]
+        [MyAttributeShowInspector]
         [JsonProperty]
         private FileLoad m_file;
         [JsonIgnore]
@@ -385,6 +390,7 @@ namespace CkfEngine.Core
     {
         [JsonProperty]
         [MyAttributeLoadFileType("VMD")]
+        [MyAttributeShowInspector]
         private FileLoad m_file;
         [JsonIgnore]
         public FileLoad File
@@ -446,6 +452,15 @@ namespace CkfEngine.Core
         public MyAttributeLoadFileType(string description)
         {
             Description = description;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = true)]
+    sealed class MyAttributeShowInspector : Attribute
+    {
+        public MyAttributeShowInspector()
+        {
+
         }
     }
 
