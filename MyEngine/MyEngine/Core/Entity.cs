@@ -1,4 +1,5 @@
 ﻿using CkfEngine.Core;
+using CkfEngine.Editor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -221,6 +222,16 @@ namespace CkfEngine.Core
             foreach(var pair in SerializedComponents)
             {
                 Type type = Type.GetType(pair.Key);
+                if(type == null)
+                {
+                    ScriptCompilate.ScriptTable.TryGetValue(pair.Key, out type);
+                    if(type == null)
+                    {
+                        Console.WriteLine("Error! Can't Deserialize Type: " + pair.Key);
+                        continue;
+                    }
+                }
+
                 Component component =  JsonConvert.DeserializeObject(pair.Value, type) as Component;
                 component.BindEntity(Obj);
                 Obj.m_components.Add(type, component);

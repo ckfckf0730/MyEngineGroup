@@ -206,6 +206,11 @@ namespace CkfEngine.Editor
 
                     switch (info.FieldType.Name)
                     {
+                        case "Single":
+                            m_texts = new TextBox[1];
+                            m_texts[0] = new TextBox();
+                            m_texts[0].KeyPress += OnKeyPressOnlyFloat;
+                            break;
                         case "Vector3":
                             m_texts = new TextBox[3];
                             m_texts[0] = new TextBox();
@@ -269,6 +274,10 @@ namespace CkfEngine.Editor
                 {
                     switch (m_info.FieldType.Name)
                     {
+                        case "Single":
+                            float valueFloat = ((float)m_info.GetValue(m_curComponent));
+                            m_texts[0].Text = valueFloat.ToString();
+                            break;
                         case "Vector3":
                             Vector3 value = ((Vector3)m_info.GetValue(m_curComponent));
                             m_texts[0].Text = value.X.ToString();
@@ -300,6 +309,11 @@ namespace CkfEngine.Editor
                 {
                     switch (m_info.FieldType.Name)
                     {
+                        case "Single":
+                            float value;
+                            float.TryParse(m_texts[0].Text, out value);
+                            m_info.SetValue(m_curComponent, value);
+                            break;
                         case "Vector3":
                             float x,y,z;
                             float.TryParse(m_texts[0].Text,out x);
