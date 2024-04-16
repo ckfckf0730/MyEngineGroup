@@ -320,10 +320,18 @@ namespace CkfEngine.Editor
     {
         private FormAddComponent m_form;
         private Dictionary<string,Type> m_derivedTypeTable;
-        IEnumerable<Type> m_derivedTypes;
+        List<Type> m_derivedTypes;
+
+        private Assembly TestScript()
+        {
+            return ScriptCompilate.CompileScript("../../../../Others/ScriptTest.cs");
+        }
 
         public void Init(Button addButton)
         {
+            m_derivedTypes = new List<Type>();
+            var scriptAssembly = TestScript();
+
             m_derivedTypeTable = new Dictionary<string,Type>();
             m_form = new FormAddComponent();
             addButton.Click += Open;
@@ -332,12 +340,14 @@ namespace CkfEngine.Editor
             Assembly assembly = Assembly.GetExecutingAssembly(); // Or specify the assembly where your classes are defined
 
             // Get all types in the assembly that are derived from the base type
-            m_derivedTypes = assembly.GetTypes()
-                .Where(t => t != baseType && baseType.IsAssignableFrom(t));
+            m_derivedTypes.AddRange( assembly.GetTypes()
+                .Where(t => t != baseType && baseType.IsAssignableFrom(t)));
+
+            m_derivedTypes.AddRange(scriptAssembly.GetTypes()
+                .Where(t => t != baseType && baseType.IsAssignableFrom(t)));
             foreach (Type derivedType in m_derivedTypes)
             {
-                var attribute = derivedType.GetCustomAttribute<MyAttributeHideAddComponent>();
-                if(attribute != null)
+                if(derivedType.IsAbstract)
                 {
                     continue;
                 }
@@ -357,8 +367,7 @@ namespace CkfEngine.Editor
             int locationY = 20;
             foreach (Type derivedType in m_derivedTypes)
             {
-                var attribute = derivedType.GetCustomAttribute<MyAttributeHideAddComponent>();
-                if (attribute != null)
+                if (derivedType.IsAbstract)
                 {
                     continue;
                 }

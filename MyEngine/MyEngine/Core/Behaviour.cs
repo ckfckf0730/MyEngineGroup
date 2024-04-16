@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace CkfEngine.Core
 {
-    [MyAttributeHideAddComponent]
-    internal class Behaviour : Component
+    public abstract class Behaviour : Component
     {
 
 
