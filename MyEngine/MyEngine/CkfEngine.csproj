@@ -69,6 +69,7 @@
     <Compile Include="Core\Entity.cs" />
     <Compile Include="Editor\EditorEvents.cs" />
     <Compile Include="Editor\ProjectManager.cs" />
+    <Compile Include="Editor\ProjectVSBuild.cs" />
     <Compile Include="Editor\SceneItemUI.cs" />
     <Compile Include="Editor\ScriptCompilate.cs" />
     <Compile Include="Forms\Form1.cs">

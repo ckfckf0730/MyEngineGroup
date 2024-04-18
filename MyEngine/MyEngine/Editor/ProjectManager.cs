@@ -64,6 +64,9 @@ namespace CkfEngine.Editor
             CopyBasicAssets(AssetsPath);
             CopyLibrary(LibraryPath);
 
+
+            ProjectVSBuild.CreateProject(fullPath, proName); //test
+
             OpenProject(prjFilePath);
         }
 
