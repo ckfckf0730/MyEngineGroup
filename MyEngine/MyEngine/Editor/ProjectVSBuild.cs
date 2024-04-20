@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,11 +17,11 @@ namespace CkfEngine.Editor
 
             string slnPath = path + "/" + projectName + ".sln";
 
-            CreateCsproj(csprojPath);
+            CreateCsproj(csprojPath, path + "/");
             CreateSln(slnPath);
         }
 
-        private static void CreateCsproj(string fullPath)
+        private static void CreateCsproj(string fullPath,string projectPath)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -71,15 +72,43 @@ namespace CkfEngine.Editor
             stringBuilder.AppendLine("    <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>");
             stringBuilder.AppendLine("  </PropertyGroup>");
 
-            //stringBuilder.AppendLine("  <ItemGroup>");
-            //stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine("");
-            //stringBuilder.AppendLine("  </ItemGroup>");
+            //Find all scripts in projectPath/Assets/Scripts, and write them to <ItemGroup>
+            string localPath = "Assets\\Scripts";
+            var files = Directory.GetFiles(projectPath + localPath);
+            bool isFirst = true;
+            foreach(var file in files)
+            {
+                if(Path.GetExtension(file).ToLower() ==".cs")
+                {
+                    if (isFirst)
+                    {
+                        stringBuilder.AppendLine("  <ItemGroup>");
+                        isFirst = false;
+                    }
+
+                    var fileName = Path.GetFileName(file);
+                    string includePath = localPath + "\\" + fileName;
+                    stringBuilder.AppendLine("    <Compile Include=\"" + includePath + "\" />");
+                }
+            }
+            if(!isFirst)
+            {
+                stringBuilder.AppendLine("  </ItemGroup>");
+            }
+
+            stringBuilder.AppendLine("  <ItemGroup>");
+            stringBuilder.AppendLine("    <Reference Include=\"System\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Core\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Numerics\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Xml.Linq\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Data.DataSetExtensions\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"Microsoft.CSharp\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Data\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Deployment\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Drawing\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Net.Http\" />");
+            stringBuilder.AppendLine("    <Reference Include=\"System.Xml\" />");
+            stringBuilder.AppendLine("  </ItemGroup>");
 
             stringBuilder.AppendLine("  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />");
             stringBuilder.AppendLine("  <Target Name=\"GenerateTargetFrameworkMonikerAttribute\" />");

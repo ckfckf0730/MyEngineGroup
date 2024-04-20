@@ -65,7 +65,7 @@ namespace CkfEngine.Editor
             CopyLibrary(LibraryPath);
 
 
-            ProjectVSBuild.CreateProject(fullPath, proName); //test
+            ProjectVSBuild.CreateProject(fullPath, proName); 
 
             OpenProject(prjFilePath);
         }
@@ -78,7 +78,7 @@ namespace CkfEngine.Editor
 
         internal void CopyLibrary(string AssetsPath)
         {
-
+            //How to create CkfEngine.core DLL file?
         }
 
         internal void CopyAllDirectory(string scrPath, string descPath)
@@ -113,6 +113,9 @@ namespace CkfEngine.Editor
             CurProject = new CkfProject();
             CurProject.Path = dir + "/";
 
+
+            string projectName = Path.GetFileNameWithoutExtension(path); //test
+            ProjectVSBuild.CreateProject(dir, projectName); //test
         }
 
 
