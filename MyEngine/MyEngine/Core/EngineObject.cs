@@ -10,7 +10,7 @@ namespace CkfEngine.Core
     [Serializable]
     public class EngineObject
     {
-        private static class UID
+        internal static class UID
         {
             private static ulong uid = 0;
             public static ulong GetUID()

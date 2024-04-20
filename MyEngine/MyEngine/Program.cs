@@ -27,7 +27,6 @@ namespace CkfEngine
             {
                 Application.Run(new Form1());
             }
-
         }
     }
 }

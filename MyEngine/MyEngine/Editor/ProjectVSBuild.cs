@@ -25,6 +25,7 @@ namespace CkfEngine.Editor
         {
             StringBuilder stringBuilder = new StringBuilder();
 
+            //---------------project basic setting----------------------
             stringBuilder.AppendLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             stringBuilder.AppendLine("<Project ToolsVersion=\"15.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
 
@@ -96,6 +97,7 @@ namespace CkfEngine.Editor
                 stringBuilder.AppendLine("  </ItemGroup>");
             }
 
+            //-----------------------------reference system related assembly--------------------------
             stringBuilder.AppendLine("  <ItemGroup>");
             stringBuilder.AppendLine("    <Reference Include=\"System\" />");
             stringBuilder.AppendLine("    <Reference Include=\"System.Core\" />");
@@ -109,6 +111,19 @@ namespace CkfEngine.Editor
             stringBuilder.AppendLine("    <Reference Include=\"System.Net.Http\" />");
             stringBuilder.AppendLine("    <Reference Include=\"System.Xml\" />");
             stringBuilder.AppendLine("  </ItemGroup>");
+
+            //-----------------------------reference Engine  assembly--------------------------
+            stringBuilder.AppendLine("  <ItemGroup>");
+            stringBuilder.AppendLine("    <Reference Include=\"CkfEngine.Core\">");
+            stringBuilder.AppendLine("      <HintPath>Library\\CkfEngine.Core.dll</HintPath>");
+            stringBuilder.AppendLine("    </Reference>");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("  </ItemGroup>");
+
 
             stringBuilder.AppendLine("  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />");
             stringBuilder.AppendLine("  <Target Name=\"GenerateTargetFrameworkMonikerAttribute\" />");

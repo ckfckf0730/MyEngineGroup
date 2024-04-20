@@ -9,6 +9,10 @@ using CkfEngine.Core;
 using System.Security.Cryptography;
 using CkfEngine.Properties;
 using System.Windows.Forms;
+using System.Reflection;
+using System.CodeDom.Compiler;
+using System.Reflection.Emit;
+using System.Threading;
 
 namespace CkfEngine.Editor
 {
@@ -62,7 +66,7 @@ namespace CkfEngine.Editor
             File.Create(prjFilePath);
 
             CopyBasicAssets(AssetsPath);
-            CopyLibrary(LibraryPath);
+            CreateLibrary(LibraryPath);
 
 
             ProjectVSBuild.CreateProject(fullPath, proName); 
@@ -76,9 +80,9 @@ namespace CkfEngine.Editor
             CopyAllDirectory(engineAssetsPath, AssetsPath);
         }
 
-        internal void CopyLibrary(string AssetsPath)
+        internal void CreateLibrary(string AssetsPath)
         {
-            //How to create CkfEngine.core DLL file?
+            DynamicBuildEngineDll.BuildCore(AssetsPath);
         }
 
         internal void CopyAllDirectory(string scrPath, string descPath)
