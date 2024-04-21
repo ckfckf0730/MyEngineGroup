@@ -99,6 +99,9 @@ namespace CkfEngine.Editor
 
             //-----------------------------reference system related assembly--------------------------
             stringBuilder.AppendLine("  <ItemGroup>");
+            stringBuilder.AppendLine("    <Reference Include=\"mscorlib\">");
+            stringBuilder.AppendLine("      <HintPath>Library\\.NETFramework\\v4.7.2\\mscorlib.dll</HintPath>");
+            stringBuilder.AppendLine("    </Reference>");
             stringBuilder.AppendLine("    <Reference Include=\"System\" />");
             stringBuilder.AppendLine("    <Reference Include=\"System.Core\" />");
             stringBuilder.AppendLine("    <Reference Include=\"System.Numerics\" />");
@@ -117,7 +120,6 @@ namespace CkfEngine.Editor
             stringBuilder.AppendLine("    <Reference Include=\"CkfEngine.Core\">");
             stringBuilder.AppendLine("      <HintPath>Library\\CkfEngine.Core.dll</HintPath>");
             stringBuilder.AppendLine("    </Reference>");
-            stringBuilder.AppendLine("");
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("");

@@ -80,9 +80,12 @@ namespace CkfEngine.Editor
             CopyAllDirectory(engineAssetsPath, AssetsPath);
         }
 
-        internal void CreateLibrary(string AssetsPath)
+        internal void CreateLibrary(string LibraryPath)
         {
-            DynamicBuildEngineDll.BuildCore(AssetsPath);
+            DynamicBuildEngineDll.BuildCore(LibraryPath);
+
+            string engineLibraryPath = "Library";
+            CopyAllDirectory(engineLibraryPath, LibraryPath);
         }
 
         internal void CopyAllDirectory(string scrPath, string descPath)
