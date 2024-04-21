@@ -98,22 +98,6 @@ namespace CkfEngine.Editor
                 propertyUid.SetGetMethod(methodUidGet);
             }
 
-
-            //FieldBuilder fieldName = typeBuilder.DefineField("m_name", typeof(string), FieldAttributes.Private);
-            //FieldBuilder fieldUid = typeBuilder.DefineField("m_uid", typeof(ulong), FieldAttributes.Private);
-
-            
-
-            //PropertyBuilder propertyName = typeBuilder.DefineProperty("Uid", PropertyAttributes.None, typeof(ulong), null);
-            //MethodBuilder methodUidGet2 = typeBuilder.DefineMethod("get_Uid", MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, typeof(ulong), Type.EmptyTypes);
-            //ILGenerator methodUidGetIL2 = methodUidGet2.GetILGenerator();
-            //methodUidGetIL2.Emit(OpCodes.Ldarg_0);
-            //methodUidGetIL2.Emit(OpCodes.Ldfld, fieldUid);
-            //methodUidGetIL2.Emit(OpCodes.Ret);
-            //propertyName.SetGetMethod(methodUidGet2);
-
-
-
             // 添加构造函数
             ConstructorBuilder constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, Type.EmptyTypes);
             ILGenerator constructorIL = constructor.GetILGenerator();
@@ -125,8 +109,12 @@ namespace CkfEngine.Editor
             //constructorIL.Emit(OpCodes.Stfld, fieldUid);
             //constructorIL.Emit(OpCodes.Ret);
 
+
             // 创建 EngineObject 类型
             Type engineObjectType = typeBuilder.CreateType();
+
+
+            Console.WriteLine("Dynamic assembly saved.");
         }
     }
 }

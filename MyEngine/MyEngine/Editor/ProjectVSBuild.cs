@@ -124,6 +124,7 @@ namespace CkfEngine.Editor
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("");
+            stringBuilder.AppendLine("");
             stringBuilder.AppendLine("  </ItemGroup>");
 
 
