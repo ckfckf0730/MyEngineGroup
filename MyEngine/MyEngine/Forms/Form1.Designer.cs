@@ -42,7 +42,7 @@ namespace CkfEngine
             this.SceneItemTree = new System.Windows.Forms.TreeView();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.TestButton = new System.Windows.Forms.Button();
+            this.CompileButton = new System.Windows.Forms.Button();
             this.buttonSaveScene = new System.Windows.Forms.Button();
             this.buttonRunScene = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -119,15 +119,15 @@ namespace CkfEngine
             this.toolStripMenuItem1.Size = new System.Drawing.Size(125, 20);
             this.toolStripMenuItem1.Text = "toolStripMenuItem1";
             // 
-            // TestButton
+            // CompileButton
             // 
-            this.TestButton.Location = new System.Drawing.Point(936, 1);
-            this.TestButton.Name = "TestButton";
-            this.TestButton.Size = new System.Drawing.Size(75, 23);
-            this.TestButton.TabIndex = 4;
-            this.TestButton.Text = "TestButton";
-            this.TestButton.UseVisualStyleBackColor = true;
-            this.TestButton.Click += new System.EventHandler(this.TestButton_Click);
+            this.CompileButton.Location = new System.Drawing.Point(936, 1);
+            this.CompileButton.Name = "CompileButton";
+            this.CompileButton.Size = new System.Drawing.Size(90, 23);
+            this.CompileButton.TabIndex = 4;
+            this.CompileButton.Text = "CompileScripts";
+            this.CompileButton.UseVisualStyleBackColor = true;
+            this.CompileButton.Click += new System.EventHandler(this.CompileButton_Click);
             // 
             // buttonSaveScene
             // 
@@ -156,7 +156,7 @@ namespace CkfEngine
             this.ClientSize = new System.Drawing.Size(1389, 597);
             this.Controls.Add(this.buttonSaveScene);
             this.Controls.Add(this.buttonRunScene);
-            this.Controls.Add(this.TestButton);
+            this.Controls.Add(this.CompileButton);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -187,7 +187,7 @@ namespace CkfEngine
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.TreeView SceneItemTree;
-        private System.Windows.Forms.Button TestButton;
+        private System.Windows.Forms.Button CompileButton;
         private System.Windows.Forms.Button buttonSaveScene;
         private System.Windows.Forms.Button buttonRunScene;
     }

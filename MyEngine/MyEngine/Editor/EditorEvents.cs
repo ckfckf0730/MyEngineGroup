@@ -10,7 +10,7 @@ namespace CkfEngine.Editor
     internal static class EditorEvents
     {
         internal static Action<string> OpenProject;
-
+        internal static Action<Dictionary<string, Type>> ScriptsOnCompiled;
     }
 
     internal class EditorRunTime

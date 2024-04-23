@@ -14,6 +14,26 @@ namespace CkfEngine.Editor
     {
         internal static Dictionary<string, Type> ScriptTable = new Dictionary<string, Type>(); 
 
+        internal static void CompileAllScript()
+        {
+            if( ProjectManager.Instance.CurProject == null )
+            {
+                return;
+            }
+
+            var proPath = ProjectManager.Instance.CurProject.Path;
+            var files = Directory.GetFiles(proPath + "Assets/Scripts");
+            foreach(var file in files)
+            {
+                if(Path.GetExtension(file) == ".cs")
+                {
+                    ScriptCompilate.CompileScript(file);
+                }
+            }
+
+            EditorEvents.ScriptsOnCompiled?.Invoke(ScriptTable);
+        }
+
 
         internal static Assembly CompileScript(string path)
         {

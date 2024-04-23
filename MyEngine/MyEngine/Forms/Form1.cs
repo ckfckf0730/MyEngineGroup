@@ -133,9 +133,9 @@ namespace CkfEngine
             ProjectManager.Instance.SaveScene(ProjectManager.Instance.CurScene, ProjectManager.Instance.CurScenePath);
         }
 
-        private void TestButton_Click(object sender, EventArgs e)
+        private void CompileButton_Click(object sender, EventArgs e)
         {
-            ProjectManager.Instance.TestFunc();
+            ScriptCompilate.CompileAllScript();
         }
 
         private void buttonRunScene_Click(object sender, EventArgs e)

@@ -117,8 +117,8 @@ namespace CkfEngine.Editor
 
             //-----------------------------reference Engine  assembly--------------------------
             stringBuilder.AppendLine("  <ItemGroup>");
-            stringBuilder.AppendLine("    <Reference Include=\"CkfEngine.Core\">");
-            stringBuilder.AppendLine("      <HintPath>Library\\CkfEngine.Core.dll</HintPath>");
+            stringBuilder.AppendLine("    <Reference Include=\"CkfEngine\">");
+            stringBuilder.AppendLine("      <HintPath>Library\\CkfEngine.dll</HintPath>");
             stringBuilder.AppendLine("    </Reference>");
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine("");

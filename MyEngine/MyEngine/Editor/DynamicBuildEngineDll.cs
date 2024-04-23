@@ -16,30 +16,34 @@ namespace CkfEngine.Editor
 {
     internal static class DynamicBuildEngineDll
     {
+        private static TypeInfo EntityType;
         internal static void BuildCore(string path)
         {
-            AssemblyName assemblyName = new AssemblyName("CkfEngine.Core");
-            AppDomain currentDom = Thread.GetDomain();
-            AssemblyBuilder assemblyBuilder = currentDom.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Save, path);
+            AssemblyName assemblyName = new AssemblyName("CkfEngine");
+
+            AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Save);
 
             // create module
-            ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("CkfEngine.Core", "CkfEngine.Core.dll");
-
-            var type = BuildType<EngineObject>(moduleBuilder);
-            BuildType<Entity>(moduleBuilder, type);
-            type = BuildType<Component>(moduleBuilder, type);
-            BuildType<Transform>(moduleBuilder, type);
-            BuildType<Behaviour>(moduleBuilder, type);
+            ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("CkfEngine.Core", "CkfEngine.dll");
 
 
+            BuildType<EngineObject>(moduleBuilder);
+            BuildType<Entity>(moduleBuilder);
+            BuildType<Component>(moduleBuilder);
+            BuildType<Transform>(moduleBuilder);
+            BuildType<Behaviour>(moduleBuilder);
 
 
-            assemblyBuilder.Save("CkfEngine.Core.dll");
+
+
+            assemblyBuilder.Save("CkfEngine.dll");
+            System.IO.File.Copy("CkfEngine.dll", path + "/CkfEngine.dll");
+
             Console.WriteLine("Dynamic assembly saved.");
         }
 
 
-        internal static Type BuildType<T>(ModuleBuilder moduleBuilder,Type baseType = null)
+        internal static void BuildType<T>(ModuleBuilder moduleBuilder)
         {
             // create class 
             Type type = typeof(T);
@@ -50,11 +54,6 @@ namespace CkfEngine.Editor
                 (type.IsAbstract ? TypeAttributes.Abstract : 0);
 
             var _baseType = type.BaseType;
-            var name = baseType?.Assembly.GetName().Name;
-            if (name == "CkfEngine.Core")
-            {
-                _baseType = baseType;
-            }
 
             TypeBuilder typeBuilder = moduleBuilder.DefineType(typeName, typeAttributes, _baseType);
 
@@ -101,43 +100,57 @@ namespace CkfEngine.Editor
                 Where(m => m.DeclaringType == type);        
             foreach (var propertyInfo in propertyInfos)
             {
-
-                PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Name, PropertyAttributes.None, propertyInfo.PropertyType, null);
-                MethodBuilder methodBuilder = typeBuilder.DefineMethod(propertyInfo.Name, MethodAttributes.Public 
-                    | MethodAttributes.SpecialName | MethodAttributes.HideBySig, propertyInfo.PropertyType, Type.EmptyTypes);
+                var propertyType = propertyInfo.PropertyType;
+                PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Name, PropertyAttributes.None, propertyType, null);
+  
                 //get
                 if(propertyInfo.CanRead)
                 {
-                    ILGenerator methodGetIL = methodBuilder.GetILGenerator();
+                    MethodBuilder getMethodBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, 
+                        MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, propertyType, Type.EmptyTypes);
+                    ILGenerator methodGetIL = getMethodBuilder.GetILGenerator();
                     //△△△△△△△△△△△ The Final App Run by Engine project,  game project just script files  △△△△△△△△△△△△
                     //△△△△△△△△△△△ The dll file just provide interface to game project for easy edit △△△△△△△△△△△△
                     //△△△△△△△△△△△ So will not realize the function body △△△△△△△△△△△△
                     methodGetIL.ThrowException(typeof(Exception));
-                    propertyBuilder.SetGetMethod(methodBuilder);
+                    propertyBuilder.SetGetMethod(getMethodBuilder);
                 }
                 if(propertyInfo.CanWrite)
                 {
-                    ILGenerator methodGetIL = methodBuilder.GetILGenerator();
+                    MethodBuilder setMethodBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name, 
+                        MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, null, new Type[] { propertyType });
+                    ILGenerator setIl = setMethodBuilder.GetILGenerator();
+                    setIl.ThrowException(typeof(Exception));
+
+                    ILGenerator methodGetIL = setMethodBuilder.GetILGenerator();
                     methodGetIL.ThrowException(typeof(Exception));
-                    propertyBuilder.SetSetMethod(methodBuilder);
+                    propertyBuilder.SetSetMethod(setMethodBuilder);
                 }
             }
 
             // add Method 
             var methodInfos = type.GetMethods(
-                BindingFlags.Public| BindingFlags.Instance).
+                BindingFlags.Public| BindingFlags.Instance |BindingFlags.NonPublic). 
                 Where(m => m.DeclaringType == type).
                 Where(m => !m.Name.StartsWith("get_") && !m.Name.StartsWith("set_")).ToArray();
-            foreach(var methodInfo in methodInfos)
+            foreach (var methodInfo in methodInfos)
             {
+                if (methodInfo.IsPrivate)
+                {
+                    continue;
+                }
+
                 var paramenterInfos = methodInfo.GetParameters();
                 Type[] types = new Type[paramenterInfos.Length];
-                for(int i=0;i<types.Length;i++)
+                for (int i = 0; i < types.Length; i++)
                 {
                     types[i] = paramenterInfos[i].ParameterType;
                 }
 
-                MethodBuilder methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes.Public,
+                MethodAttributes methodAttributes = 0;
+                methodAttributes |= methodInfo.IsFamily ? MethodAttributes.Family : MethodAttributes.Public;
+                methodAttributes |= methodInfo.IsVirtual ? MethodAttributes.Virtual : 0;
+                MethodBuilder methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, methodAttributes,
                     methodInfo.ReturnType, types);
 
                 //deal with generic info
@@ -188,7 +201,8 @@ namespace CkfEngine.Editor
             }
 
             // Create type
-            return typeBuilder.CreateType();
+            typeBuilder.CreateType();
+
         }
     }
 }

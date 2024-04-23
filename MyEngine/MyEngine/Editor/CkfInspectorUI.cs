@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -333,42 +334,46 @@ namespace CkfEngine.Editor
     internal class CkfAddComponentUI
     {
         private FormAddComponent m_form;
-        private Dictionary<string,Type> m_derivedTypeTable;
-        List<Type> m_derivedTypes;
-
-        private Assembly TestScript()
-        {
-            return ScriptCompilate.CompileScript("../../../../Others/ScriptTest.cs");
-        }
+        private Dictionary<string,Type> m_componentTypeTable;
 
         public void Init(Button addButton)
         {
-            m_derivedTypes = new List<Type>();
-            var scriptAssembly = TestScript();
 
-            m_derivedTypeTable = new Dictionary<string,Type>();
+
+            m_componentTypeTable = new Dictionary<string,Type>();
             m_form = new FormAddComponent();
             addButton.Click += Open;
 
+            EditorEvents.ScriptsOnCompiled += UpdataComponentUI;
+            ScriptCompilate.CompileAllScript();
+        }
+
+        private void UpdataComponentUI(Dictionary<string,Type> scriptTable)
+        {
             Type baseType = typeof(Component);
             Assembly assembly = Assembly.GetExecutingAssembly(); // Or specify the assembly where your classes are defined
-
+            var derivedTypes = new List<Type>();
             // Get all types in the assembly that are derived from the base type
-            m_derivedTypes.AddRange( assembly.GetTypes()
-                .Where(t => t != baseType && baseType.IsAssignableFrom(t)));
+            derivedTypes.AddRange(assembly.GetTypes()
+            .Where(t => t != baseType && baseType.IsAssignableFrom(t)));
 
-            m_derivedTypes.AddRange(scriptAssembly.GetTypes()
-                .Where(t => t != baseType && baseType.IsAssignableFrom(t)));
-            foreach (Type derivedType in m_derivedTypes)
+            foreach (Type script in scriptTable.Values)
             {
-                if(derivedType.IsAbstract)
+                derivedTypes.Add(script);
+            }
+
+
+            foreach (Type derivedType in derivedTypes)
+            {
+                if (derivedType.IsAbstract)
                 {
                     continue;
                 }
 
-                m_derivedTypeTable.Add(derivedType.Name, derivedType);
+                m_componentTypeTable.Add(derivedType.Name, derivedType);
             }
-                CreateButtons();
+
+            CreateButtons();
         }
 
         private void CreateButtons()
@@ -379,7 +384,7 @@ namespace CkfEngine.Editor
             // Print the derived class names
             int locationX = templateButton.Location.X;
             int locationY = 20;
-            foreach (Type derivedType in m_derivedTypes)
+            foreach (Type derivedType in m_componentTypeTable.Values)
             {
                 if (derivedType.IsAbstract)
                 {
@@ -401,7 +406,7 @@ namespace CkfEngine.Editor
         private void OnClick(object sender, EventArgs e)
         {
             Type type;
-            m_derivedTypeTable.TryGetValue(
+            m_componentTypeTable.TryGetValue(
                 (sender as Button).Name, out type);
             var componet = CkfSelectUI.CurEntity.GetComponent(type);
             if(componet == null)

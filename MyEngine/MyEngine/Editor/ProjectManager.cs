@@ -193,22 +193,6 @@ namespace CkfEngine.Editor
             }
         }
 
-        public void TestFunc()
-        {
-            Entity entity = Entity.CreateEntity("testEntity");
-
-            //JsonSerializerSettings settings = new JsonSerializerSettings
-            //{
-            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore // Ignore roop Handling
-            //};
-            //string json = JsonConvert.SerializeObject(entity, settings);
-
-            //var dEntity = JsonConvert.DeserializeObject<Entity>(json, settings);
-
-            EntitySerialize es = new EntitySerialize(entity);
-
-        }
-        
     }
 
 
