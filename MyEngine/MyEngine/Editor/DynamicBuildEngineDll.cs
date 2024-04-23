@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using CkfEngine.Core;
 using System.Runtime.Serialization;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 
 namespace CkfEngine.Editor
 {
@@ -24,17 +25,21 @@ namespace CkfEngine.Editor
             // create module
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("CkfEngine.Core", "CkfEngine.Core.dll");
 
-            Type type = BuildType<EngineObject>(moduleBuilder);
-            BuildType<Entity>(moduleBuilder,type);
+            var type = BuildType<EngineObject>(moduleBuilder);
+            BuildType<Entity>(moduleBuilder, type);
             type = BuildType<Component>(moduleBuilder, type);
+            BuildType<Transform>(moduleBuilder, type);
             BuildType<Behaviour>(moduleBuilder, type);
+
+
+
 
             assemblyBuilder.Save("CkfEngine.Core.dll");
             Console.WriteLine("Dynamic assembly saved.");
         }
 
 
-        internal static Type BuildType<T>(ModuleBuilder moduleBuilder, Type parentType = null)
+        internal static Type BuildType<T>(ModuleBuilder moduleBuilder,Type baseType = null)
         {
             // create class 
             Type type = typeof(T);
@@ -44,11 +49,14 @@ namespace CkfEngine.Editor
                 (isSerialzable ? TypeAttributes.Serializable : 0) |
                 (type.IsAbstract ? TypeAttributes.Abstract : 0);
 
-            if(parentType == null)
+            var _baseType = type.BaseType;
+            var name = baseType?.Assembly.GetName().Name;
+            if (name == "CkfEngine.Core")
             {
-                parentType = typeof(System.Object);
+                _baseType = baseType;
             }
-            TypeBuilder typeBuilder = moduleBuilder.DefineType(typeName, typeAttributes, parentType);
+
+            TypeBuilder typeBuilder = moduleBuilder.DefineType(typeName, typeAttributes, _baseType);
 
             // add attribute
             var attributes = type.GetCustomAttributes();
@@ -86,8 +94,6 @@ namespace CkfEngine.Editor
             foreach ( var fieldInfo in fieldInfos)
             {
                 FieldBuilder fieldBuilder = typeBuilder.DefineField(fieldInfo.Name, fieldInfo.FieldType, fieldInfo.Attributes);
-
-
             }
 
             // add Property
@@ -130,8 +136,19 @@ namespace CkfEngine.Editor
                 {
                     types[i] = paramenterInfos[i].ParameterType;
                 }
+
                 MethodBuilder methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes.Public,
                     methodInfo.ReturnType, types);
+
+                //deal with generic info
+                Type[] genericArguments = methodInfo.GetGenericArguments();
+                GenericTypeParameterBuilder[] genericTypes = new GenericTypeParameterBuilder[genericArguments.Length];
+                for (int i = 0; i < genericArguments.Length; i++)
+                {
+                    genericTypes[i] = methodBuilder.DefineGenericParameters(genericArguments[i].Name)[i];
+                    genericTypes[i].SetBaseTypeConstraint(genericArguments[i].BaseType);
+                }
+
                 ILGenerator ilGenerator = methodBuilder.GetILGenerator();
                 ilGenerator.ThrowException(typeof(Exception));
             }
@@ -170,9 +187,8 @@ namespace CkfEngine.Editor
                 constructorIL.ThrowException(typeof(Exception));
             }
 
-            // 创建 EngineObject 类型
+            // Create type
             return typeBuilder.CreateType();
-
         }
     }
 }

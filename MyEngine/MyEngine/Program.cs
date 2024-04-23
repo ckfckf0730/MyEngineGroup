@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -37,11 +38,29 @@ namespace CkfEngine
 
         static void Test()
         {
-      
-
+            Type type = typeof(Entity);
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+            foreach(var method in methods)
+            {
+                var reT = method.ReturnType;
+                if(reT.IsGenericParameter)
+                {
+                    Type[] genericArguments = method.GetGenericArguments();
+                }
+            }
 
         }
     }
 
+
+    class A
+    {
+        public B b;
+    }
+
+    class B
+    {
+        public A a;
+    }
  
 }
