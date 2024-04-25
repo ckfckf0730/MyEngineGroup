@@ -45,13 +45,25 @@ namespace CkfEngine.Editor
             if(compilerResults.Errors.Count >0)
             {
                 Console.WriteLine("Compile Error: " + path);
+                foreach (CompilerError error in compilerResults.Errors)
+                {
+                    Console.WriteLine(error.ErrorText);
+                }
             }
 
             var assembly = compilerResults.CompiledAssembly;
             var types = assembly.GetTypes();
             foreach(var type in types)
             {
-                ScriptTable.Add(type.FullName, type);
+                if(ScriptTable.ContainsKey(type.FullName))
+                {
+                    ScriptTable[type.FullName] = type;
+                }
+                else
+                {
+                    ScriptTable.Add(type.FullName, type);
+                }
+
             }
 
 

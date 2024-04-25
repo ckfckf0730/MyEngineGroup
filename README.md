@@ -12,7 +12,8 @@ UnityEngineの使い方参考して作っています。<br>
 エンジン・コアは基本なゲイムサイクル、レンダーのAPIを呼び出す、Entity、Componentなどの機能を実現する部分です。<br>
 エンジン・エディタはゲーム・プロジェクトにグラフィカルユーザーインターフェースの編集部分です。<br>
 ![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/editor.jpg)<br>
-<br>
+構造図：<br>
+![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/StructureChart.jpg)<br>
 <br>
 <br>
 実装された機能と学習体験：<br>

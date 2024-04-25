@@ -341,7 +341,7 @@ namespace CkfEngine.Editor
 
 
             m_componentTypeTable = new Dictionary<string,Type>();
-            m_form = new FormAddComponent();
+            //m_form = new FormAddComponent();
             addButton.Click += Open;
 
             EditorEvents.ScriptsOnCompiled += UpdataComponentUI;
@@ -362,7 +362,7 @@ namespace CkfEngine.Editor
                 derivedTypes.Add(script);
             }
 
-
+            m_componentTypeTable.Clear();
             foreach (Type derivedType in derivedTypes)
             {
                 if (derivedType.IsAbstract)
@@ -373,7 +373,7 @@ namespace CkfEngine.Editor
                 m_componentTypeTable.Add(derivedType.Name, derivedType);
             }
 
-            CreateButtons();
+            //CreateButtons();
         }
 
         private void CreateButtons()
