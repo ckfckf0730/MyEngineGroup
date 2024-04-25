@@ -29,7 +29,7 @@ namespace CkfEngine.Core
 
         internal void BindEntity(Entity entity)
         {
-            EngineRunTime.Instance.UpdateEvent += Update;
+            RuntimeControl.Instance.UpdateEvent += Update;
 
             m_owner = entity;
             try
@@ -45,7 +45,7 @@ namespace CkfEngine.Core
 
         internal void Release()
         {
-            EngineRunTime.Instance.UpdateEvent -= Update;
+            RuntimeControl.Instance.UpdateEvent -= Update;
             OnDestroyed();
             m_owner = null;
         }
@@ -221,6 +221,8 @@ namespace CkfEngine.Core
 
         protected override void OnDestroyed()
         {
+            CoreEvents.CameraDestoried?.Invoke(this);
+
             CameraTable.Remove(Uid);
         }
 

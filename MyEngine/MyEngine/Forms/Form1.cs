@@ -48,6 +48,9 @@ namespace CkfEngine
             this.timer2.Interval = 1000 / 20;
             this.timer2.Enabled = true;
             this.timer2.Start();
+
+
+            this.timer2.Tick += RuntimeControl.Instance.Update;
         }
 
 
@@ -151,9 +154,12 @@ namespace CkfEngine
             int height = 600;
             runForm.Size = new Size(width, height);
             runForm.Show();
-            EngineRunTime.Instance.Init(runForm.Handle,ProjectManager.Instance.CurScene);
+            RuntimeControl.Instance.SwitchState(runForm.Handle,ProjectManager.Instance.CurScene);
+            runForm.FormClosed += (sender2, e2) =>
+            {
+                RuntimeControl.Instance.Stop();
+            };
 
-            this.timer2.Tick += EngineRunTime.Instance.Update;
         }
     }
 
@@ -168,6 +174,12 @@ namespace CkfEngine
             ReplaceExtendScreen();
 
             return panel;
+        }
+
+        internal static void DeleteExtendScreen(Control panel)
+        {
+            EditorMainScreen.Controls.Remove(panel);
+            ReplaceExtendScreen();
         }
 
         private static float ExtendScale = 0.25f;

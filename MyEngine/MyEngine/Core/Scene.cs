@@ -48,11 +48,14 @@ namespace CkfEngine.Core
         {
             if(MainCamera != null)
             {
-                D3DAPICall.CreateRenderTarget(EngineRunTime.Instance.MainHandle, MainCamera.Uid,
+                D3DAPICall.CreateRenderTarget(RuntimeControl.Instance.MainHandle, MainCamera.Uid,
                     MainCamera.m_width, MainCamera.m_height);
             }
+        }
 
-            CoreEvents.SceneRunned?.Invoke(this);
+        internal void Stop()
+        {
+
         }
 
         internal void SerialzeEntities()

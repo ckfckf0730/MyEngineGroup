@@ -27,6 +27,11 @@ namespace CkfEngine.Core
 
         internal static void CloseScene()
         {
+            foreach (var entity in m_entityTable.Values)
+            {
+                entity.Released();
+            }
+
             m_entityTable.Clear();
         }
 

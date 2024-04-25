@@ -11,6 +11,7 @@ namespace CkfEngine.Core
         internal static Action<Entity> EntityCreated;
 
         internal static Action<Camera> CameraCreated;
+        internal static Action<Camera> CameraDestoried;
 
         internal static Action<Scene> SceneRunned;
         internal static Action<Scene> SceneStoped;

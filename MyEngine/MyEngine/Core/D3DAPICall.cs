@@ -23,6 +23,9 @@ namespace CkfEngine.Core
             ulong uid, uint width, uint height);
 
         [DllImport("MyDirectx12.dll")]
+        public static extern int DeleteRenderTarget(ulong uid);
+
+        [DllImport("MyDirectx12.dll")]
         public static extern int Render(ulong uid);
 
    

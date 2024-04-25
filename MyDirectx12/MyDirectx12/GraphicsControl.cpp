@@ -415,6 +415,32 @@ int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long l
 extern"C"
 {
 #endif
+	int __declspec(dllexport) __stdcall DeleteRenderTarget(unsigned long long uid);
+#ifdef __cplusplus 
+}
+#endif
+
+int __declspec(dllexport) __stdcall DeleteRenderTarget(unsigned long long uid)
+{
+	auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
+	if (iter == D3DResourceManage::Instance().CameraTable.end())
+	{
+		PrintDebug("DeleteRenderTarget Error, Cant find camera UID:");
+		PrintDebug((int)uid);
+		return -1;
+	}
+
+	iter->second->Release();
+	delete (iter->second);
+	D3DResourceManage::Instance().CameraTable.erase(iter);
+
+	return 1;
+}
+
+#ifdef __cplusplus 
+extern"C"
+{
+#endif
 	int __declspec(dllexport) __stdcall Render(unsigned long long uid);
 #ifdef __cplusplus 
 }

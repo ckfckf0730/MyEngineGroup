@@ -35,6 +35,7 @@ namespace CkfEngine.Editor
             UpdateEvent += m_camera.Render;
 
             CoreEvents.CameraCreated += CameraCreated;
+            CoreEvents.CameraDestoried += CameraDestoried;
 
             ProjectManager.Instance.Init();
 
@@ -101,6 +102,8 @@ namespace CkfEngine.Editor
             }
         }
 
+        private Dictionary<ulong,Control> m_cameraPanelTable = new Dictionary<ulong,Control>();
+
         private void CameraCreated(Camera camera)
         {
             if(ProjectManager.Instance.CurScene != null &&
@@ -110,6 +113,7 @@ namespace CkfEngine.Editor
             }
 
             var panel = PanelRegister.GetExtendScreen();
+            m_cameraPanelTable.Add(camera.Uid, panel);
             D3DAPICall.CreateRenderTarget(panel.Handle, camera.Uid, camera.m_width, camera.m_height);
             D3DAPICall.SetRenderTargetBackColor(camera.Uid,new float[4] {1.0f, 1.0f, 0.0f, 1.0f });
             camera.OwnerEntity.Transform.CalculateForwardAndUp();
@@ -120,6 +124,19 @@ namespace CkfEngine.Editor
             D3DAPICall.Render(camera.Uid);
 
             panel.Show();
+        }
+
+        private void CameraDestoried(Camera camera)
+        {
+            D3DAPICall.DeleteRenderTarget(camera.Uid);
+
+            Control panel;
+            m_cameraPanelTable.TryGetValue(camera.Uid, out panel);
+            if(panel != null )
+            {
+                PanelRegister.DeleteExtendScreen(panel);
+            }
+
         }
 
         internal void Update()
