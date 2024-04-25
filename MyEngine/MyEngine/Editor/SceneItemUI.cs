@@ -177,20 +177,20 @@ namespace CkfEngine.Editor
                 {
                     if (node.Value == e.Node)
                     {
-                        CkfSelectUI.CurEntity = Entity.FindEntity(node.Key);
+                        SelectUI.CurEntity = Entity.FindEntity(node.Key);
                         isFind = true;
                         break;
                     }
                 }
                 if (!isFind)
                 {
-                    CkfSelectUI.CurEntity = null;
+                    SelectUI.CurEntity = null;
                 }
             }
         }
     }
 
-    internal static class CkfSelectUI
+    internal static class SelectUI
     {
         public static event Action<Entity> EventChangeSelect;
 
@@ -198,7 +198,11 @@ namespace CkfEngine.Editor
         public static Entity CurEntity
         {
             get { return s_curEntity; }
-            set { s_curEntity = value; EventChangeSelect(s_curEntity); }
+            set 
+            { 
+                s_curEntity = value; 
+                EventChangeSelect(s_curEntity); 
+            }
         }
     }
 }

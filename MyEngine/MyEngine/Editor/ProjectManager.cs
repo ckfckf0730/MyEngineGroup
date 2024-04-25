@@ -173,7 +173,7 @@ namespace CkfEngine.Editor
         private void InitScene()
         {
             Entity.InitScene(CurScene);
-            CkfEditorUI.Instance.CkfSceneItem.RefreshScene();
+            EditorUI.Instance.CkfSceneItem.RefreshScene();
             foreach (var entity in Entity.GetAllEntities())
             {
                 if (entity.Transform.Parent == null)

@@ -51,7 +51,7 @@ namespace CkfEngine
         }
 
 
-        private CkfEditorSystem m_editorSystem;
+        private EditorSystem m_editorSystem;
 
         //private TestScene testScene;
 
@@ -66,7 +66,7 @@ namespace CkfEngine
 
         private void InitEditor()
         {
-            m_editorSystem = CkfEditorSystem.Instance;
+            m_editorSystem = EditorSystem.Instance;
             m_editorSystem.Init();
 
             //-----------Init UI module--------------
@@ -75,8 +75,8 @@ namespace CkfEngine
 
             //-----------SceneItems-------
             SceneMenuStrip = new ContextMenuStrip();
-            Editor.CkfEditorUI.Instance.Init(this);
-            Editor.CkfEditorUI.Instance.CkfSceneItem.SetItemTree(this.SceneItemTree, this.SceneMenuStrip);
+            Editor.EditorUI.Instance.Init(this);
+            Editor.EditorUI.Instance.CkfSceneItem.SetItemTree(this.SceneItemTree, this.SceneMenuStrip);
             //----------------------------
 
             //-----------Inspector--------
@@ -88,7 +88,7 @@ namespace CkfEngine
 
             this.splitContainer1.Panel2.Controls.Add(panel);
 
-            Editor.CkfEditorUI.Instance.CkfInspectorItem.SetControl(panel);
+            Editor.EditorUI.Instance.CkfInspectorItem.SetControl(panel);
             //testScene = new TestScene();
             //testScene.Init();
             //----------------------------
@@ -101,7 +101,7 @@ namespace CkfEngine
             splitContainer.Dock = DockStyle.Fill;
 
 
-            Editor.CkfEditorUI.Instance.CkfAssetsUI.SetControl(splitContainer);
+            Editor.EditorUI.Instance.CkfAssetsUI.SetControl(splitContainer);
             //----------------------------
         }
 

@@ -15,7 +15,7 @@ using CkfEngine.Core;
 
 namespace CkfEngine.Editor
 {
-    internal class CkfInspectorUI : CkfUIPanel
+    internal class InspectorUI : CkfUIPanel
     {
         public Entity CurrentEntity;
 
@@ -72,7 +72,7 @@ namespace CkfEngine.Editor
 
         protected override void Init()
         {
-            CkfSelectUI.EventChangeSelect += OnEntitySelect;
+            SelectUI.EventChangeSelect += OnEntitySelect;
             m_componentPanelTable = new Dictionary<string, ComponentUI>();
             m_addComponentUI = new CkfAddComponentUI();
             m_button = new System.Windows.Forms.Button();
@@ -338,6 +338,25 @@ namespace CkfEngine.Editor
 
         public void Init(Button addButton)
         {
+            SelectUI.EventChangeSelect += (entity) =>
+            {
+                if(entity != null)
+                {
+                    addButton.Show();
+                }
+                else
+                {
+                    addButton.Hide();
+                }
+            };
+            if(SelectUI.CurEntity == null)
+            {
+                addButton.Hide();
+            }
+            else
+            {
+                addButton.Show();
+            }
 
 
             m_componentTypeTable = new Dictionary<string,Type>();
@@ -408,12 +427,14 @@ namespace CkfEngine.Editor
             Type type;
             m_componentTypeTable.TryGetValue(
                 (sender as Button).Name, out type);
-            var componet = CkfSelectUI.CurEntity.GetComponent(type);
+            var componet = SelectUI.CurEntity.GetComponent(type);
             if(componet == null)
             {
-                CkfSelectUI.CurEntity.CreateComponent(type);
-                CkfEditorUI.Instance.CkfInspectorItem.UpdatePanel();
+                SelectUI.CurEntity.CreateComponent(type);
+                EditorUI.Instance.CkfInspectorItem.UpdatePanel();
             }
+
+            m_form.Close();
         }
 
         public void Open(object sender, EventArgs e)

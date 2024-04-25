@@ -10,18 +10,18 @@ using CkfEngine.Core;
 
 namespace CkfEngine.Editor
 {
-    public class CkfEditorSystem
+    public class EditorSystem
     {
-        private CkfEditorSystem() { }
+        private EditorSystem() { }
 
-        public static CkfEditorSystem Instance
+        public static EditorSystem Instance
         {
             get
             {
-                return instance != null ? instance : (instance = new CkfEditorSystem());
+                return instance != null ? instance : (instance = new EditorSystem());
             }
         }
-        private static CkfEditorSystem instance;
+        private static EditorSystem instance;
 
         internal event Action UpdateEvent;
 

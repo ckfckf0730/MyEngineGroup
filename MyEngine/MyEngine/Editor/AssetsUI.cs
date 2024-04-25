@@ -9,7 +9,7 @@ using System.IO;
 
 namespace CkfEngine.Editor
 {
-    internal class CkfAssetsUI : CkfUIPanel
+    internal class AssetsUI : CkfUIPanel
     {
         private TreeView m_tree;
 

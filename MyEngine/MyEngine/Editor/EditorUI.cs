@@ -5,26 +5,26 @@ using System.Windows.Forms;
 
 namespace CkfEngine.Editor
 {
-    internal class CkfEditorUI
+    internal class EditorUI
     {
-        private CkfEditorUI() { }
+        private EditorUI() { }
 
-        public static CkfEditorUI Instance 
+        public static EditorUI Instance 
         { 
             get 
             {
-                return instance != null ? instance : (instance = new CkfEditorUI());
+                return instance != null ? instance : (instance = new EditorUI());
             }
         }
-        private static CkfEditorUI instance;
+        private static EditorUI instance;
 
         private Form1 m_windowForm;
         public void Init(Form1 form1)
         {
             m_windowForm = form1;
             m_ckfSceneItem = new CkfSceneItemUI();
-            m_ckfInspectorItem = new CkfInspectorUI();
-            m_ckfAssetsUI = new CkfAssetsUI();
+            m_ckfInspectorItem = new InspectorUI();
+            m_ckfAssetsUI = new AssetsUI();
 
             m_windowForm.Text = ProjectManager.Instance.CurProject.Path;
         }
@@ -32,11 +32,11 @@ namespace CkfEngine.Editor
         private CkfSceneItemUI m_ckfSceneItem;
         public CkfSceneItemUI CkfSceneItem { get {return m_ckfSceneItem; } }
 
-        private CkfInspectorUI m_ckfInspectorItem;
-        public CkfInspectorUI CkfInspectorItem { get { return m_ckfInspectorItem; } }
+        private InspectorUI m_ckfInspectorItem;
+        public InspectorUI CkfInspectorItem { get { return m_ckfInspectorItem; } }
 
-        private CkfAssetsUI m_ckfAssetsUI;
-        public CkfAssetsUI CkfAssetsUI
+        private AssetsUI m_ckfAssetsUI;
+        public AssetsUI CkfAssetsUI
         {
             get { return m_ckfAssetsUI; }
         }
