@@ -1,10 +1,9 @@
-﻿using CkfEngine.Core;
-using CkfEngine.Editor;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -210,7 +209,7 @@ namespace CkfEngine.Core
         internal Dictionary<string, string> SerializedComponents;
 
         internal EntitySerialize(Entity obj)
-        { 
+        {
             Obj = obj;
             SerializedComponents = new Dictionary<string, string>();
             foreach (var pair in Obj.m_components)
@@ -224,24 +223,24 @@ namespace CkfEngine.Core
         {
             Obj.m_components.Clear();
 
-            foreach(var pair in SerializedComponents)
+            foreach (var pair in SerializedComponents)
             {
                 Type type = Type.GetType(pair.Key);
-                if(type == null)
+                if (type == null)
                 {
-                    ScriptCompilate.ScriptTable.TryGetValue(pair.Key, out type);
-                    if(type == null)
+                    Resources.ScriptTable.TryGetValue(pair.Key, out type);
+                    if (type == null)
                     {
                         Console.WriteLine("Error! Can't Deserialize Type: " + pair.Key);
                         continue;
                     }
                 }
 
-                Component component =  JsonConvert.DeserializeObject(pair.Value, type) as Component;
+                Component component = JsonConvert.DeserializeObject(pair.Value, type) as Component;
                 component.BindEntity(Obj);
                 Obj.m_components.Add(type, component);
 
-                if(component is Transform)
+                if (component is Transform)
                 {
                     Obj.ResetTransform(component as Transform);
                 }

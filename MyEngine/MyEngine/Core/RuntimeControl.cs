@@ -1,5 +1,4 @@
-﻿using CkfEngine.Editor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -57,10 +56,7 @@ namespace CkfEngine.Core
         {
             m_isRun = false;
             m_scene.Stop();
-            CoreEvents.SceneRunned?.Invoke(m_scene);
-
-            //Back to Scene initial state
-            ProjectManager.Instance.ResetScene();
+            CoreEvents.SceneStoped?.Invoke(m_scene);
         }
 
         internal Action UpdateEvent = null;

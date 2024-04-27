@@ -8,11 +8,8 @@ namespace CkfEngine.Core
 {
     public static class Resources
     {
+        internal static Dictionary<string, Type> ScriptTable = new Dictionary<string, Type>();
 
 
-        public static void Load(string path)
-        {
-
-        }
     }
 }

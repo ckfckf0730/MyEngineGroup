@@ -36,6 +36,11 @@ namespace CkfEngine.Editor
         internal void Init()
         {
             CoreEvents.EntityCreated += EntityOnCreated;
+            CoreEvents.SceneStoped += (scene) =>
+            {
+                //Back to Scene initial state
+                ResetScene();
+            };
         }
 
         internal void EntityOnCreated(Entity entity)

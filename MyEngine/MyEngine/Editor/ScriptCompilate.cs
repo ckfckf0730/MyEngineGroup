@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using System.Reflection;
 using Microsoft.CSharp;
 using System.IO;
+using CkfEngine.Core;
 
 namespace CkfEngine.Editor
 {
     internal static class ScriptCompilate
     {
-        internal static Dictionary<string, Type> ScriptTable = new Dictionary<string, Type>(); 
+
 
         internal static void CompileAllScript()
         {
@@ -31,7 +32,7 @@ namespace CkfEngine.Editor
                 }
             }
 
-            EditorEvents.ScriptsOnCompiled?.Invoke(ScriptTable);
+            EditorEvents.ScriptsOnCompiled?.Invoke(Resources.ScriptTable);
         }
 
 
@@ -55,13 +56,13 @@ namespace CkfEngine.Editor
             var types = assembly.GetTypes();
             foreach(var type in types)
             {
-                if(ScriptTable.ContainsKey(type.FullName))
+                if(Resources.ScriptTable.ContainsKey(type.FullName))
                 {
-                    ScriptTable[type.FullName] = type;
+                    Resources.ScriptTable[type.FullName] = type;
                 }
                 else
                 {
-                    ScriptTable.Add(type.FullName, type);
+                    Resources.ScriptTable.Add(type.FullName, type);
                 }
 
             }

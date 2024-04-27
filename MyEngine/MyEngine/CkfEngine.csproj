@@ -60,9 +60,8 @@
     <Compile Include="Core\RuntimeControl.cs" />
     <Compile Include="Core\GraphAlgorithms.cs" />
     <Compile Include="Core\Prefab.cs" />
-    <Compile Include="Core\ResourceManager.cs" />
+    <Compile Include="Core\Resource.cs" />
     <Compile Include="Core\Scene.cs" />
-    <Compile Include="Core\SerializationToFileExample.cs" />
     <Compile Include="Editor\AssetsUI.cs" />
     <Compile Include="Editor\EditorSystem.cs" />
     <Compile Include="Editor\EditorUI.cs" />
