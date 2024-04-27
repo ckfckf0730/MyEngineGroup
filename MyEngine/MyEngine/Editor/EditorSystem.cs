@@ -135,6 +135,7 @@ namespace CkfEngine.Editor
             if(panel != null )
             {
                 PanelRegister.DeleteExtendScreen(panel);
+                m_cameraPanelTable.Remove(camera.Uid);
             }
 
         }

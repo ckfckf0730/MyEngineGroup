@@ -40,7 +40,7 @@ namespace CkfEngine.Editor
 
         internal void EntityOnCreated(Entity entity)
         {
-            CurScene?.m_entities .Add(entity);
+            CurScene?.m_entities.Add(entity);
         }
 
         internal void CreateNewProject(string fullPath)
@@ -49,7 +49,7 @@ namespace CkfEngine.Editor
             string proName = Path.GetFileName(fullPath);
 
             bool isExist = Directory.Exists(fullPath);
-            if(isExist)
+            if (isExist)
             {
                 Console.WriteLine("Can't Create a new Prpject in existing Directory");
                 return;
@@ -59,7 +59,7 @@ namespace CkfEngine.Editor
 
             string AssetsPath = fullPath + "/Assets";
             string LibraryPath = fullPath + "/Library";
-            string prjFilePath = fullPath +"/" + proName+ ".cepj";
+            string prjFilePath = fullPath + "/" + proName + ".cepj";
 
             Directory.CreateDirectory(AssetsPath);
             Directory.CreateDirectory(LibraryPath);
@@ -69,7 +69,7 @@ namespace CkfEngine.Editor
             CreateLibrary(LibraryPath);
 
 
-            ProjectVSBuild.CreateProject(fullPath, proName); 
+            ProjectVSBuild.CreateProject(fullPath, proName);
 
             OpenProject(prjFilePath);
         }
@@ -90,7 +90,7 @@ namespace CkfEngine.Editor
 
         internal void CopyAllDirectory(string scrPath, string descPath)
         {
-            var dirs= Directory.GetDirectories(scrPath);
+            var dirs = Directory.GetDirectories(scrPath);
             var files = Directory.GetFiles(scrPath);
 
             foreach (var file in files)
@@ -100,7 +100,7 @@ namespace CkfEngine.Editor
                 File.Copy(file, descFile);
             }
 
-            foreach(var dir in dirs)
+            foreach (var dir in dirs)
             {
                 var lastFolderName = Path.GetFileName(dir);
                 var newDir = descPath + "/" + lastFolderName;
@@ -143,7 +143,6 @@ namespace CkfEngine.Editor
             var jsonText = File.ReadAllText(path);
 
             var scene = JsonConvert.DeserializeObject<Scene>(jsonText);
-            scene.ClearAndDeserialzeEntities();
             if (scene != null)
             {
                 OpenScene(scene);
@@ -155,14 +154,25 @@ namespace CkfEngine.Editor
             }
         }
 
-        internal void OpenScene(Scene scene)
+        //
+        private void OpenScene(Scene scene)
         {
-            if (CurScene != scene)
+            CloseCurScene();
+            scene.ClearAndDeserialzeEntities();
+            CurScene = scene;
+            InitScene();
+        }
+
+
+        internal void ResetScene()
+        {
+            if (CurScene == null)
             {
-                CloseCurScene();
-                CurScene = scene;
-                InitScene();
+                Console.WriteLine("Reset Scene Fault, CurScene is null");
+                return;
             }
+
+            OpenScene(CurScenePath);
         }
 
         internal void CloseCurScene()
@@ -187,7 +197,7 @@ namespace CkfEngine.Editor
         private void ResetTransform(Transform trans)
         {
             trans.SetParent(trans.Parent);
-            foreach(var child in trans.Children)
+            foreach (var child in trans.Children)
             {
                 ResetTransform(child);
             }

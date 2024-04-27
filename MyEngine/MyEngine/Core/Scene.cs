@@ -31,6 +31,9 @@ namespace CkfEngine.Core
         [JsonProperty]
         internal List<EntitySerialize> m_entitySerialzes;
 
+        [JsonProperty]
+        private ulong m_uidCount;
+
         internal Camera MainCamera
         {
             set 
@@ -55,7 +58,10 @@ namespace CkfEngine.Core
 
         internal void Stop()
         {
-
+            if (MainCamera != null)
+            {
+                D3DAPICall.DeleteRenderTarget(MainCamera.Uid);
+            }
         }
 
         internal void SerialzeEntities()

@@ -448,11 +448,16 @@ extern"C"
 
 int __declspec(dllexport) __stdcall Render(unsigned long long uid)
 {
+	auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
+	if (iter != D3DResourceManage::Instance().CameraTable.end())
+	{
+		iter->second->Draw(D3DResourceManage::Instance().pGraphicsCard);
+		return 1;
+	}
 
-	D3DResourceManage::Instance().CameraTable[uid]->
-		Draw(D3DResourceManage::Instance().pGraphicsCard);
-
-	return 1;
+	PrintDebug("Can't find Camera UID:");
+	PrintDebug((int)uid);
+	return -1;
 }
 
 #ifdef __cplusplus 

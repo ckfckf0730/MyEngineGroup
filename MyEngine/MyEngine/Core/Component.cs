@@ -202,26 +202,29 @@ namespace CkfEngine.Core
             CoreEvents.CameraCreated?.Invoke(this);
             CameraTable.Add(Uid, this);
 
-            this.OwnerEntity.Transform.EventValueChanged += (trans) =>
-            {
-                trans.CalculateForwardAndUp();
-                Vector3 target = trans.m_forward + trans.Translation;
-                Vector3 up = trans.m_up;
-
-                D3DAPICall.SetCameraTransform(
-                        trans.Translation,
-                        target,
-                        up);
-                D3DAPICall.Render(this.Uid);
-            };
+            this.OwnerEntity.Transform.EventValueChanged += TransOnChanged;
 
             //D3DAPICall.CreateRenderTarget(PanelRegister.EditorMainScreen.Handle, this.Uid, 800, 600);
             //D3DAPICall.SetCameraProjection((float)(Math.PI / 2), 800.0f / 600.0f, 1.0f, 100.0f);
         }
 
+        private void TransOnChanged(Transform trans)
+        {
+            trans.CalculateForwardAndUp();
+            Vector3 target = trans.m_forward + trans.Translation;
+            Vector3 up = trans.m_up;
+
+            D3DAPICall.SetCameraTransform(
+                    trans.Translation,
+                    target,
+                    up);
+            D3DAPICall.Render(this.Uid);
+        }
+
         protected override void OnDestroyed()
         {
             CoreEvents.CameraDestoried?.Invoke(this);
+            this.OwnerEntity.Transform.EventValueChanged -= TransOnChanged;
 
             CameraTable.Remove(Uid);
         }
