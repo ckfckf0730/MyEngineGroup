@@ -406,13 +406,23 @@ namespace CkfEngine.Core
         protected override void OnCreated()
         {
             m_isLoaded = false;
-            m_file = new FileLoad();
+            if (m_file == null)
+            {
+                m_file = new FileLoad();
+
+            }
+            else
+            {
+                var path = m_file.FullPath;
+                m_file = new FileLoad();
+                m_file.FullPath = path;
+                SetAnimation();
+            }
             m_file.OnChenged += SetAnimation;
         }
 
         protected override void OnDestroyed()
         {
-            base.OnDestroyed();
 
         }
 
