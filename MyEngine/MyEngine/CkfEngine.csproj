@@ -57,10 +57,11 @@
     <Compile Include="Core\Behaviour.cs" />
     <Compile Include="Core\CoreEvents.cs" />
     <Compile Include="Core\EngineObject.cs" />
+    <Compile Include="Core\Resources\ModelManager.cs" />
     <Compile Include="Core\RuntimeControl.cs" />
     <Compile Include="Core\GraphAlgorithms.cs" />
     <Compile Include="Core\Prefab.cs" />
-    <Compile Include="Core\Resource.cs" />
+    <Compile Include="Core\Resources\Resources.cs" />
     <Compile Include="Core\Scene.cs" />
     <Compile Include="Editor\AssetsUI.cs" />
     <Compile Include="Editor\EditorSystem.cs" />
