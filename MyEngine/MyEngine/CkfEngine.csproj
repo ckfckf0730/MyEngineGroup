@@ -57,7 +57,9 @@
     <Compile Include="Core\Behaviour.cs" />
     <Compile Include="Core\CoreEvents.cs" />
     <Compile Include="Core\EngineObject.cs" />
+    <Compile Include="Core\Resources\MaterialManager.cs" />
     <Compile Include="Core\Resources\ModelManager.cs" />
+    <Compile Include="Core\Resources\RenderPipelineManager.cs" />
     <Compile Include="Core\RuntimeControl.cs" />
     <Compile Include="Core\GraphAlgorithms.cs" />
     <Compile Include="Core\Prefab.cs" />

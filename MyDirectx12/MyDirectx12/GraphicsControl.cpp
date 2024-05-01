@@ -498,5 +498,11 @@ void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid,float* 
 
 }
 
+
+
+
+
+
+
 #pragma endregion
 

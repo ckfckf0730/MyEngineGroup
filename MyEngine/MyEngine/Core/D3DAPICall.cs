@@ -60,6 +60,7 @@ namespace CkfEngine.Core
         [DllImport("MyDirectx12.dll")]
         public static extern int SetRenderTargetBackColor(UInt64 uid, float[] color);
 
+
         #endregion
 
 

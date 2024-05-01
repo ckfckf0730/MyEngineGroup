@@ -292,8 +292,6 @@ namespace CkfEngine.Core
 
         protected override void OnDestroyed()
         {
-            base.OnDestroyed();
-
             D3DAPICall.DeleteModelInstance(OwnerEntity.Uid);
         }
 
@@ -301,15 +299,71 @@ namespace CkfEngine.Core
         {
             if(m_isLoaded)
             {
-                //remove currently model
-
-
                 m_isLoaded = false;
             }
 
-
             var result = D3DAPICall.SetPMDModel(OwnerEntity.Uid, m_file.FullPath);
             if(result == 1)
+            {
+                m_isLoaded = true;
+            }
+
+            OwnerEntity.Transform.EffectiveTransform();
+        }
+
+        public void SetPMDModel(string path)
+        {
+            m_file.FullPath = path;
+        }
+
+
+    }
+
+    [Serializable]
+    public class PMDTestRenderer : Component
+    {
+        [JsonProperty]
+        [MyAttributeLoadFileType("PMD")]
+        [MyAttributeShowInspector]
+        private FileLoad m_file;
+        [JsonIgnore]
+        public FileLoad File
+        { get { return m_file; } }
+
+        private bool m_isLoaded;
+        private PMDModel m_model;
+
+        protected override void OnCreated()
+        {
+            m_isLoaded = false;
+            if (m_file == null)
+            {
+                m_file = new FileLoad();
+
+            }
+            else
+            {
+                var path = m_file.FullPath;
+                m_file = new FileLoad();
+                m_file.FullPath = path;
+                InitPMDModel();
+            }
+            m_file.OnChenged += InitPMDModel;
+        }
+
+        protected override void OnDestroyed()
+        {
+            D3DAPICall.DeleteModelInstance(OwnerEntity.Uid);
+        }
+
+        private void InitPMDModel()
+        {
+            if (m_isLoaded)
+            {
+                m_isLoaded = false;
+            }
+
+            if (ModelManager.LoadPMDFile(m_file.FullPath, out m_model))
             {
                 m_isLoaded = true;
             }

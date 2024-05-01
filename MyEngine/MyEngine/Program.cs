@@ -25,7 +25,6 @@ namespace CkfEngine
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Test();
 
             TitleForm titleForm = new TitleForm();
             Application.Run(titleForm);
@@ -37,11 +36,7 @@ namespace CkfEngine
         }
 
 
-        static void Test()
-        {
-            ModelManager.LoadPMD(
-                "Assets/Model/初音ミク.pmd");
-        }
+        
 
         
 

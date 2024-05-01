@@ -51,6 +51,15 @@ namespace CkfEngine
 
 
             this.timer2.Tick += RuntimeControl.Instance.Update;
+
+            Test();
+        }
+
+        static void Test()
+        {
+            PMDModel pMDModel ;
+            ModelManager.LoadPMDFile(
+                "Assets/Model/初音ミク.pmd",out pMDModel);
         }
 
 
