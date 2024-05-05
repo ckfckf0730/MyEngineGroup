@@ -76,6 +76,9 @@ namespace CkfEngine.Core
         ushort[] boneIdx, ushort[] targetIdx, ushort[] iterations, float[] limit,
         byte[] chainLen, ushort[] nodeIdxes);
 
+        [DllImport("MyDirectx12.dll")]
+        public static extern int InstantiatePMDModel(ulong uid, string fileFullName);
+
         #endregion
 
 

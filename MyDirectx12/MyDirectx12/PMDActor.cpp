@@ -989,13 +989,15 @@ int PMDModel::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::
 		}
 		matDescHeapH.ptr += inc;
 	}
+
+	return 1;
 }
 
 int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum, 
 	unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[], 
 	unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[], 
 	uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[], 
-	uint8_t chainLen[], uint16_t* nodeIdxes[])
+	uint8_t chainLen[], uint16_t** nodeIdxes)
 {
 	//------------------bone data & aniamtion-----------------------
 	m_pmdBones.resize(boneNum);
@@ -1015,7 +1017,6 @@ int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum,
 	}
 
 	m_ikData.resize(ikNum);
-	PrintDebug(ikNum);
 	for (int i = 0; i < ikNum; i++)
 	{
 		m_ikData[i].boneIdx = boneIdx[i];
@@ -1026,8 +1027,6 @@ int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum,
 		for (int j = 0; j < chainLen[i]; j++)
 		{
 			m_ikData[i].nodeIdxes[j] = nodeIdxes[i][j];
-
-			PrintDebug(nodeIdxes[i][j]);
 		}
 	}
 
@@ -1065,6 +1064,7 @@ int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum,
 				<< getNameFromIdx(node) << std::endl;
 		}
 
+		//ShowMsgBox(L"", ik.nodeIdxes.size());
 		PrintDebug(oss.str().c_str());
 	}
 

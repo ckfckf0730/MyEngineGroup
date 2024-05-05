@@ -270,6 +270,7 @@ namespace CkfEngine.Core
         public FileLoad File
         { get { return m_file; } }
 
+        private PMDModel m_model;
         private bool m_isLoaded;
 
         protected override void OnCreated()
@@ -302,11 +303,28 @@ namespace CkfEngine.Core
                 m_isLoaded = false;
             }
 
-            var result = D3DAPICall.SetPMDModel(OwnerEntity.Uid, m_file.FullPath);
-            if(result == 1)
+            if (ModelManager.LoadPMDFile(m_file.FullPath, out m_model))
             {
-                m_isLoaded = true;
+                if (ModelManager.SetPMDVertices(m_file.FullPath, m_model))
+                {
+                    if (ModelManager.SetPMDMaterials(m_file.FullPath, m_model))
+                    {
+                        if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
+                        {
+                            if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath))
+                            {
+                                m_isLoaded = true;
+                            }
+                        }
+                    }
+                }
             }
+
+            //var result = D3DAPICall.SetPMDModel(OwnerEntity.Uid, m_file.FullPath);
+            //if (result == 1)
+            //{
+            //    m_isLoaded = true;
+            //}
 
             OwnerEntity.Transform.EffectiveTransform();
         }
@@ -363,10 +381,13 @@ namespace CkfEngine.Core
                 m_isLoaded = false;
             }
 
-            if (ModelManager.LoadPMDFile(m_file.FullPath, out m_model))
-            {
-                m_isLoaded = true;
-            }
+            
+
+
+            //if (ModelManager.LoadPMDFile(m_file.FullPath, out m_model))
+            //{
+            //    m_isLoaded = true;
+            //}
 
             OwnerEntity.Transform.EffectiveTransform();
         }

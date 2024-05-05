@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using static CkfEngine.Core.PMDModel;
@@ -18,9 +19,13 @@ namespace CkfEngine.Core
 
         private static Dictionary<string, PMDModel> s_modelTable = new Dictionary<string, PMDModel>();
 
-        internal static bool LoadPMDFile(string path,out PMDModel pmdModel)
+        internal static bool LoadPMDFile(string path, out PMDModel pmdModel)
         {
-            pmdModel = null;
+            if (s_modelTable.TryGetValue(path, out pmdModel))
+            {
+                return true;
+            }
+
             try
             {
                 var jis = Encoding.GetEncoding("shift_jis");
@@ -90,7 +95,7 @@ namespace CkfEngine.Core
                     pmdModel.m_boneCount = reader.ReadUInt16();
 
                     pmdModel.m_bones = new List<PMDBone>();
-                    for (int i =0;i< pmdModel.m_boneCount;i++)
+                    for (int i = 0; i < pmdModel.m_boneCount; i++)
                     {
                         PMDBone pmdBone = new PMDBone();
 
@@ -109,17 +114,17 @@ namespace CkfEngine.Core
                     //--------------------ik data--------------------
                     pmdModel.m_ikCount = reader.ReadUInt16();
                     pmdModel.m_iks = new List<PMDIK>();
-                    for (int i =0;i< pmdModel.m_ikCount;i++)
+                    for (int i = 0; i < pmdModel.m_ikCount; i++)
                     {
                         PMDIK pmdIk = new PMDIK();
                         pmdIk.boneIdx = reader.ReadUInt16();
                         pmdIk.targetIdx = reader.ReadUInt16();
                         pmdIk.chainLen = reader.ReadByte();
                         pmdIk.iterations = reader.ReadUInt16();
-                        pmdIk.limit = reader.ReadUInt16();
+                        pmdIk.limit = reader.ReadSingle();
 
                         pmdIk.nodeIdxes = new List<ushort>();
-                        for (int j =0; j< pmdIk.chainLen; j++)
+                        for (int j = 0; j < pmdIk.chainLen; j++)
                         {
                             pmdIk.nodeIdxes.Add(reader.ReadUInt16());
                         }
@@ -128,6 +133,7 @@ namespace CkfEngine.Core
                         pmdModel.m_iks.Add(pmdIk);
                     }
 
+                    s_modelTable.Add(path, pmdModel);
                 }
             }
             catch (Exception e)
@@ -137,6 +143,53 @@ namespace CkfEngine.Core
             }
             return true;
         }
+
+        internal static bool SetPMDVertices(string path, PMDModel pmdModel)
+        {
+            return D3DAPICall.SetPMDVertices(path, pmdModel.m_vertextCount,
+                pmdModel.m_vertices.ToArray(), pmdModel.m_indexCount, pmdModel.m_indices.ToArray()) == 1;
+            
+        }
+
+        internal static bool SetPMDMaterials(string path, PMDModel pmdModel)
+        {
+            return D3DAPICall.SetPMDMaterials(path, pmdModel.m_materialCount, pmdModel.m_materials.Select(item => item.diffuse).ToArray(),
+                pmdModel.m_materials.Select(item => item.alpha).ToArray(),
+                pmdModel.m_materials.Select(item => item.specularity).ToArray(),
+                pmdModel.m_materials.Select(item => item.specular).ToArray(),
+                pmdModel.m_materials.Select(item => item.ambient).ToArray(),
+                pmdModel.m_materials.Select(item => item.edgeFlg).ToArray(),
+                pmdModel.m_materials.Select(item => item.toonIdx).ToArray(),
+                pmdModel.m_materials.Select(item => item.indicesNum).ToArray(),
+                pmdModel.m_materials.Select(item => item.texFilePath).ToArray()) == 1;
+        }
+
+        internal static bool SetPMDBoneIk(string path, PMDModel pmdModel)
+        {
+            var nodeIdxes = pmdModel.m_iks.Select(item => item.nodeIdxes.ToArray()).ToArray();
+            ushort[] flattenedArray = nodeIdxes.SelectMany(row => row).ToArray(); 
+            return D3DAPICall.SetPMDBoneIk(path,
+                pmdModel.m_boneCount,
+                pmdModel.m_ikCount,
+                pmdModel.m_bones.Select(item => item.boneName).ToArray(),
+                pmdModel.m_bones.Select(item => item.parentNo).ToArray(),
+                pmdModel.m_bones.Select(item => item.nextNo).ToArray(),
+                pmdModel.m_bones.Select(item => item.type).ToArray(),
+                pmdModel.m_bones.Select(item => item.ikBoneNo).ToArray(),
+                pmdModel.m_bones.Select(item => item.pos).ToArray(),
+                pmdModel.m_iks.Select(item => item.boneIdx).ToArray(),
+                pmdModel.m_iks.Select(item => item.targetIdx).ToArray(),
+                pmdModel.m_iks.Select(item => item.iterations).ToArray(),
+                pmdModel.m_iks.Select(item => item.limit).ToArray(),
+                pmdModel.m_iks.Select(item => item.chainLen).ToArray(),
+                flattenedArray) == 1;
+        }
+
+        internal static bool InstantiatePMDModel(ulong uid, string path)
+        {
+            return D3DAPICall.InstantiatePMDModel(uid, path) == 1;
+        }
+
 
         private static T ByteArrayToStructure<T>(byte[] bytes) where T : struct
         {
@@ -187,7 +240,7 @@ namespace CkfEngine.Core
 
     }
 
-    
+
 
 
     struct PMDBone

@@ -282,7 +282,7 @@ public:
 		unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[],
 		unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[],
 		uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[],
-		uint8_t chainLen[], uint16_t* nodeIdxes[]);
+		uint8_t chainLen[], uint16_t** nodeIdxes);
 	int SetBone();
 
 };

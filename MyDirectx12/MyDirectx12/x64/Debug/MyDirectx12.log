@@ -21,7 +21,7 @@ D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(734,44
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(751,20): warning C4018: '<': signed/unsigned mismatch
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(891,43): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(919,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1004,36): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1006,36): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1184,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1257,40): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1288,44): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
@@ -29,7 +29,6 @@ D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1304,2
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1371,43): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1399,20): warning C4018: '<': signed/unsigned mismatch
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1520,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(992): warning C4715: 'PMDModel::SetMaterials': not all control paths return a value
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1289): warning C4715: 'BasicModel::SetBasicModel': not all control paths return a value
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1472): warning C4715: 'BasicModel::InitMaterial': not all control paths return a value
   MyDirectx12.vcxproj -> D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll
