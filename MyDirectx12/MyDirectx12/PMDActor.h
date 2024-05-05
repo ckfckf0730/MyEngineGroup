@@ -273,8 +273,16 @@ public:
 	//int SetVertex(D3DDevice* _cD3DDev, Vertex* vertices, int verNum, unsigned short* indices, int indexNum);
 	
 	int SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName);
-	/*int SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
-		unsigned int _indCount, unsigned short* _indices);*/
+	int SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
+		unsigned int _indCount, unsigned short* _indices);
+	int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
+		unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[], const char* _FileFullName);
+	int SetBones(D3DDevice* _cD3DDev, unsigned short boneNum,
+		unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[],
+		unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[],
+		uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[],
+		uint8_t chainLen[], uint16_t* nodeIdxes[]);
 	int SetBone();
 
 };

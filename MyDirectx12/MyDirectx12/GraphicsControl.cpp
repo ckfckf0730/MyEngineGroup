@@ -497,12 +497,144 @@ void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid,float* 
 	}
 
 }
-
-
-
-
-
-
-
 #pragma endregion
 
+
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
+		unsigned int _indCount, unsigned short* _indices);
+}
+
+int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
+	unsigned int _indCount, unsigned short* _indices)
+{
+	if (_FileFullName == nullptr)
+	{
+		return -1;
+	}
+
+	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+	PMDModel* verRes = nullptr;
+	int result = -1;
+	if (iter == BasicModel::s_modelTable.end())
+	{
+		//------------create model from file------------------------
+		verRes = new PMDModel();
+		BasicModel::s_modelTable.insert(
+			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
+		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount, _vertices, _indCount, _indices);
+		if (result < 1)
+		{
+			return result;
+		}
+
+		if (result < 1)
+		{
+			return result;
+		}
+
+		/*auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
+
+		iter2->second->push_back(static_cast<BasicModel*>(verRes));*/
+	}
+	else
+	{
+		verRes = static_cast<PMDModel*>(iter->second);
+		result = 1;
+	}
+
+}
+
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall SetPMDMaterials(const char* _FileFullName, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
+		unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[]);
+}
+
+int __declspec(dllexport) __stdcall SetPMDMaterials(const char* _FileFullName, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
+	unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[])
+{
+	if (_FileFullName == nullptr)
+	{
+		return -1;
+	}
+
+	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+	PMDModel* verRes = nullptr;
+	int result = -1;
+	if (iter == BasicModel::s_modelTable.end())
+	{
+		PrintDebug("can't find:");
+		PrintDebug(_FileFullName);
+		return -1;
+	}
+	else
+	{
+		verRes = static_cast<PMDModel*>(iter->second);
+		verRes->SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, diffuse, alpha,
+			specularity, specular, ambient, edgeFlg, toonIdx, indicesNum, texFilePath, _FileFullName);
+	}
+}
+
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall SetPMDBoneIk(const char* _FileFullName, unsigned short boneNum,
+		unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[],
+		unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[],
+		uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[],
+		uint8_t chainLen[], uint16_t nodeIdxes[]);
+}
+
+int __declspec(dllexport) __stdcall SetPMDBoneIk(const char* _FileFullName, unsigned short boneNum,
+	unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[],
+	unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[],
+	uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[],
+	uint8_t chainLen[], uint16_t nodeIdxes[])
+{
+	if (_FileFullName == nullptr)
+	{
+		return -1;
+	}
+
+	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+	PMDModel* verRes = nullptr;
+	int result = -1;
+	if (iter == BasicModel::s_modelTable.end())
+	{
+		PrintDebug("can't find:");
+		PrintDebug(_FileFullName);
+		return -1;
+	}
+	else
+	{
+		uint16_t** nodeIdxesArr = new uint16_t * [ikNum];
+		uint16_t* curPos = nodeIdxes;
+		for (int i = 0; i < ikNum; i++)
+		{
+			int len = chainLen[i];
+			nodeIdxesArr[i] = new uint16_t[len];
+			std::copy(curPos, curPos + len, nodeIdxesArr[i]);
+			curPos += len;
+		}
+
+
+		verRes = static_cast<PMDModel*>(iter->second);
+		verRes->SetBones(D3DResourceManage::Instance().pGraphicsCard, boneNum,
+			ikNum, boneName, parentNo, nextNo,
+			type, ikBoneNo, pos,
+			boneIdx,targetIdx, iterations, limit,
+			chainLen, nodeIdxesArr);
+
+		for (int i = 0; i < ikNum; i++)
+		{
+			delete[]nodeIdxesArr[i];
+		}
+		delete[]nodeIdxesArr;
+	}
+}

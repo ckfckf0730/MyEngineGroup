@@ -114,12 +114,12 @@ namespace CkfEngine.Core
                         PMDIK pmdIk = new PMDIK();
                         pmdIk.boneIdx = reader.ReadUInt16();
                         pmdIk.targetIdx = reader.ReadUInt16();
-                        byte chainLen = reader.ReadByte();
+                        pmdIk.chainLen = reader.ReadByte();
                         pmdIk.iterations = reader.ReadUInt16();
                         pmdIk.limit = reader.ReadUInt16();
 
                         pmdIk.nodeIdxes = new List<ushort>();
-                        for (int j =0; j< chainLen;j++)
+                        for (int j =0; j< pmdIk.chainLen; j++)
                         {
                             pmdIk.nodeIdxes.Add(reader.ReadUInt16());
                         }
@@ -204,7 +204,7 @@ namespace CkfEngine.Core
     {
         public ushort boneIdx;
         public ushort targetIdx;
-        //uint8_t chainLen;  //the number of node between ...
+        public byte chainLen;  //the number of node between ...
         public ushort iterations;
         public float limit;
         public List<ushort> nodeIdxes;

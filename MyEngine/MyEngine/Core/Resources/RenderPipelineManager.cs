@@ -15,7 +15,7 @@ namespace CkfEngine.Core
 
     }
 
-    internal class RenderPipe
+    internal class RenderPipeline
     {
 
     }

@@ -60,6 +60,21 @@ namespace CkfEngine.Core
         [DllImport("MyDirectx12.dll")]
         public static extern int SetRenderTargetBackColor(UInt64 uid, float[] color);
 
+        [DllImport("MyDirectx12.dll")]
+        public static extern int SetPMDVertices(string fileFullName, uint _vertCount, byte[] _vertices,
+        uint _indCount, ushort[] _indices);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int SetPMDMaterials(string fileFullName, uint matCount, Vector3[] diffuse, float[] alpha,
+        float[] specularity, Vector3[] specular, Vector3[] ambient, byte[] edgeFlg,
+        byte[] toonIdx, uint[] indicesNum, string[] texFilePath);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int SetPMDBoneIk(string fileFullName, ushort boneNum,
+        ushort ikNum, string[] boneName, ushort[] parentNo, ushort[] nextNo,
+        byte[] type, ushort[] ikBoneNo, Vector3[] pos,
+        ushort[] boneIdx, ushort[] targetIdx, ushort[] iterations, float[] limit,
+        byte[] chainLen, ushort[] nodeIdxes);
 
         #endregion
 

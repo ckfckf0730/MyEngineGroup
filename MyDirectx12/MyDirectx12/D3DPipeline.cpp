@@ -84,7 +84,7 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev,D3D12_INPUT_ELEMENT_DESC inputL
 	gpipelineDesc.GS.pShaderBytecode = nullptr;
 
 	gpipelineDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-	//gpipelineDesc.SampleMask = 0xffffffff;//ëSïîëŒè€
+	//gpipelineDesc.SampleMask = 0xffffffff;
 
 	gpipelineDesc.BlendState.AlphaToCoverageEnable = false;
 	gpipelineDesc.BlendState.IndependentBlendEnable = false;

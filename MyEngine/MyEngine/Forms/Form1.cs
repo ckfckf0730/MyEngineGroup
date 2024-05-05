@@ -58,8 +58,38 @@ namespace CkfEngine
         static void Test()
         {
             PMDModel pMDModel ;
-            ModelManager.LoadPMDFile(
-                "Assets/Model/初音ミク.pmd",out pMDModel);
+            string fileName = "Assets/Model/初音ミク.pmd";
+            ModelManager.LoadPMDFile(fileName, out pMDModel);
+            D3DAPICall.SetPMDVertices(fileName, pMDModel.m_vertextCount,
+                pMDModel.m_vertices.ToArray(), pMDModel.m_indexCount, pMDModel.m_indices.ToArray());
+            D3DAPICall.SetPMDMaterials(fileName, pMDModel.m_materialCount, pMDModel.m_materials.Select(item => item.diffuse).ToArray(),
+                pMDModel.m_materials.Select(item => item.alpha).ToArray(),
+                pMDModel.m_materials.Select(item => item.specularity).ToArray(),
+                pMDModel.m_materials.Select(item => item.specular).ToArray(),
+                pMDModel.m_materials.Select(item => item.ambient).ToArray(),
+                pMDModel.m_materials.Select(item => item.edgeFlg).ToArray(),
+                pMDModel.m_materials.Select(item => item.toonIdx).ToArray(),
+                pMDModel.m_materials.Select(item => item.indicesNum).ToArray(),
+                pMDModel.m_materials.Select(item => item.texFilePath).ToArray());
+
+
+            var nodeIdxes = pMDModel.m_iks.Select(item => item.nodeIdxes.ToArray()).ToArray();
+            ushort[] flattenedArray = nodeIdxes.SelectMany(row => row).ToArray(); //
+            D3DAPICall.SetPMDBoneIk(fileName,
+                pMDModel.m_boneCount,
+                pMDModel.m_ikCount,
+                pMDModel.m_bones.Select(item => item.boneName).ToArray(),
+                pMDModel.m_bones.Select(item => item.parentNo).ToArray(),
+                pMDModel.m_bones.Select(item => item.nextNo).ToArray(),
+                pMDModel.m_bones.Select(item => item.type).ToArray(),
+                pMDModel.m_bones.Select(item => item.ikBoneNo).ToArray(),
+                pMDModel.m_bones.Select(item => item.pos).ToArray(),
+                pMDModel.m_iks.Select(item => item.boneIdx).ToArray(),
+                pMDModel.m_iks.Select(item => item.targetIdx).ToArray(),
+                pMDModel.m_iks.Select(item => item.iterations).ToArray(),
+                pMDModel.m_iks.Select(item => item.limit).ToArray(),
+                pMDModel.m_iks.Select(item => item.chainLen).ToArray(),
+                flattenedArray);
         }
 
 

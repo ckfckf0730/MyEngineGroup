@@ -210,100 +210,6 @@ ID3D12Resource* CreateOneColorTexture(ID3D12Device* _d3dDevive, const uint32_t& 
 	return oneColorBuff;
 }
 
-//int D3DEntityResource::SetVertex(D3DDevice* _cD3DDev,
-//	Vertex* _vertices, int verNum, unsigned short* _indices, int indexNum)
-//{
-//	//auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
-//	////XMFVECTOR similar, this book doesn't teach.
-//
-//	//unsigned int oneVerSize = (unsigned int)sizeof(*_vertices);
-//	//unsigned int alllVerSize = (unsigned int)sizeof(*_vertices) * verNum;
-//	//unsigned int alllIndSize = (unsigned int)sizeof(*_indices) * indexNum;
-//
-//	////create resourse heap, desc, for create committed resource
-//	//D3D12_HEAP_PROPERTIES heapprop = {};
-//	//heapprop.Type = D3D12_HEAP_TYPE_UPLOAD;
-//	//heapprop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-//	//heapprop.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-//
-//	//D3D12_RESOURCE_DESC resdesc = {};
-//	//resdesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-//	//resdesc.Width = alllVerSize;
-//	//resdesc.Height = 1;
-//	//resdesc.DepthOrArraySize = 1;
-//	//resdesc.MipLevels = 1;
-//	//resdesc.Format = DXGI_FORMAT_UNKNOWN;
-//	//resdesc.SampleDesc.Count = 1;
-//	//resdesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-//	//resdesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-//
-//	//ID3D12Resource* vertBuff = nullptr;
-//
-//	////ID3D12Device::CreateHeap() and ID3D12Device::CreatePlaced Resource() similar, this book doesn't teach.
-//	//HRESULT result = d3ddevice->CreateCommittedResource(
-//	//	&heapprop,
-//	//	D3D12_HEAP_FLAG_NONE,
-//	//	&resdesc,
-//	//	D3D12_RESOURCE_STATE_GENERIC_READ,
-//	//	nullptr,
-//	//	IID_PPV_ARGS(&vertBuff));
-//	//if (FAILED(result))
-//	//{
-//	//	ShowMsgBox(L"error", L"CreateCommittedResource vertex fault.");
-//	//	return -1;
-//	//}
-//
-//	//Vertex* vertMap = nullptr;
-//	//result = vertBuff->Map(0, nullptr, (void**)&vertMap);
-//	//if (FAILED(result))
-//	//{
-//	//	ShowMsgBox(L"error", L"vertMap fault.");
-//	//	return -1;
-//	//}
-//
-//	////std::copy(std::begin(_vertices), std::end(vertices), vertMap);
-//	//std::copy(_vertices, _vertices + alllVerSize, vertMap);
-//
-//	//vertBuff->Unmap(0, nullptr);
-//
-//	////create vertex buffer view
-//	//m_vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
-//	//m_vbView.SizeInBytes = alllVerSize;
-//	//m_vbView.StrideInBytes = oneVerSize;
-//
-//	//ID3D12Resource* idxBuff = nullptr;
-//	//resdesc.Width = alllIndSize;
-//	//result = d3ddevice->CreateCommittedResource(
-//	//	&heapprop,
-//	//	D3D12_HEAP_FLAG_NONE,
-//	//	&resdesc,
-//	//	D3D12_RESOURCE_STATE_GENERIC_READ,
-//	//	nullptr,
-//	//	IID_PPV_ARGS(&idxBuff));
-//	//if (FAILED(result))
-//	//{
-//	//	ShowMsgBox(L"error", L"CreateCommittedResource index fault.");
-//	//	return -1;
-//	//}
-//
-//	//unsigned short* mappedIdx = nullptr;
-//	//result = idxBuff->Map(0, nullptr, (void**)&mappedIdx);
-//	//if (FAILED(result))
-//	//{
-//	//	ShowMsgBox(L"error", L"index vertMap fault.");
-//	//	return -1;
-//	//}
-//	//std::copy(_indices, _indices + alllIndSize, mappedIdx);
-//	////std::copy(std::begin(indices), std::end(indices), mappedIdx);
-//	//idxBuff->Unmap(0, nullptr);
-//
-//	//m_ibView.BufferLocation = idxBuff->GetGPUVirtualAddress();
-//	//m_ibView.Format = DXGI_FORMAT_R16_UINT;
-//	//m_ibView.SizeInBytes = alllIndSize;
-//	return -1;
-//}
-
-
 int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 {
 	auto d3ddevice = _cD3DDev->pD3D12Device;
@@ -742,389 +648,429 @@ int PMDModel::SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName)
 	return 1;
 }
 
-//int PMDModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices, 
-//	unsigned int _indCount, unsigned short* _indices)
-//
-//{
-//	auto d3ddevice = _cD3DDev->pD3D12Device;
-//
-//	constexpr unsigned int pmdvertex_size_inFIle = 38;
-//	constexpr unsigned int pmdvertex_size_inGPU = 40;
-//
-//	//---rearrangement read data----
-//	std::vector<unsigned char> vertices(_vertCount * pmdvertex_size_inGPU);
-//	for (int i = 0; i < _vertCount; i++)
-//	{
-//		std::copy(&_vertices[i * pmdvertex_size_inFIle],
-//			&_vertices[i * pmdvertex_size_inFIle] + pmdvertex_size_inFIle,
-//			&vertices[i * pmdvertex_size_inGPU]);
-//	}
-//
-//
-//
-//	//----------vertex buff------------------
-//	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-//	auto vertBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(vertices.size());
-//	//ID3D12Device::CreateHeap() and ID3D12Device::CreatePlaced Resource() similar, this book doesn't teach.
-//	HRESULT result = d3ddevice->CreateCommittedResource(
-//		&heapTypeUpload,
-//		D3D12_HEAP_FLAG_NONE,
-//		&vertBuffDesc,
-//		D3D12_RESOURCE_STATE_GENERIC_READ,
-//		nullptr,
-//		IID_PPV_ARGS(m_vertBuff.ReleaseAndGetAddressOf()));
-//	if (FAILED(result))
-//	{
-//		ShowMsgBox(L"error", L"CreateCommittedResource PMDVertex fault.");
-//		return -1;
-//	}
-//
-//	unsigned char* s_vertMap = nullptr;
-//	result = m_vertBuff->Map(0, nullptr, (void**)&s_vertMap);
-//	if (FAILED(result))
-//	{
-//		ShowMsgBox(L"error", L"vertMap fault.");
-//		return -1;
-//	}
-//
-//	memcpy(s_vertMap, vertices.data(), vertices.size());
-//	//std::copy(vertices.begin(), vertices.end(), s_vertMap);
-//
-//	m_vertBuff->Unmap(0, nullptr);
-//
-//	//create vertex buffer view
-//	m_vbView.BufferLocation = m_vertBuff->GetGPUVirtualAddress();
-//	m_vbView.SizeInBytes = vertices.size();
-//	m_vbView.StrideInBytes = pmdvertex_size_inGPU;
-//
-//	//----------------------index part----------------------------
-//	size_t indicesAllData_size = _indCount * sizeof(_indices[0]);
-//	auto indicesBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indicesAllData_size);
-//	result = d3ddevice->CreateCommittedResource(
-//		&heapTypeUpload,
-//		D3D12_HEAP_FLAG_NONE,
-//		&indicesBufferDesc,
-//		D3D12_RESOURCE_STATE_GENERIC_READ,
-//		nullptr,
-//		IID_PPV_ARGS(m_idxBuff.ReleaseAndGetAddressOf()));
-//	if (FAILED(result))
-//	{
-//		ShowMsgBox(L"error", L"CreateCommittedResource index fault.");
-//		return -1;
-//	}
-//
-//	unsigned short* mappedIdx = nullptr;
-//	result = m_idxBuff->Map(0, nullptr, (void**)&mappedIdx);
-//	if (FAILED(result))
-//	{
-//		ShowMsgBox(L"error", L"index Map fault.");
-//		return -1;
-//	}
-//	std::copy(_indices, _indices + indicesAllData_size, mappedIdx);
-//	m_idxBuff->Unmap(0, nullptr);
-//
-//	m_ibView.BufferLocation = m_idxBuff->GetGPUVirtualAddress();
-//	m_ibView.Format = DXGI_FORMAT_R16_UINT;
-//	m_ibView.SizeInBytes = indicesAllData_size;
-//
-//	
-//
-//	//------------srv desc--------------
-//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-//
-//	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-//	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-//	srvDesc.Texture2D.MipLevels = 1;
-//
-//	//------------cvb desc--------------
-//	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
-//	matCbvDesc.BufferLocation = m_materialBuff->GetGPUVirtualAddress();
-//	matCbvDesc.SizeInBytes = materialBuffSize;
-//
-//	//------------cvb & srv view-------------
-//	auto matDescHeapH = m_materialDescHeap->GetCPUDescriptorHandleForHeapStart();
-//	auto inc = d3ddevice->
-//		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-//
-//
-//	auto whiteTex = D3DResourceManage::Instance().WhiteTexture;
-//	if (whiteTex == nullptr)
-//	{
-//		whiteTex = CreateOneColorTexture(d3ddevice, 0xffffffff);
-//		D3DResourceManage::Instance().WhiteTexture = whiteTex;
-//	}
-//	auto blackTex = D3DResourceManage::Instance().BlackTexture;
-//	if (blackTex == nullptr)
-//	{
-//		blackTex = CreateOneColorTexture(d3ddevice, 0x000000ff);
-//		D3DResourceManage::Instance().BlackTexture = blackTex;
-//	}
-//	auto gradTex = D3DResourceManage::Instance().GrayGradationTexture;
-//	if (gradTex == nullptr)
-//	{
-//		gradTex = CreateGrayGradationTexture(d3ddevice);
-//		D3DResourceManage::Instance().GrayGradationTexture = gradTex;
-//	}
-//
-//
-//	for (int i = 0; i < materialNum; i++)
-//	{
-//		d3ddevice->CreateConstantBufferView(&matCbvDesc, matDescHeapH);
-//		matDescHeapH.ptr += inc;
-//		matCbvDesc.BufferLocation += materialBuffSize;
-//
-//		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-//		if (m_textureResources[i] != nullptr)
-//		{
-//			srvDesc.Format = m_textureResources[i]->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(
-//				m_textureResources[i],
-//				&srvDesc,
-//				matDescHeapH);
-//		}
-//		else
-//		{
-//			srvDesc.Format = whiteTex->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(
-//				whiteTex,
-//				&srvDesc,
-//				matDescHeapH);
-//		}
-//		matDescHeapH.ptr += inc;
-//
-//		if (m_sphResources[i] != nullptr)
-//		{
-//			srvDesc.Format = m_sphResources[i]->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(
-//				m_sphResources[i],
-//				&srvDesc,
-//				matDescHeapH);
-//		}
-//		else
-//		{
-//			srvDesc.Format = whiteTex->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(
-//				whiteTex,
-//				&srvDesc,
-//				matDescHeapH);
-//		}
-//		matDescHeapH.ptr += inc;
-//
-//		if (m_spaResources[i] != nullptr)
-//		{
-//			srvDesc.Format = m_spaResources[i]->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(
-//				m_spaResources[i],
-//				&srvDesc,
-//				matDescHeapH);
-//		}
-//		else
-//		{
-//			srvDesc.Format = blackTex->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(
-//				blackTex,
-//				&srvDesc,
-//				matDescHeapH);
-//		}
-//		matDescHeapH.ptr += inc;
-//
-//		if (m_toonResources[i] != nullptr)
-//		{
-//			srvDesc.Format = m_toonResources[i]->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(m_toonResources[i], &srvDesc, matDescHeapH);
-//		}
-//		else
-//		{
-//			srvDesc.Format = gradTex->GetDesc().Format;
-//			d3ddevice->CreateShaderResourceView(gradTex, &srvDesc, matDescHeapH);
-//		}
-//		matDescHeapH.ptr += inc;
-//	}
-//
-//	SetBone();
-//
-//	//------Debug Ik bone info------------
-//	auto getNameFromIdx = [&](uint16_t idx)->std::string
-//	{
-//		auto it = std::find_if(m_boneNodeTable.begin(), m_boneNodeTable.end(),
-//			[idx](const std::pair<std::string, BoneNode>& obj)
-//			{
-//				return obj.second.boneIdx == idx;
-//			});
-//		if (it != m_boneNodeTable.end())
-//		{
-//			return it->first;
-//		}
-//		else
-//		{
-//			return "";
-//		}
-//	};
-//	for (auto& ik : m_ikData)
-//	{
-//		std::ostringstream oss;
-//		oss << "IK bone number = " << ik.boneIdx << ":"
-//			<< getNameFromIdx(ik.boneIdx) << std::endl;
-//
-//		oss << "target number = " << ik.targetIdx << ":"
-//			<< getNameFromIdx(ik.targetIdx) << std::endl;
-//
-//		for (auto& node : ik.nodeIdxes)
-//		{
-//			oss << "     node bone = " << node << ":"
-//				<< getNameFromIdx(node) << std::endl;
-//		}
-//
-//		PrintDebug(oss.str().c_str());
-//	}
-//
-//
-//	return 1;
-//}
+int PMDModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices, 
+	unsigned int _indCount, unsigned short* _indices)
 
-//int PMDModel::SetMaterials()
-//{
-//	m_textureResources.resize(matCount);
-//	m_sphResources.resize(matCount);
-//	m_spaResources.resize(matCount);
-//	m_toonResources.resize(matCount);
-//
-//	m_materials.resize(matCount);
-//	for (int i = 0; i < matCount; i++)
-//	{
-//		std::string toonFilePath = "toon/";
-//		char toonFileName[16];
-//		sprintf_s(toonFileName, "toon%02d.bmp",
-//			static_cast<unsigned char>(pmdMaterials[i].toonIdx + 1));
-//		toonFilePath += toonFileName;
-//		m_toonResources[i] = LoadTextureFromFile(toonFilePath, d3ddevice);
-//
-//		m_materials[i].indicesNum = pmdMaterials[i].indicesNum;
-//		m_materials[i].material.diffuse = pmdMaterials[i].diffuse;
-//		m_materials[i].material.alpha = pmdMaterials[i].alpha;
-//		m_materials[i].material.specular = pmdMaterials[i].specular;
-//		m_materials[i].material.specularity = pmdMaterials[i].specularity;
-//		m_materials[i].material.ambient = pmdMaterials[i].ambient;
-//
-//		if (strlen(pmdMaterials[i].texFilePath) == 0)
-//		{
-//			m_textureResources[i] = nullptr;
-//			continue;
-//		}
-//
-//		std::string texFileName = pmdMaterials[i].texFilePath;
-//		std::string sphFileName = "";
-//		std::string spaFileName = "";
-//		if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
-//		{
-//			auto namepair = SplitFileName(texFileName);
-//			auto extension = GetExtension(namepair.first);
-//			if (extension == "sph")
-//			{
-//				texFileName = namepair.second;
-//				sphFileName = namepair.first;
-//			}
-//			else if (extension == "spa")
-//			{
-//				texFileName = namepair.second;
-//				spaFileName = namepair.first;
-//			}
-//			else
-//			{
-//				texFileName = namepair.first;
-//				extension = GetExtension(namepair.second);
-//				if (extension == "sph")
-//				{
-//					sphFileName = namepair.second;
-//				}
-//				else if (extension == "spa")
-//				{
-//					spaFileName = namepair.second;
-//				}
-//			}
-//		}
-//		else
-//		{
-//			auto extension = GetExtension(texFileName);
-//			if (extension == "sph")
-//			{
-//				sphFileName = texFileName;
-//				texFileName = "";
-//			}
-//			else if (extension == "spa")
-//			{
-//				spaFileName = texFileName;
-//				texFileName = "";
-//			}
-//		}
-//
-//		if (texFileName != "")
-//		{
-//			auto texFilePath = GetTexturePathFromModelAndTexPath(
-//				_FileFullName, texFileName.c_str());
-//			m_textureResources[i] = LoadTextureFromFile(texFilePath, d3ddevice);
-//		}
-//		if (sphFileName != "")
-//		{
-//			auto sphFilePath = GetTexturePathFromModelAndTexPath(
-//				_FileFullName, sphFileName.c_str());
-//			m_sphResources[i] = LoadTextureFromFile(sphFilePath, d3ddevice);
-//		}
-//		if (spaFileName != "")
-//		{
-//			auto spaFilePath = GetTexturePathFromModelAndTexPath(
-//				_FileFullName, spaFileName.c_str());
-//			m_spaResources[i] = LoadTextureFromFile(spaFilePath, d3ddevice);
-//		}
-//	}
-//
-//	//-----------material buff---------------------
-//	auto materialBuffSize = sizeof(MaterialForHlsl);
-//	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
-//
-//	auto materialResDesc = CD3DX12_RESOURCE_DESC::Buffer(materialBuffSize * materialNum);
-//	result = d3ddevice->CreateCommittedResource(
-//		&heapTypeUpload,
-//		D3D12_HEAP_FLAG_NONE,
-//		&materialResDesc,
-//		D3D12_RESOURCE_STATE_GENERIC_READ,
-//		nullptr,
-//		IID_PPV_ARGS(m_materialBuff.ReleaseAndGetAddressOf()));
-//	if (FAILED(result))
-//	{
-//		ShowMsgBox(L"error", L"Create material Resource fault.");
-//		return -1;
-//	}
-//
-//	char* mapMaterial = nullptr;
-//	result = m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
-//	for (auto& m : m_materials)
-//	{
-//		*((MaterialForHlsl*)mapMaterial) = m.material;
-//		mapMaterial += materialBuffSize;
-//	}
-//	m_materialBuff->Unmap(0, nullptr);
-//
-//	D3D12_DESCRIPTOR_HEAP_DESC matHeapDesc = {};
-//	matHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-//	matHeapDesc.NodeMask = 0;
-//	matHeapDesc.NumDescriptors = materialNum * 5;
-//	matHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-//
-//	result = d3ddevice->CreateDescriptorHeap(
-//		&matHeapDesc, IID_PPV_ARGS(&m_materialDescHeap));
-//	if (FAILED(result))
-//	{
-//		ShowMsgBox(L"error", L"Create material DescHeap fault.");
-//		return -1;
-//	}
-//}
-//
-//int PMDModel::SetBones()
-//{
-//
-//}
-//
+{
+	auto d3ddevice = _cD3DDev->pD3D12Device;
+
+	constexpr unsigned int pmdvertex_size_inFIle = 38;
+	constexpr unsigned int pmdvertex_size_inGPU = 40;
+
+	//---rearrangement read data----
+	std::vector<unsigned char> vertices(_vertCount * pmdvertex_size_inGPU);
+	for (int i = 0; i < _vertCount; i++)
+	{
+		std::copy(&_vertices[i * pmdvertex_size_inFIle],
+			&_vertices[i * pmdvertex_size_inFIle] + pmdvertex_size_inFIle,
+			&vertices[i * pmdvertex_size_inGPU]);
+	}
+
+
+
+	//----------vertex buff------------------
+	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto vertBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(vertices.size());
+	//ID3D12Device::CreateHeap() and ID3D12Device::CreatePlaced Resource() similar, this book doesn't teach.
+	HRESULT result = d3ddevice->CreateCommittedResource(
+		&heapTypeUpload,
+		D3D12_HEAP_FLAG_NONE,
+		&vertBuffDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(m_vertBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"CreateCommittedResource PMDVertex fault.");
+		return -1;
+	}
+
+	unsigned char* s_vertMap = nullptr;
+	result = m_vertBuff->Map(0, nullptr, (void**)&s_vertMap);
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"vertMap fault.");
+		return -1;
+	}
+
+	memcpy(s_vertMap, vertices.data(), vertices.size());
+	//std::copy(vertices.begin(), vertices.end(), s_vertMap);
+
+	m_vertBuff->Unmap(0, nullptr);
+
+	//create vertex buffer view
+	m_vbView.BufferLocation = m_vertBuff->GetGPUVirtualAddress();
+	m_vbView.SizeInBytes = vertices.size();
+	m_vbView.StrideInBytes = pmdvertex_size_inGPU;
+
+	//----------------------index part----------------------------
+	size_t indicesAllData_size = _indCount * sizeof(_indices[0]);
+	auto indicesBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indicesAllData_size);
+	result = d3ddevice->CreateCommittedResource(
+		&heapTypeUpload,
+		D3D12_HEAP_FLAG_NONE,
+		&indicesBufferDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(m_idxBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"CreateCommittedResource index fault.");
+		return -1;
+	}
+
+	unsigned short* mappedIdx = nullptr;
+	result = m_idxBuff->Map(0, nullptr, (void**)&mappedIdx);
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"index Map fault.");
+		return -1;
+	}
+	std::copy(_indices, _indices + _indCount, mappedIdx);
+	m_idxBuff->Unmap(0, nullptr);
+
+	m_ibView.BufferLocation = m_idxBuff->GetGPUVirtualAddress();
+	m_ibView.Format = DXGI_FORMAT_R16_UINT;
+	m_ibView.SizeInBytes = indicesAllData_size;
+
+	return 1;
+}
+
+int PMDModel::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[], 
+	unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[], const char* _FileFullName)
+{
+	auto d3ddevice = _cD3DDev->pD3D12Device;
+
+	m_textureResources.resize(matCount);
+	m_sphResources.resize(matCount);
+	m_spaResources.resize(matCount);
+	m_toonResources.resize(matCount);
+
+	m_materials.resize(matCount);
+	for (int i = 0; i < matCount; i++)
+	{
+		std::string toonFilePath = "toon/";
+		char toonFileName[16];
+		sprintf_s(toonFileName, "toon%02d.bmp",
+			static_cast<unsigned char>(toonIdx[i] + 1));
+		toonFilePath += toonFileName;
+		m_toonResources[i] = LoadTextureFromFile(toonFilePath, d3ddevice);
+
+		m_materials[i].indicesNum = indicesNum[i];
+		m_materials[i].material.diffuse = diffuse[i];
+		m_materials[i].material.alpha = alpha[i];
+		m_materials[i].material.specular = specular[i];
+		m_materials[i].material.specularity =specularity[i];
+		m_materials[i].material.ambient = ambient[i];
+
+		if (strlen(texFilePath[i]) == 0)
+		{
+			m_textureResources[i] = nullptr;
+			continue;
+		}
+
+		std::string texFileName = texFilePath[i];
+		std::string sphFileName = "";
+		std::string spaFileName = "";
+		if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
+		{
+			auto namepair = SplitFileName(texFileName);
+			auto extension = GetExtension(namepair.first);
+			if (extension == "sph")
+			{
+				texFileName = namepair.second;
+				sphFileName = namepair.first;
+			}
+			else if (extension == "spa")
+			{
+				texFileName = namepair.second;
+				spaFileName = namepair.first;
+			}
+			else
+			{
+				texFileName = namepair.first;
+				extension = GetExtension(namepair.second);
+				if (extension == "sph")
+				{
+					sphFileName = namepair.second;
+				}
+				else if (extension == "spa")
+				{
+					spaFileName = namepair.second;
+				}
+			}
+		}
+		else
+		{
+			auto extension = GetExtension(texFileName);
+			if (extension == "sph")
+			{
+				sphFileName = texFileName;
+				texFileName = "";
+			}
+			else if (extension == "spa")
+			{
+				spaFileName = texFileName;
+				texFileName = "";
+			}
+		}
+
+		if (texFileName != "")
+		{
+			auto texFilePath = GetTexturePathFromModelAndTexPath(
+				_FileFullName, texFileName.c_str());
+			m_textureResources[i] = LoadTextureFromFile(texFilePath, d3ddevice);
+		}
+		if (sphFileName != "")
+		{
+			auto sphFilePath = GetTexturePathFromModelAndTexPath(
+				_FileFullName, sphFileName.c_str());
+			m_sphResources[i] = LoadTextureFromFile(sphFilePath, d3ddevice);
+		}
+		if (spaFileName != "")
+		{
+			auto spaFilePath = GetTexturePathFromModelAndTexPath(
+				_FileFullName, spaFileName.c_str());
+			m_spaResources[i] = LoadTextureFromFile(spaFilePath, d3ddevice);
+		}
+	}
+
+	//-----------material buff---------------------
+	auto materialBuffSize = sizeof(MaterialForHlsl);
+	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
+
+	auto materialResDesc = CD3DX12_RESOURCE_DESC::Buffer(materialBuffSize * matCount);
+	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto result = d3ddevice->CreateCommittedResource(
+		&heapTypeUpload,
+		D3D12_HEAP_FLAG_NONE,
+		&materialResDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(m_materialBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"Create material Resource fault.");
+		return -1;
+	}
+
+	char* mapMaterial = nullptr;
+	result = m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
+	for (auto& m : m_materials)
+	{
+		*((MaterialForHlsl*)mapMaterial) = m.material;
+		mapMaterial += materialBuffSize;
+	}
+	m_materialBuff->Unmap(0, nullptr);
+
+	D3D12_DESCRIPTOR_HEAP_DESC matHeapDesc = {};
+	matHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	matHeapDesc.NodeMask = 0;
+	matHeapDesc.NumDescriptors = matCount * 5;
+	matHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+
+	result = d3ddevice->CreateDescriptorHeap(
+		&matHeapDesc, IID_PPV_ARGS(&m_materialDescHeap));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"Create material DescHeap fault.");
+		return -1;
+	}
+
+	//------------srv desc--------------
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	//------------cvb desc--------------
+	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
+	matCbvDesc.BufferLocation = m_materialBuff->GetGPUVirtualAddress();
+	matCbvDesc.SizeInBytes = materialBuffSize;
+
+	//------------cvb & srv view-------------
+	auto matDescHeapH = m_materialDescHeap->GetCPUDescriptorHandleForHeapStart();
+	auto inc = d3ddevice->
+		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+
+	auto whiteTex = D3DResourceManage::Instance().WhiteTexture;
+	if (whiteTex == nullptr)
+	{
+		whiteTex = CreateOneColorTexture(d3ddevice, 0xffffffff);
+		D3DResourceManage::Instance().WhiteTexture = whiteTex;
+	}
+	auto blackTex = D3DResourceManage::Instance().BlackTexture;
+	if (blackTex == nullptr)
+	{
+		blackTex = CreateOneColorTexture(d3ddevice, 0x000000ff);
+		D3DResourceManage::Instance().BlackTexture = blackTex;
+	}
+	auto gradTex = D3DResourceManage::Instance().GrayGradationTexture;
+	if (gradTex == nullptr)
+	{
+		gradTex = CreateGrayGradationTexture(d3ddevice);
+		D3DResourceManage::Instance().GrayGradationTexture = gradTex;
+	}
+
+
+	for (int i = 0; i < matCount; i++)
+	{
+		d3ddevice->CreateConstantBufferView(&matCbvDesc, matDescHeapH);
+		matDescHeapH.ptr += inc;
+		matCbvDesc.BufferLocation += materialBuffSize;
+
+		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		if (m_textureResources[i] != nullptr)
+		{
+			srvDesc.Format = m_textureResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				m_textureResources[i],
+				&srvDesc,
+				matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = whiteTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				whiteTex,
+				&srvDesc,
+				matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+
+		if (m_sphResources[i] != nullptr)
+		{
+			srvDesc.Format = m_sphResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				m_sphResources[i],
+				&srvDesc,
+				matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = whiteTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				whiteTex,
+				&srvDesc,
+				matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+
+		if (m_spaResources[i] != nullptr)
+		{
+			srvDesc.Format = m_spaResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				m_spaResources[i],
+				&srvDesc,
+				matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = blackTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(
+				blackTex,
+				&srvDesc,
+				matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+
+		if (m_toonResources[i] != nullptr)
+		{
+			srvDesc.Format = m_toonResources[i]->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(m_toonResources[i], &srvDesc, matDescHeapH);
+		}
+		else
+		{
+			srvDesc.Format = gradTex->GetDesc().Format;
+			d3ddevice->CreateShaderResourceView(gradTex, &srvDesc, matDescHeapH);
+		}
+		matDescHeapH.ptr += inc;
+	}
+}
+
+int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum, 
+	unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[], 
+	unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[], 
+	uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[], 
+	uint8_t chainLen[], uint16_t* nodeIdxes[])
+{
+	//------------------bone data & aniamtion-----------------------
+	m_pmdBones.resize(boneNum);
+	for (int i = 0; i < boneNum; i++)
+	{
+		int nameLen = strlen(boneName[i]);
+		nameLen = min(nameLen, 20);
+		for (int j = 0; j < nameLen; j++)
+		{
+			m_pmdBones[i].boneName[j] = boneName[i][j];
+		}
+		m_pmdBones[i].parentNo = parentNo[i];
+		m_pmdBones[i].nextNo = nextNo[i];
+		m_pmdBones[i].type = type[i];
+		m_pmdBones[i].ikBoneNo = ikBoneNo[i];
+		m_pmdBones[i].pos = pos[i];
+	}
+
+	m_ikData.resize(ikNum);
+	PrintDebug(ikNum);
+	for (int i = 0; i < ikNum; i++)
+	{
+		m_ikData[i].boneIdx = boneIdx[i];
+		m_ikData[i].targetIdx = targetIdx[i];
+		m_ikData[i].iterations = iterations[i];
+		m_ikData[i].limit = limit[i];
+		m_ikData[i].nodeIdxes.resize(chainLen[i]);
+		for (int j = 0; j < chainLen[i]; j++)
+		{
+			m_ikData[i].nodeIdxes[j] = nodeIdxes[i][j];
+
+			PrintDebug(nodeIdxes[i][j]);
+		}
+	}
+
+	SetBone();
+
+	//------Debug Ik bone info------------
+	auto getNameFromIdx = [&](uint16_t idx)->std::string
+	{
+		auto it = std::find_if(m_boneNodeTable.begin(), m_boneNodeTable.end(),
+			[idx](const std::pair<std::string, BoneNode>& obj)
+			{
+				return obj.second.boneIdx == idx;
+			});
+		if (it != m_boneNodeTable.end())
+		{
+			return it->first;
+		}
+		else
+		{
+			return "";
+		}
+	};
+	for (auto& ik : m_ikData)
+	{
+		std::ostringstream oss;
+		oss << "IK bone number = " << ik.boneIdx << ":"
+			<< getNameFromIdx(ik.boneIdx) << std::endl;
+
+		oss << "target number = " << ik.targetIdx << ":"
+			<< getNameFromIdx(ik.targetIdx) << std::endl;
+
+		for (auto& node : ik.nodeIdxes)
+		{
+			oss << "     node bone = " << node << ":"
+				<< getNameFromIdx(node) << std::endl;
+		}
+
+		PrintDebug(oss.str().c_str());
+	}
+
+	return 1;
+}
+
 //int PMDModel::SetIKs()
 //{
 //
