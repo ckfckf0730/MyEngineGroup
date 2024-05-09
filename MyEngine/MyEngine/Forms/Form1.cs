@@ -57,6 +57,10 @@ namespace CkfEngine
 
         static void Test()
         {
+            VMDAnimation vMDAnimation;
+            string fileName = "Assets/motion/motion.vmd";
+            ModelManager.LoadVMDFile(fileName, out vMDAnimation);
+
             //PMDModel pMDModel;
             //string fileName = "Assets/Model/鏡音リン.pmd";
             //ModelManager.LoadPMDFile(fileName, out pMDModel);

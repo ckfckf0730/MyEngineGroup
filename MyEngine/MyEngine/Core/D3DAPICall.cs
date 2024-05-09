@@ -79,6 +79,9 @@ namespace CkfEngine.Core
         [DllImport("MyDirectx12.dll")]
         public static extern int InstantiatePMDModel(ulong uid, string fileFullName);
 
+        [DllImport("MyDirectx12.dll")]
+        public static extern int  SetPmdPipeline(string name, string vsFile, string psFile);
+
         #endregion
 
 

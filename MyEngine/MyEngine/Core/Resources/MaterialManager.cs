@@ -31,12 +31,6 @@ namespace CkfEngine.Core
         public Shader shader;
     }
 
-    internal class Shader
-    {
-        public void CreatePipleLine(MaterialBase material)
-        {
-            var matType = material.GetType();
-        }
-    }
+    
 
 }

@@ -8,16 +8,15 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
-using static CkfEngine.Core.PMDModel;
 
 namespace CkfEngine.Core
 {
     internal static class ModelManager
     {
 
-
-
         private static Dictionary<string, PMDModel> s_modelTable = new Dictionary<string, PMDModel>();
+
+        private static Dictionary<string, VMDAnimation> s_animationTable = new Dictionary<string, VMDAnimation>();
 
         internal static bool LoadPMDFile(string path, out PMDModel pmdModel)
         {
@@ -144,6 +143,142 @@ namespace CkfEngine.Core
             return true;
         }
 
+        internal static bool LoadVMDFile(string path, out VMDAnimation vmdAnime)
+        {
+            if (s_animationTable.TryGetValue(path, out vmdAnime))
+            {
+                return true;
+            }
+
+            try
+            {
+                var jis = Encoding.GetEncoding("shift_jis");
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                using (BinaryReader reader = new BinaryReader(fs, jis))
+                {
+                    reader.BaseStream.Seek(50, SeekOrigin.Begin);
+
+                    vmdAnime = new VMDAnimation();
+
+                    //-----------motion data----------------
+                    uint motionDataNum = 0;
+                    motionDataNum = reader.ReadUInt32();
+                    List<VMDMotion> vmdMotionData = new List<VMDMotion>();
+                    for (int i = 0; i < motionDataNum; i++)
+                    {
+                        VMDMotion vmdMotion = new VMDMotion();
+                        vmdMotion.boneName = jis.GetString(reader.ReadBytes(15));
+                        vmdMotion.frameNo = reader.ReadUInt32();
+                        vmdMotion.location.X = reader.ReadSingle();
+                        vmdMotion.location.Y = reader.ReadSingle();
+                        vmdMotion.location.Z = reader.ReadSingle();
+                        vmdMotion.quaternion.X = reader.ReadSingle();
+                        vmdMotion.quaternion.Y = reader.ReadSingle();
+                        vmdMotion.quaternion.Z = reader.ReadSingle();
+                        vmdMotion.quaternion.W = reader.ReadSingle();
+                        vmdMotion.bezier = reader.ReadBytes(64);
+
+                        vmdMotionData.Add(vmdMotion);
+                    }
+
+                    //-----------morph data----------------
+                    uint morphCount = 0;
+                    morphCount = reader.ReadUInt32();
+                    for(int i =0;i< morphCount;i++)
+                    {
+                        VMDMorph vMDMorph = new VMDMorph();
+                        vMDMorph.name = jis.GetString(reader.ReadBytes(15));
+                        vMDMorph.frameNo = reader.ReadUInt32();
+                        vMDMorph.wight = reader.ReadSingle();
+
+                        vmdAnime.m_morphs.Add(vMDMorph);
+                    }
+
+                    //-----------camera animation data----------------
+                    uint vmdCameraCount = 0;
+                    vmdCameraCount = reader.ReadUInt32();
+                    for (int i = 0; i < vmdCameraCount; i++)
+                    {
+                        VMDCamera vMDCamera = new VMDCamera();
+                        vMDCamera.frameNo = reader.ReadUInt32();
+                        vMDCamera.distance = reader.ReadSingle();
+                        vMDCamera.pos.X = reader.ReadSingle();
+                        vMDCamera.pos.Y = reader.ReadSingle();
+                        vMDCamera.pos.Z = reader.ReadSingle();
+                        vMDCamera.eulerAngle.X = reader.ReadSingle();
+                        vMDCamera.eulerAngle.Y = reader.ReadSingle();
+                        vMDCamera.eulerAngle.Z = reader.ReadSingle();
+                        vMDCamera.Interpolation = reader.ReadBytes(24);
+                        vMDCamera.fov = reader.ReadUInt32();
+                        vMDCamera.persFlg = reader.ReadByte();
+
+                        vmdAnime.m_cameraData.Add(vMDCamera);
+                    }
+
+                    //-----------light data----------------
+                    uint vmdLightCount = 0;
+                    vmdLightCount = reader.ReadUInt32();
+                    for (int i = 0; i < vmdLightCount; i++)
+                    {
+                        VMDLight vMDLight = new VMDLight();
+                        vMDLight.frameNo = reader.ReadUInt32();
+                        vMDLight.rgb.X = reader.ReadSingle();
+                        vMDLight.rgb.Y = reader.ReadSingle();
+                        vMDLight.rgb.Z = reader.ReadSingle();
+                        vMDLight.vec.X = reader.ReadSingle();
+                        vMDLight.vec.Y = reader.ReadSingle();
+                        vMDLight.vec.Z = reader.ReadSingle();
+
+                        vmdAnime.m_lights.Add(vMDLight);
+                    }
+
+                    //-----------self shadow data----------------
+                    uint selfShadowCount = 0;
+                    selfShadowCount = reader.ReadUInt32();
+                    for(int i = 0; i < selfShadowCount; i++)
+                    {
+                        VMDSelfShadow vMDSelfShadow = new VMDSelfShadow();
+
+                        vMDSelfShadow.frameNo = reader.ReadUInt32();
+                        vMDSelfShadow.mode = reader.ReadByte();
+                        vMDSelfShadow.distance = reader.ReadSingle();
+    
+                        vmdAnime.m_selfShadowData.Add(vMDSelfShadow);
+                    }
+
+                    //-----------IK enable data----------------
+                    uint ikSwitchCount = 0;
+                    ikSwitchCount = reader.ReadUInt32();
+                    for(int i = 0; i < ikSwitchCount;i ++)
+                    {
+                        VMDIKEnable ikEnable = new VMDIKEnable();
+                        ikEnable.ikEnableTable = new Dictionary<string, bool>();
+
+                        ikEnable.frameNo = reader.ReadUInt32();
+                        byte visibleFlg = reader.ReadByte();
+                        uint ikBoneCount = reader.ReadUInt32();
+                        for(int j =0; j< ikBoneCount;j++)
+                        {
+                            string ikBoneName = jis.GetString(reader.ReadBytes(20));
+                            bool flg = reader.ReadByte() != 0;
+
+                            ikEnable.ikEnableTable.Add(ikBoneName, flg);
+                        }
+
+                        vmdAnime.m_ikEnableData.Add(ikEnable);
+                    }
+
+                    s_animationTable.Add(path, vmdAnime);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            return true;
+        }
+
         internal static bool SetPMDVertices(string path, PMDModel pmdModel)
         {
             return D3DAPICall.SetPMDVertices(path, pmdModel.m_vertextCount,
@@ -225,7 +360,6 @@ namespace CkfEngine.Core
         };
     }
 
-
     public class Model
     {
         internal uint m_vertextCount;
@@ -239,9 +373,6 @@ namespace CkfEngine.Core
 
 
     }
-
-
-
 
     struct PMDBone
     {
@@ -263,4 +394,74 @@ namespace CkfEngine.Core
         public List<ushort> nodeIdxes;
     };
 
+
+    public class VMDAnimation
+    {
+        public List<VMDMorph> m_morphs = new List<VMDMorph>();
+        public List<VMDCamera> m_cameraData = new List<VMDCamera>();
+        public List<VMDLight> m_lights = new List<VMDLight>();
+        public List<VMDSelfShadow> m_selfShadowData = new List<VMDSelfShadow>();
+        public List<VMDIKEnable> m_ikEnableData = new List<VMDIKEnable>();
+        public Dictionary<string, List<KeyFrame>> m_motionData = new Dictionary<string, List<KeyFrame>>();
+    }
+
+
+    public struct VMDMotion
+    {
+        public string boneName; //lenth 15 bytes 
+        public uint frameNo;
+        public Vector3 location;
+        public Vector4 quaternion;
+        public byte[] bezier;  //64 bytes
+    }
+
+    public struct VMDMorph
+    {
+        public string name;  //15 bytes
+        public uint frameNo;
+        public float wight;
+    }
+    public struct VMDCamera
+    {
+        public uint frameNo;
+        public float distance;
+        public Vector3 pos;
+        public Vector3 eulerAngle;
+        public byte[] Interpolation; //24 bytes
+        public uint fov;
+        public byte persFlg;
+    }
+    public struct VMDLight
+    {
+        public uint frameNo;
+        public Vector3 rgb;
+        public Vector3 vec;
+    }
+    public struct VMDSelfShadow
+    {
+        public uint frameNo;
+        public byte mode;
+        public float distance;
+    }
+    public struct VMDIKEnable
+    {
+        public uint frameNo;
+        public Dictionary<string, bool> ikEnableTable;
+    }
+    public struct KeyFrame
+    {
+        public uint frameNo;
+        public Vector4 quaternion;
+        public Vector3 offset;
+        public Vector2 p1, p2;
+        KeyFrame(uint fno, ref Vector4 q, ref Vector3 ofst, ref Vector2 ip1, ref Vector2 ip2)
+        {
+            frameNo = fno;
+            quaternion = q;
+            offset = ofst;
+            p1 = ip1;
+            p2 = ip2;
+        }
+
+    }
 }

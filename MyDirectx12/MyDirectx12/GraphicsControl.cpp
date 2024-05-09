@@ -278,24 +278,12 @@ void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 		return;
 	}
 
-	/*for (auto& animation : D3DResourceManage::Instance().AnimationTable)
-	{
-		animation.second->UpdateAnimation();
-	}*/
-
 	auto animationIns = static_cast<PMDModelInstance*>(iter->second)->m_animationInstance;
 	if (animationIns != nullptr)
 	{
-		/*static DWORD last = 0;
-		if (timeGetTime() > last + 1000)
-		{
-			last = timeGetTime();
-			PrintDebug(animationIns->m_animation->m_fileName.c_str());
-		}*/
 
 		animationIns->UpdateAnimation();
 	}
-	//static_cast<PMDModel*>(iter->second)->UpdateAnimation();
 }
 
 #pragma endregion
@@ -368,6 +356,51 @@ int __declspec(dllexport) __stdcall SetPmdStandardPipeline()
 	{
 		ShowMsgBox(L"Error", L"Create NoboneStandard fault.");
 		return result;
+	}
+
+	return result;
+}
+
+#ifdef __cplusplus 
+extern"C"
+{
+#endif
+	int __declspec(dllexport) __stdcall SetPmdPipeline(const char* name, const wchar_t* vsFile, const wchar_t* psFile);
+#ifdef __cplusplus 
+}
+#endif
+
+int __declspec(dllexport) __stdcall SetPmdPipeline(const char* name, const wchar_t * vsFile, const wchar_t* psFile)
+{
+	//-------------------create PmdStandard pipeline------------------------------------------------
+	auto iter = D3DResourceManage::Instance().PipelineTable.find(name);
+	if (iter != D3DResourceManage::Instance().PipelineTable.end())
+	{
+		PrintDebug("Already exist pipeline: ");
+		PrintDebug(name);
+		return -1;
+	}
+	D3DPipeline* pipeline = new D3DPipeline(name);
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+	{
+		{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+		{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+		{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+		{ "BONE_NO",0,DXGI_FORMAT_R16G16_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+		{ "WEIGHT",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+		/*{"EDGE_FLG",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}*/
+	};
+	UINT numElements = _countof(inputLayout);
+	int result = pipeline->SetPipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
+		vsFile, psFile);
+	pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
+	D3DResourceManage::Instance().PipelineTable.insert(
+		pair< const char*, D3DPipeline*>(name, pipeline));
+
+	if (result != 1)
+	{
+		PrintDebug("Create PmdPipeline fault:");
+		PrintDebug(name);
 	}
 
 	return result;

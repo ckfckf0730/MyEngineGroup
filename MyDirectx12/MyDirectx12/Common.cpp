@@ -1,7 +1,8 @@
 #include <string>
 #include <windows.h>
 #include <cassert>
-
+#include <iostream>
+#include "Common.h"
 
 std::wstring GetWideStringFromString(const std::string& str)
 {
@@ -60,7 +61,7 @@ std::string GetExtension(const std::string& path)
 }
 
 std::pair<std::string, std::string> SplitFileName(
-	const std::string& path, const char splitter = '*')
+	const std::string& path, const char splitter )
 {
 	int idx = path.find(splitter);
 	std::pair<std::string, std::string> ret;

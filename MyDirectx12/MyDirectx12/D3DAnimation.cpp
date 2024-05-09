@@ -6,6 +6,7 @@ using namespace DirectX;
 
 constexpr float epsilon = 0.0005f;
 
+
 D3DAnimation* D3DAnimation::LoadVMDFile(const char* fullFilePath)
 {
 	auto iter = D3DResourceManage::Instance().AnimationTable.find(fullFilePath);
@@ -176,8 +177,8 @@ void D3DAnimationInstance::UpdateAnimation()
 		auto nodeIter = m_owner->Model()->m_boneNodeTable.find(boneMotion.first);
 		if (nodeIter == m_owner->Model()->m_boneNodeTable.end())
 		{
-			/*PrintDebug("Can't find bone name:");
-			PrintDebug(boneMotion.first.c_str());*/
+			PrintDebug("Can't find bone name:");
+			PrintDebug(boneMotion.first.c_str());
 			continue;
 		}
 		auto motions = boneMotion.second;

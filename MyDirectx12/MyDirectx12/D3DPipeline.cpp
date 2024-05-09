@@ -346,12 +346,12 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 
 	for (auto& vertices : *models)
 	{
+		_cmdList->IASetVertexBuffers(0, 1, &vertices->m_vbView);
+		_cmdList->IASetIndexBuffer(&vertices->m_ibView);
+
 		for (auto& instance : vertices->m_instances)
 		{
 			instance->m_mapMatrices[0] = instance->m_transform.world;
-
-			_cmdList->IASetVertexBuffers(0, 1, &vertices->m_vbView);
-			_cmdList->IASetIndexBuffer(&vertices->m_ibView);
 
 			//--------------set const buff and texture buff heap-------
 			_cmdList->SetDescriptorHeaps(1, &m_sceneDescHeap);

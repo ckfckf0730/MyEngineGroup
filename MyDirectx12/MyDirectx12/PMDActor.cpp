@@ -1117,6 +1117,8 @@ int PMDModel::SetBone()
 		auto parentName = m_boneNameArr[pb.parentNo];
 		m_boneNodeTable[parentName].children.emplace_back(
 			&m_boneNodeTable[pb.boneName]);
+		//PrintDebug(parentName.c_str());
+		//PrintDebug(pb.boneName);
 	}
 
 	return 1;
