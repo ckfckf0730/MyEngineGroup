@@ -272,6 +272,7 @@ namespace CkfEngine.Core
 
         private PMDModel m_model;
         private bool m_isLoaded;
+        internal PMDModelInstance m_pmdModelInstance;
 
         protected override void OnCreated()
         {
@@ -311,8 +312,9 @@ namespace CkfEngine.Core
                     {
                         if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
                         {
-                            if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath))
+                            if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
                             {
+                                m_pmdModelInstance = new PMDModelInstance(m_model,OwnerEntity.Uid);
                                 m_isLoaded = true;
                             }
                         }
@@ -477,6 +479,7 @@ namespace CkfEngine.Core
         { get { return m_file; } }
 
         private bool m_isLoaded;
+        private AnimationControl m_animaionControl;
 
         protected override void OnCreated()
         {
@@ -511,13 +514,16 @@ namespace CkfEngine.Core
                 m_isLoaded = false;
             }
 
-
-            var result = D3DAPICall.LoadAnimation(OwnerEntity.Uid, m_file.FullPath);
-            if (result == 1)
+            VMDAnimation vmdAnime;
+            var boneRenderer = OwnerEntity.CreateComponent<ModelBoneRenderer>();
+            if (ModelManager.LoadVMDFile(m_file.FullPath, out vmdAnime) &&
+                boneRenderer != null)
             {
+                m_animaionControl = new AnimationControl(vmdAnime, boneRenderer.m_pmdModelInstance);
+                m_animaionControl.StartAnimation();
+
                 m_isLoaded = true;
             }
-
         }
 
         public void SetAnimation(string path)
@@ -527,7 +533,7 @@ namespace CkfEngine.Core
 
         protected override void Update() 
         {
-            D3DAPICall.UpdateAnimation(OwnerEntity.Uid);
+            m_animaionControl.UpdateAnimation();
         }
     }
 

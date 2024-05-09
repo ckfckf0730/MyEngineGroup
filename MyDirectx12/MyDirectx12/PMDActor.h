@@ -272,7 +272,7 @@ public:
 public:
 	//int SetVertex(D3DDevice* _cD3DDev, Vertex* vertices, int verNum, unsigned short* indices, int indexNum);
 	
-	int SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName);
+	//int SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName);
 	int SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
 		unsigned int _indCount, unsigned short* _indices);
 	int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
@@ -308,7 +308,7 @@ public:
 class PMDModelInstance : public ModelInstance
 {
 public:
-	std::vector<DirectX::XMMATRIX> m_boneMatrices;
+	//std::vector<DirectX::XMMATRIX> m_boneMatrices;
 
 	PMDModel* Model()
 	{
@@ -320,7 +320,8 @@ public:
 	void InitAnimation(D3DAnimation* animationRes);
 
 	//void BindAnimation(D3DAnimation* bindAnimation);
-	int CreateTransformView(D3DDevice* _cD3DDev);
+	int CreateTransformView(D3DDevice* _cD3DDev, int boneSize);
+	void UpdateBoneMatrices(DirectX::XMMATRIX* boneMatrices, int size);
 };
 
 namespace

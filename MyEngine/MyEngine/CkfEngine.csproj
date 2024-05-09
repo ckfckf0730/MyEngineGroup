@@ -54,9 +54,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\TimeManager.cs" />
     <Compile Include="Core\Behaviour.cs" />
     <Compile Include="Core\CoreEvents.cs" />
     <Compile Include="Core\EngineObject.cs" />
+    <Compile Include="Core\Animation\AnimationManager.cs" />
     <Compile Include="Core\Resources\MaterialManager.cs" />
     <Compile Include="Core\Resources\ModelManager.cs" />
     <Compile Include="Core\Resources\RenderPipelineManager.cs" />

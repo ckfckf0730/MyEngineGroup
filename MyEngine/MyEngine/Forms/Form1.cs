@@ -53,6 +53,7 @@ namespace CkfEngine
             this.timer2.Tick += RuntimeControl.Instance.Update;
 
             Test();
+            TimeManager.Init();
         }
 
         static void Test()

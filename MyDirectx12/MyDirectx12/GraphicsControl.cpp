@@ -79,67 +79,67 @@ int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 	return -1;
 }
 
-#ifdef __cplusplus 
-extern"C"
-{
-#endif
-	int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName);
-#ifdef __cplusplus 
-}
-#endif
-
-int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName)
-{
-	if (_FileFullName == nullptr)
-	{
-		return -1;
-	}
-
-	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
-	PMDModel* verRes = nullptr;
-	int result = -1;
-	if (iter == BasicModel::s_modelTable.end())
-	{
-		//------------create model from file------------------------
-		verRes = new PMDModel();
-		BasicModel::s_modelTable.insert(
-			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
-		result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
-		if (result < 1)
-		{
-			return result;
-		}
-
-		if (result < 1)
-		{
-			return result;
-		}
-
-		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
-
-		iter2->second->push_back(static_cast<BasicModel*>(verRes));
-	}
-	else
-	{
-		verRes = static_cast<PMDModel*>(iter->second);
-		result = 1;
-	}
-
-	//------------delete if exist instance-------------
-	DeleteModelInstance(_uid);
-
-	//------------create instance------------
-	PMDModelInstance* instance = new PMDModelInstance();
-	instance->m_model = verRes;
-	//instance->BindAnimation(verRes->m_animation);
-	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
-
-	verRes->m_instances.push_back(static_cast<ModelInstance*>(instance));
-	ModelInstance::s_uidModelTable.insert(
-		pair<unsigned long long, ModelInstance*>(_uid, static_cast<ModelInstance*>(instance)));
-
-	return result;
-}
+//#ifdef __cplusplus 
+//extern"C"
+//{
+//#endif
+//	int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName);
+//#ifdef __cplusplus 
+//}
+//#endif
+//
+//int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName)
+//{
+//	if (_FileFullName == nullptr)
+//	{
+//		return -1;
+//	}
+//
+//	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+//	PMDModel* verRes = nullptr;
+//	int result = -1;
+//	if (iter == BasicModel::s_modelTable.end())
+//	{
+//		//------------create model from file------------------------
+//		verRes = new PMDModel();
+//		BasicModel::s_modelTable.insert(
+//			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
+//		result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
+//		if (result < 1)
+//		{
+//			return result;
+//		}
+//
+//		if (result < 1)
+//		{
+//			return result;
+//		}
+//
+//		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
+//
+//		iter2->second->push_back(static_cast<BasicModel*>(verRes));
+//	}
+//	else
+//	{
+//		verRes = static_cast<PMDModel*>(iter->second);
+//		result = 1;
+//	}
+//
+//	//------------delete if exist instance-------------
+//	DeleteModelInstance(_uid);
+//
+//	//------------create instance------------
+//	PMDModelInstance* instance = new PMDModelInstance();
+//	instance->m_model = verRes;
+//	//instance->BindAnimation(verRes->m_animation);
+//	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
+//
+//	verRes->m_instances.push_back(static_cast<ModelInstance*>(instance));
+//	ModelInstance::s_uidModelTable.insert(
+//		pair<unsigned long long, ModelInstance*>(_uid, static_cast<ModelInstance*>(instance)));
+//
+//	return result;
+//}
 
 
 
@@ -655,11 +655,11 @@ int __declspec(dllexport) __stdcall SetPMDBoneIk(const char* _FileFullName, unsi
 
 
 		verRes = static_cast<PMDModel*>(iter->second);
-		result = verRes->SetBones(D3DResourceManage::Instance().pGraphicsCard, boneNum,
+		/*result = verRes->SetBones(D3DResourceManage::Instance().pGraphicsCard, boneNum,
 			ikNum, boneName, parentNo, nextNo,
 			type, ikBoneNo, pos,
 			boneIdx,targetIdx, iterations, limit,
-			chainLen, nodeIdxesArr);
+			chainLen, nodeIdxesArr);*/
 
 		for (int i = 0; i < ikNum; i++)
 		{
@@ -667,15 +667,33 @@ int __declspec(dllexport) __stdcall SetPMDBoneIk(const char* _FileFullName, unsi
 		}
 		delete[]nodeIdxesArr;
 	}
-	return result;
+	return 1;
 }
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid, const char* _FileFullName);
+	void __declspec(dllexport) __stdcall UpdatePMDBoneMatrices(unsigned long long _uid, DirectX::XMMATRIX* boneMatrices, int size);
 }
 
-int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid, const char* _FileFullName)
+void __declspec(dllexport) __stdcall UpdatePMDBoneMatrices(unsigned long long _uid, DirectX::XMMATRIX* boneMatrices, int size)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(_uid);
+	if (iter == ModelInstance::s_uidModelTable.end())
+	{
+		PrintDebug("UpdatePMDBoneMatrices fault, can't find: ");
+		PrintDebug((int)_uid);
+		return;
+	}
+	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
+	pInstance->UpdateBoneMatrices(boneMatrices,size);
+}
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid, const char* _FileFullName ,int boneSize);
+}
+
+int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid, const char* _FileFullName, int boneSize)
 {
 	if (_FileFullName == nullptr)
 	{
@@ -702,7 +720,7 @@ int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid,
 	PMDModelInstance* instance = new PMDModelInstance();
 	instance->m_model = verRes;
 	//instance->BindAnimation(verRes->m_animation);
-	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
+	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard, boneSize);
 
 	verRes->m_instances.push_back(static_cast<ModelInstance*>(instance));
 	ModelInstance::s_uidModelTable.insert(

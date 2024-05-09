@@ -77,10 +77,13 @@ namespace CkfEngine.Core
         byte[] chainLen, ushort[] nodeIdxes);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int InstantiatePMDModel(ulong uid, string fileFullName);
+        public static extern int InstantiatePMDModel(ulong uid, string fileFullName, int boneSize);
 
         [DllImport("MyDirectx12.dll")]
         public static extern int  SetPmdPipeline(string name, string vsFile, string psFile);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern void UpdatePMDBoneMatrices(ulong _uid, Matrix4x4[] boneMatrices, int size);
 
         #endregion
 
