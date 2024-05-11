@@ -255,7 +255,6 @@ namespace CkfEngine.Core
                         {
                             string ikBoneName = jis.GetString(reader.ReadBytes(20)).Split('\0')[0];
                             bool flg = reader.ReadByte() != 0;
-
                             vmdAnime.m_ikEnableData[i].ikEnableTable.Add(ikBoneName, flg);
                         }
                     }
