@@ -25,6 +25,11 @@ namespace CkfEngine.Core
             m_owner = owner;
         }
 
+        public void SetModelInstance(PMDModelInstance ins)
+        {
+            m_owner = ins;
+        }
+
         internal void StartAnimation()
         {
             m_startTime = (uint)TimeManager.GetRunTime();
