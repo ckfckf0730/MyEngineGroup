@@ -29,8 +29,8 @@ public:
     D3DDevice* pGraphicsCard;
 
     std::map<unsigned long long, D3DCamera*> CameraTable;
-    std::map<const char*, D3DPipeline*> PipelineTable;
-    std::map<const char*,std::vector<BasicModel*>*>* PipelineModelTable;     //key is pipeline name
+    std::map<std::string, D3DPipeline*> PipelineTable;
+    std::map<std::string,std::vector<BasicModel*>*>* PipelineModelTable;     //key is pipeline name
     std::map<std::string, D3DAnimation*> AnimationTable;
     std::map<std::string, ID3D12Resource*> ResourceTable;
 

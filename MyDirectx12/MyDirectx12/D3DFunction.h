@@ -63,7 +63,7 @@ public:
 class D3DPipeline
 {
 private:
-	const char* m_name = nullptr;
+	std::string m_name;
 
 public:
 	D3DPipeline(const char* name);
@@ -82,6 +82,9 @@ public:
 
 	int SetPipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
 		LPCWSTR vsShader, LPCWSTR psShader);
+	int CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
+		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry);
+
 	int CreateSceneView(D3DDevice* _cD3DDev);
 
 	void SetCameraTransform(DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);

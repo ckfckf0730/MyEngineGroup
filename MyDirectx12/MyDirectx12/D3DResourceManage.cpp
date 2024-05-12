@@ -9,7 +9,7 @@ D3DResourceManage& D3DResourceManage::Instance()
 
 void D3DResourceManage::Init()
 {
-    PipelineModelTable = new std::map<const char*, std::vector<BasicModel*>*>();
+    PipelineModelTable = new std::map<std::string, std::vector<BasicModel*>*>();
 
     //creat default pmd pipelineTable
     auto pModelTable = D3DResourceManage::Instance().PipelineModelTable;

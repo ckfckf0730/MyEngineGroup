@@ -57,6 +57,10 @@ namespace CkfEngine.Core
         [DllImport("MyDirectx12.dll")]
         public static extern int SetPmdStandardPipeline();
 
+        [DllImport("MyDirectx12.dll", CharSet = CharSet.Ansi)]
+        public static extern int CreateBonePipeline(string pipelineName,
+        string vsCode, string vsEntry, string psCode, string psEntry);
+
         [DllImport("MyDirectx12.dll")]
         public static extern int SetRenderTargetBackColor(UInt64 uid, float[] color);
 
@@ -78,9 +82,6 @@ namespace CkfEngine.Core
 
         [DllImport("MyDirectx12.dll")]
         public static extern int InstantiatePMDModel(ulong uid, string fileFullName, int boneSize);
-
-        [DllImport("MyDirectx12.dll")]
-        public static extern int  SetPmdPipeline(string name, string vsFile, string psFile);
 
         [DllImport("MyDirectx12.dll")]
         public static extern void UpdatePMDBoneMatrices(ulong _uid, Matrix4x4[] boneMatrices, int size);
@@ -117,6 +118,16 @@ namespace CkfEngine.Core
                 Console.WriteLine("Create standard pipeline fault");
                 return -1;
             }
+
+            string vsCode = File.ReadAllText("BasicVertexShader.hlsl");
+            string psCode = File.ReadAllText("BasicPixelShader.hlsl");
+
+            if (CreateBonePipeline("PmdStandard", vsCode, "BasicVS", psCode, "BasicPS") < 1)
+            {
+                Console.WriteLine("Create bone pipeline fault");
+                return -1;
+            }
+
 
             
             return 1;

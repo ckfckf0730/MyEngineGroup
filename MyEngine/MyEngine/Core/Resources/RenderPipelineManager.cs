@@ -8,7 +8,7 @@ namespace CkfEngine.Core
 {
     internal static class RenderPipelineManager
     {
-        public static void CreatePipeline(MaterialBase material)
+        public static void CreatePipeline(MaterialBase material,bool isBoneModel)
         {
             var matType = material.GetType();
         }
