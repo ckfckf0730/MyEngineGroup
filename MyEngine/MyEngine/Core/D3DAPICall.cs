@@ -93,6 +93,9 @@ namespace CkfEngine.Core
         [DllImport("MyDirectx12.dll")]
         public static extern int InstantiateBasicModel(ulong _uid, string _FileFullName);
 
+        [DllImport("MyDirectx12.dll")]
+        public static extern int BindPipeline(ulong _uid, string pipeline);
+
         #endregion
 
 
@@ -135,8 +138,15 @@ namespace CkfEngine.Core
                 return -1;
             }
 
+            //vsCode = File.ReadAllText("NoBoneVertexShader.hlsl");
 
-            
+            //if (CreateBonePipeline("PmdStandard", vsCode, "BasicVS", psCode, "BasicPS") < 1)
+            //{
+            //    Console.WriteLine("Create bone pipeline fault");
+            //    return -1;
+            //}
+
+
             return 1;
         }
 

@@ -315,6 +315,7 @@ namespace CkfEngine.Core
                             if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
                             {
                                 m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
+                                D3DAPICall.BindPipeline(OwnerEntity.Uid, "PmdStandard");
                                 m_isLoaded = true;
                             }
                         }
@@ -398,6 +399,7 @@ namespace CkfEngine.Core
                     if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
                     {
                         m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
+                        D3DAPICall.BindPipeline(OwnerEntity.Uid, "NoboneStandard");
                         m_isLoaded = true;
                     }
 

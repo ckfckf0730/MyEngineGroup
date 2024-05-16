@@ -3,6 +3,7 @@
 #include"D3DAPI.h"
 #include<vector>
 #include"PMDActor.h"
+#include<map>
 
 struct SceneMatrix;
 
@@ -43,7 +44,7 @@ public:
 	ID3D12DescriptorHeap* m_dsvHeap = nullptr;
 
 
-	D3DMulPassRender* m_mulPassRender;
+	//D3DMulPassRender* m_mulPassRender;
 
 	int CreateSwapChain(HWND hwnd, UINT width, UINT height);
 	int CreateRenderTargetView();
@@ -56,19 +57,25 @@ public:
 		D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
 	void Flip();
 
-	void InitMulPassRender();
+	//void InitMulPassRender();
 
 	void Release();
 };
+
+class BasicModel;
 
 class D3DPipeline
 {
 private:
 	std::string m_name;
 
-public:
-	D3DPipeline(const char* name);
 
+
+public:
+
+	std::map<BasicModel*, std::map<ModelInstance*,int>> RenderModelTable;
+
+	D3DPipeline(const char* name);
 
 	ID3D12RootSignature* m_rootsignature = nullptr;
 
@@ -91,6 +98,4 @@ public:
 	void SetCameraTransform(DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	//void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);
 	void Draw(ID3D12GraphicsCommandList*, ID3D12Device*);
-	void Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddevice,
-		ModelInstance* modelInstance);
 };

@@ -8,15 +8,11 @@ D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): w
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(63,20): warning C4018: '<': signed/unsigned mismatch
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(135,21): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(136,22): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
-  D3DDevice.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
   D3DMulPassRender.cpp
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
   D3DPipeline.cpp
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(539,51): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
-  GraphicsControl.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
   PMDActor.cpp
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(11,39): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
@@ -39,6 +35,11 @@ D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1381,2
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1448,43): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1476,20): warning C4018: '<': signed/unsigned mismatch
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1597,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
+  GraphicsControl.cpp
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
+  D3DDevice.cpp
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
   Generating Code...
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1549): warning C4715: 'BasicModel::InitMaterial': not all control paths return a value
+     Creating library ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.lib and object ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.exp
   MyDirectx12.vcxproj -> D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll

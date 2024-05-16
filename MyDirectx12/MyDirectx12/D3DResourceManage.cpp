@@ -9,10 +9,10 @@ D3DResourceManage& D3DResourceManage::Instance()
 
 void D3DResourceManage::Init()
 {
-    PipelineModelTable = new std::map<std::string, std::vector<BasicModel*>*>();
+    //PipelineModelTable = new std::map<std::string, std::vector<BasicModel*>*>();
 
     //creat default pmd pipelineTable
-    auto pModelTable = D3DResourceManage::Instance().PipelineModelTable;
+  /*  auto pModelTable = D3DResourceManage::Instance().PipelineModelTable;
     auto iter = pModelTable->find("PmdStandard");
     std::vector<BasicModel*>* pVector = nullptr;
     if (iter == pModelTable->end())
@@ -26,7 +26,7 @@ void D3DResourceManage::Init()
     {
         pVector = new std::vector<BasicModel*>();
         pModelTable->insert(std::pair<const char*, std::vector<BasicModel*>*>("NoboneStandard", pVector));
-    }
+    }*/
 }
 
 void D3DResourceManage::InitializeLoadTable()

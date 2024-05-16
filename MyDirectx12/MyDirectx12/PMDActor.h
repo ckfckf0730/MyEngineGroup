@@ -290,6 +290,8 @@ public:
 		unsigned int _indCount, unsigned short* _indices) override;
 };
 
+class D3DPipeline;
+
 class ModelInstance
 {
 public:
@@ -301,6 +303,8 @@ public:
 	ID3D12Resource* m_transformConstBuff = nullptr;
 	Transform m_transform;
 	DirectX::XMMATRIX* m_mapMatrices = nullptr;
+
+	D3DPipeline* m_bindPipeline = nullptr;
 
 
 	virtual int CreateTransformView(D3DDevice* _cD3DDev);

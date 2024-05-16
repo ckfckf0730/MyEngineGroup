@@ -67,6 +67,13 @@ int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 	if (iter != ModelInstance::s_uidModelTable.end())
 	{
 		auto instance = (*iter).second;
+
+		if (instance->m_bindPipeline != nullptr)
+		{
+			instance->m_bindPipeline->RenderModelTable[instance->m_model].erase(instance);
+			PrintDebug("Remove BindPipeline Success");
+		}
+
 		auto& list = instance->m_model->m_instances;
 		auto iter2 = std::find(list.begin(), list.end(), instance);
 
@@ -79,127 +86,6 @@ int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 	return -1;
 }
 
-//#ifdef __cplusplus 
-//extern"C"
-//{
-//#endif
-//	int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName);
-//#ifdef __cplusplus 
-//}
-//#endif
-//
-//int __declspec(dllexport) __stdcall SetPMDModel(unsigned long long _uid,const char* _FileFullName)
-//{
-//	if (_FileFullName == nullptr)
-//	{
-//		return -1;
-//	}
-//
-//	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
-//	PMDModel* verRes = nullptr;
-//	int result = -1;
-//	if (iter == BasicModel::s_modelTable.end())
-//	{
-//		//------------create model from file------------------------
-//		verRes = new PMDModel();
-//		BasicModel::s_modelTable.insert(
-//			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
-//		result = verRes->SetPMD(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
-//		if (result < 1)
-//		{
-//			return result;
-//		}
-//
-//		if (result < 1)
-//		{
-//			return result;
-//		}
-//
-//		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
-//
-//		iter2->second->push_back(static_cast<BasicModel*>(verRes));
-//	}
-//	else
-//	{
-//		verRes = static_cast<PMDModel*>(iter->second);
-//		result = 1;
-//	}
-//
-//	//------------delete if exist instance-------------
-//	DeleteModelInstance(_uid);
-//
-//	//------------create instance------------
-//	PMDModelInstance* instance = new PMDModelInstance();
-//	instance->m_model = verRes;
-//	//instance->BindAnimation(verRes->m_animation);
-//	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
-//
-//	verRes->m_instances.push_back(static_cast<ModelInstance*>(instance));
-//	ModelInstance::s_uidModelTable.insert(
-//		pair<unsigned long long, ModelInstance*>(_uid, static_cast<ModelInstance*>(instance)));
-//
-//	return result;
-//}
-
-
-
-//#ifdef __cplusplus 
-//extern"C"
-//{
-//#endif
-//	int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName);
-//#ifdef __cplusplus 
-//}
-//#endif
-//
-//int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName)
-//{
-//	if (_FileFullName == nullptr)
-//	{
-//		return -1;
-//	}
-//
-//	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
-//	BasicModel* verRes = nullptr;
-//	int result = -1;
-//	if (iter == BasicModel::s_modelTable.end())
-//	{
-//		//------------create model from file------------------------
-//		verRes = new BasicModel();
-//		int result = verRes->SetBasicModel(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
-//		verRes->InitMaterial();
-//		if (result < 1)
-//		{
-//			return result;
-//		}
-//
-//		if (result < 1)
-//		{
-//			return result;
-//		}
-//
-//		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("NoboneStandard");
-//		iter2->second->push_back(verRes);
-//	}
-//	else
-//	{
-//		verRes = iter->second;
-//		result = 1;
-//		ShowMsgBox(L"error", L"find exist model.");
-//	}
-//
-//	DeleteModelInstance(_uid);
-//	//------------create instance------------
-//	ModelInstance* instance = new ModelInstance();
-//	instance->m_model = verRes;
-//	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
-//
-//	verRes->m_instances.push_back(instance);
-//	ModelInstance::s_uidModelTable.insert(
-//		pair<unsigned long long, ModelInstance*>(_uid, instance));
-//
-//	return result;
-//}
 
 //set Tansform
 #ifdef __cplusplus 
@@ -252,11 +138,7 @@ int __declspec(dllexport) __stdcall LoadAnimation(unsigned long long _uid, const
 		pInstance->m_animationInstance->StartAnimation();
 	}
 
-
 	return 1;
-	/*pInstance->m_animation->LoadVMDFile(path, static_cast<PMDModel*>(pInstance->m_model));
-	pInstance->m_animation->StartAnimation();*/
-	//static_cast<PMDModel*>(iter->second)->LoadAnimation(path);
 }
 
 //Update Animation
@@ -560,11 +442,6 @@ int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, un
 		{
 			PrintDebug("SetVertices fault");
 		}
-
-
-		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("PmdStandard");
-
-		iter2->second->push_back(static_cast<BasicModel*>(verRes));
 	}
 	else
 	{
@@ -604,8 +481,6 @@ int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, 
 		{
 			return result;
 		}
-		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("NoboneStandard");
-		iter2->second->push_back(verRes);
 	}
 	else
 	{
@@ -613,6 +488,39 @@ int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, 
 		result = 1;
 	}
 	return result;
+}
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const char* pipelineName);
+}
+
+int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const char* pipelineName)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(_uid);
+	if (iter == ModelInstance::s_uidModelTable.end())
+	{
+		PrintDebug("BindPipeline fault, can't find uid: ");
+		PrintDebug((int)_uid);
+		return -1;
+	}
+
+	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
+	{
+		PrintDebug("BindPipeline fault, can't find pipeline: ");
+		PrintDebug(pipelineName);
+		return -1;
+	}
+
+	auto instance = iter->second;
+	auto pipeline = iter2->second;
+
+	pipeline->RenderModelTable[instance->m_model].insert(pair<ModelInstance*,int> (instance,1));
+
+	instance->m_bindPipeline = pipeline;
+
+	return 1;
 }
 
 extern"C"
