@@ -14,15 +14,25 @@ namespace CkfEngine.Core
     internal static class ModelManager
     {
 
-        private static Dictionary<string, PMDModel> s_modelTable = new Dictionary<string, PMDModel>();
+        private static Dictionary<string, Model> s_modelTable = new Dictionary<string, Model>();
 
         private static Dictionary<string, VMDAnimation> s_animationTable = new Dictionary<string, VMDAnimation>();
 
         internal static bool LoadPMDFile(string path, out PMDModel pmdModel)
         {
-            if (s_modelTable.TryGetValue(path, out pmdModel))
+            pmdModel = null;
+            Model model;
+            if (s_modelTable.TryGetValue(path, out model))
             {
-                return true;
+                pmdModel = model as PMDModel;
+                if(pmdModel!= null)
+                {
+                    return true;
+                }
+                else
+                {
+                    throw new Exception(path + " isn't PMD type model.");
+                }
             }
 
             try
@@ -50,15 +60,14 @@ namespace CkfEngine.Core
                     const uint pmdvertex_size_inFIle = 38;
 
                     pmdModel.m_vertextCount = reader.ReadUInt32();
-                    pmdModel.m_vertices = new List<byte>();
-                    pmdModel.m_vertices.AddRange(reader.ReadBytes((int)(pmdModel.m_vertextCount * pmdvertex_size_inFIle)));
+                    pmdModel.m_vertices = reader.ReadBytes((int)(pmdModel.m_vertextCount * pmdvertex_size_inFIle));
 
                     pmdModel.m_indexCount = reader.ReadUInt32();
                     var byteArr = reader.ReadBytes((int)pmdModel.m_indexCount * sizeof(ushort));
-                    pmdModel.m_indices = new List<ushort>();
+                    pmdModel.m_indices = new ushort[pmdModel.m_indexCount];
                     for (int i = 0; i < pmdModel.m_indexCount; i++)
                     {
-                        pmdModel.m_indices.Add(BitConverter.ToUInt16(byteArr, i * 2));
+                        pmdModel.m_indices[i] = (BitConverter.ToUInt16(byteArr, i * 2));
                     }
 
 
@@ -297,11 +306,59 @@ namespace CkfEngine.Core
             return true;
         }
 
+        internal static bool LoadVDFile(string path, out Model model)
+        {
+            if (s_modelTable.TryGetValue(path, out model))
+            {
+                return true;
+            }
+
+            try
+            {
+                //var jis = Encoding.GetEncoding("shift_jis");
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                using (BinaryReader reader = new BinaryReader(fs, Encoding.UTF8))
+                {
+
+                    model = new Model();
+
+                    //--------------------vertex and index--------------------
+                    model.m_vertextCount = reader.ReadUInt32();
+                    int basicVertex_size = 32;
+
+                    model.m_vertices = reader.ReadBytes((int)model.m_vertextCount * basicVertex_size);
+
+                    model.m_indexCount = reader.ReadUInt32();
+                    var byteArr = reader.ReadBytes((int)model.m_indexCount * sizeof(ushort));
+                    model.m_indices = new ushort[model.m_indexCount];
+                    for (int i = 0; i < model.m_indexCount; i++)
+                    {
+                        model.m_indices[i] = (BitConverter.ToUInt16(byteArr, i * 2));
+                    }
+
+                    s_modelTable.Add(path, model);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            return true;
+        }
+
         internal static bool SetPMDVertices(string path, PMDModel pmdModel)
         {
             return D3DAPICall.SetPMDVertices(path, pmdModel.m_vertextCount,
-                pmdModel.m_vertices.ToArray(), pmdModel.m_indexCount, pmdModel.m_indices.ToArray()) == 1;
+                pmdModel.m_vertices.ToArray(), pmdModel.m_indexCount, pmdModel.m_indices) == 1;
             
+        }
+
+        internal static bool SetVDVertices(string path, Model model)
+        {
+            return D3DAPICall.SetBasicVertices(path, model.m_vertextCount,
+                model.m_vertices.ToArray(), model.m_indexCount, model.m_indices) == 1;
+
         }
 
         internal static bool SetPMDMaterials(string path, PMDModel pmdModel)
@@ -341,6 +398,11 @@ namespace CkfEngine.Core
         internal static bool InstantiatePMDModel(ulong uid, string path,int boneSize)
         {
             return D3DAPICall.InstantiatePMDModel(uid, path, boneSize) == 1;
+        }
+
+        internal static bool InstantiateVDModel(ulong uid, string path)
+        {
+            return D3DAPICall.InstantiateBasicModel(uid, path) == 1;
         }
 
 
@@ -439,8 +501,8 @@ namespace CkfEngine.Core
         internal uint m_indexCount;
         internal uint m_materialCount;
 
-        internal List<byte> m_vertices;
-        internal List<ushort> m_indices;
+        internal byte[] m_vertices;
+        internal ushort[] m_indices;
 
         internal List<StandardMaterial> m_materials;
 

@@ -648,7 +648,7 @@ ID3D12Resource* CreateOneColorTexture(ID3D12Device* _d3dDevive, const uint32_t& 
 //	return 1;
 //}
 
-int PMDModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices, 
+int PMDModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
 	unsigned int _indCount, unsigned short* _indices)
 
 {
@@ -1201,40 +1201,111 @@ void PMDModelInstance::UpdateBoneMatrices(DirectX::XMMATRIX* boneMatrices, int s
 	std::copy(boneMatrices, boneMatrices + size, m_mapMatrices + 1);
 }
 
-int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
+//int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
+//{
+//	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+//
+//	//read pmd file data
+//	FILE* fp;
+//	errno_t err = fopen_s(&fp, _FileFullName, "rb");
+//	if (err != 0)
+//	{
+//		PrintDebug(L"Load basic model file fault:");
+//		PrintDebug(_FileFullName);
+//		return -1;
+//	}
+//
+//	fread(&m_vertNum, sizeof(m_vertNum), 1, fp);  //first is vertex count
+//
+//	constexpr unsigned int basicVertex_size = 32;
+//
+//	std::vector<unsigned char> vertices(m_vertNum * basicVertex_size);
+//	fread(vertices.data(), vertices.size(), 1, fp); //next vertex data
+//
+//	std::vector<unsigned short> indices;
+//	fread(&m_indicesNum, sizeof(m_indicesNum), 1, fp);	//next indices number
+//	indices.resize(m_indicesNum);
+//	size_t indicesAllData_size = m_indicesNum * sizeof(indices[0]);
+//	fread(indices.data(), indicesAllData_size, 1, fp); //next indices data
+//
+//	fclose(fp);
+//
+//	//----------vertex buff------------------
+//	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+//	auto vertBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(vertices.size());
+//	//ID3D12Device::CreateHeap() and ID3D12Device::CreatePlaced Resource() similar, this book doesn't teach.
+//	HRESULT result = d3ddevice->CreateCommittedResource(
+//		&heapTypeUpload,
+//		D3D12_HEAP_FLAG_NONE,
+//		&vertBuffDesc,
+//		D3D12_RESOURCE_STATE_GENERIC_READ,
+//		nullptr,
+//		IID_PPV_ARGS(m_vertBuff.ReleaseAndGetAddressOf()));
+//	if (FAILED(result))
+//	{
+//		PrintDebug("CreateCommittedResource basic Vertex fault.");
+//		return -1;
+//	}
+//
+//	unsigned char* s_vertMap = nullptr;
+//	result = m_vertBuff->Map(0, nullptr, (void**)&s_vertMap);
+//	if (FAILED(result))
+//	{
+//		PrintDebug(L"vertMap fault.");
+//		return -1;
+//	}
+//
+//	memcpy(s_vertMap, vertices.data(), vertices.size());
+//
+//	m_vertBuff->Unmap(0, nullptr);
+//
+//	//create vertex buffer view
+//	m_vbView.BufferLocation = m_vertBuff->GetGPUVirtualAddress();
+//	m_vbView.SizeInBytes = vertices.size();
+//	m_vbView.StrideInBytes = basicVertex_size;
+//
+//	//----------------------index part----------------------------
+//
+//	auto indicesBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indicesAllData_size);
+//	result = d3ddevice->CreateCommittedResource(
+//		&heapTypeUpload,
+//		D3D12_HEAP_FLAG_NONE,
+//		&indicesBufferDesc,
+//		D3D12_RESOURCE_STATE_GENERIC_READ,
+//		nullptr,
+//		IID_PPV_ARGS(m_idxBuff.ReleaseAndGetAddressOf()));
+//	if (FAILED(result))
+//	{
+//		PrintDebug(L"CreateCommittedResource index fault.");
+//		return -1;
+//	}
+//
+//	unsigned short* mappedIdx = nullptr;
+//	result = m_idxBuff->Map(0, nullptr, (void**)&mappedIdx);
+//	if (FAILED(result))
+//	{
+//		PrintDebug(L"index Map fault.");
+//		return -1;
+//	}
+//	std::copy(indices.begin(), indices.end(), mappedIdx);
+//	m_idxBuff->Unmap(0, nullptr);
+//
+//	m_ibView.BufferLocation = m_idxBuff->GetGPUVirtualAddress();
+//	m_ibView.Format = DXGI_FORMAT_R16_UINT;
+//	m_ibView.SizeInBytes = indicesAllData_size;
+//}
+	
+int BasicModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
+	unsigned int _indCount, unsigned short* _indices)
 {
-	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
-
-	//read pmd file data
-	FILE* fp;
-	errno_t err = fopen_s(&fp, _FileFullName, "rb");
-	if (err != 0)
-	{
-		PrintDebug(L"Load basic model file fault:");
-		PrintDebug(_FileFullName);
-		return -1;
-	}
-
-	fread(&m_vertNum, sizeof(m_vertNum), 1, fp);  //first is vertex count
-
-	constexpr unsigned int basicVertex_size = 32;
-
-	std::vector<unsigned char> vertices(m_vertNum * basicVertex_size);
-	fread(vertices.data(), vertices.size(), 1, fp); //next vertex data
-
-	std::vector<unsigned short> indices;
-	fread(&m_indicesNum, sizeof(m_indicesNum), 1, fp);	//next indices number
-	indices.resize(m_indicesNum);
-	size_t indicesAllData_size = m_indicesNum * sizeof(indices[0]);
-	fread(indices.data(), indicesAllData_size, 1, fp); //next indices data
-
-	fclose(fp);
-
 	//----------vertex buff------------------
 	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto vertBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(vertices.size());
+	constexpr unsigned int basicVertex_size = 32;
+	UINT vertexAllData_size = _vertCount * basicVertex_size;
+	UINT indicesAllData_size = _indCount * sizeof(unsigned short);
+	auto vertBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexAllData_size);
 	//ID3D12Device::CreateHeap() and ID3D12Device::CreatePlaced Resource() similar, this book doesn't teach.
-	HRESULT result = d3ddevice->CreateCommittedResource(
+	HRESULT result = _cD3DDev->pD3D12Device->CreateCommittedResource(
 		&heapTypeUpload,
 		D3D12_HEAP_FLAG_NONE,
 		&vertBuffDesc,
@@ -1246,7 +1317,6 @@ int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
 		PrintDebug("CreateCommittedResource basic Vertex fault.");
 		return -1;
 	}
-
 	unsigned char* s_vertMap = nullptr;
 	result = m_vertBuff->Map(0, nullptr, (void**)&s_vertMap);
 	if (FAILED(result))
@@ -1255,19 +1325,19 @@ int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
 		return -1;
 	}
 
-	memcpy(s_vertMap, vertices.data(), vertices.size());
+	memcpy(s_vertMap, _vertices, vertexAllData_size);
 
 	m_vertBuff->Unmap(0, nullptr);
 
 	//create vertex buffer view
 	m_vbView.BufferLocation = m_vertBuff->GetGPUVirtualAddress();
-	m_vbView.SizeInBytes = vertices.size();
+	m_vbView.SizeInBytes = vertexAllData_size;
 	m_vbView.StrideInBytes = basicVertex_size;
 
 	//----------------------index part----------------------------
 
 	auto indicesBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indicesAllData_size);
-	result = d3ddevice->CreateCommittedResource(
+	result = _cD3DDev->pD3D12Device->CreateCommittedResource(
 		&heapTypeUpload,
 		D3D12_HEAP_FLAG_NONE,
 		&indicesBufferDesc,
@@ -1279,7 +1349,6 @@ int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
 		PrintDebug(L"CreateCommittedResource index fault.");
 		return -1;
 	}
-
 	unsigned short* mappedIdx = nullptr;
 	result = m_idxBuff->Map(0, nullptr, (void**)&mappedIdx);
 	if (FAILED(result))
@@ -1287,15 +1356,16 @@ int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
 		PrintDebug(L"index Map fault.");
 		return -1;
 	}
-	std::copy(indices.begin(), indices.end(), mappedIdx);
+	std::copy(_indices, _indices + _indCount, mappedIdx);
 	m_idxBuff->Unmap(0, nullptr);
 
 	m_ibView.BufferLocation = m_idxBuff->GetGPUVirtualAddress();
 	m_ibView.Format = DXGI_FORMAT_R16_UINT;
 	m_ibView.SizeInBytes = indicesAllData_size;
+	return 1;
 }
-	
-int BasicModel::InitMaterial()
+
+int BasicModel::InitMaterial(int indicesNum)
 {
 	auto _cD3DDev = D3DResourceManage::Instance().pGraphicsCard;
 	auto d3ddevice = _cD3DDev->pD3D12Device;
@@ -1310,7 +1380,7 @@ int BasicModel::InitMaterial()
 	m_materials.resize(materialNum);
 	for (int i = 0; i < materialNum; i++)
 	{
-		m_materials[i].indicesNum = m_indicesNum;
+		m_materials[i].indicesNum = indicesNum;
 		m_materials[i].material.diffuse = XMFLOAT3(1.0f,1.0f,1.0f);
 		m_materials[i].material.alpha = 1.0f;
 		m_materials[i].material.specular = XMFLOAT3(0.0f, 0.0f, 0.0f);

@@ -7,7 +7,7 @@ D3DPipeline::D3DPipeline(const char* name)
 	m_name = name;
 }
 
-int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev,D3D12_INPUT_ELEMENT_DESC inputLayout[],UINT numElements,
+int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
 	LPCWSTR vsShader, LPCWSTR psShader)
 {
 	//hlsl compile
@@ -238,12 +238,12 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev,D3D12_INPUT_ELEMENT_DESC inputL
 	}
 
 
-	
+
 
 	return 1;
 }
 
-int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements, 
+int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
 	LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry)
 
 {
@@ -254,8 +254,8 @@ int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC in
 	SIZE_T vsSize = strlen(vsCode);
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 	HRESULT result = D3DCompile(
-		vsCode, vsSize, 
-		nullptr,nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		vsCode, vsSize,
+		nullptr, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		vsEntry, "vs_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0, vsBlob.ReleaseAndGetAddressOf(), errorBlob.ReleaseAndGetAddressOf());
@@ -609,11 +609,53 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 		}
 
 
-		
+
 	}
 
 
-	
 
-	
+
+
+}
+
+
+void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddevice,
+	ModelInstance* modelInstance)
+{
+	_cmdList->SetPipelineState(m_pipelinestate);
+	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	_cmdList->SetGraphicsRootSignature(m_rootsignature);
+
+	BasicModel* model = modelInstance->m_model;
+	_cmdList->IASetVertexBuffers(0, 1, &model->m_vbView);
+	_cmdList->IASetIndexBuffer(&model->m_ibView);
+
+
+	modelInstance->m_mapMatrices[0] = modelInstance->m_transform.world;
+
+	//--------------set const buff and texture buff heap-------
+	_cmdList->SetDescriptorHeaps(1, &m_sceneDescHeap);
+	_cmdList->SetGraphicsRootDescriptorTable(0,
+		m_sceneDescHeap->GetGPUDescriptorHandleForHeapStart());
+
+	_cmdList->SetDescriptorHeaps(1, &modelInstance->m_transformDescHeap);
+	_cmdList->SetGraphicsRootDescriptorTable(1,
+		modelInstance->m_transformDescHeap->GetGPUDescriptorHandleForHeapStart());
+
+	_cmdList->SetDescriptorHeaps(1, &model->m_materialDescHeap);
+	auto cbvsrvIncSize = d3ddevice->
+		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 5;
+	auto materialH = model->m_materialDescHeap->GetGPUDescriptorHandleForHeapStart();
+	unsigned int idxOffset = 0;
+
+	for (auto& m : model->m_materials)
+	{
+		_cmdList->SetGraphicsRootDescriptorTable(2, materialH);
+
+		_cmdList->DrawIndexedInstanced(m.indicesNum, 1, idxOffset, 0, 0);
+
+		materialH.ptr += cbvsrvIncSize;
+		idxOffset += m.indicesNum;
+	}
+
 }

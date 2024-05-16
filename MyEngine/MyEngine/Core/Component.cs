@@ -91,7 +91,7 @@ namespace CkfEngine.Core
         [JsonIgnore]
         public Transform[] Children
         {
-            get { return m_children.ToArray();}
+            get { return m_children.ToArray(); }
         }
 
         internal void EffectiveTransform()
@@ -100,7 +100,7 @@ namespace CkfEngine.Core
                 Matrix4x4.CreateFromYawPitchRoll(m_rotation.Y, m_rotation.X, m_rotation.Z) *
                 Matrix4x4.CreateTranslation(m_translation);
 
-            if(OwnerEntity!= null)
+            if (OwnerEntity != null)
             {
                 D3DAPICall.SetModelTransform(OwnerEntity.Uid, worldMat);
             }
@@ -114,7 +114,7 @@ namespace CkfEngine.Core
             int timeOut = 0;
             while (temp != null)
             {
-                if(temp == this)
+                if (temp == this)
                 {
                     Console.WriteLine("SetParent Error!! roop reference!!   " + this.Name);
                 }
@@ -133,7 +133,7 @@ namespace CkfEngine.Core
                 m_parent = parent;
                 m_parentUid = parent.Uid;
                 parent.m_children.Add(this);
-                
+
             }
             EventSetParent?.Invoke(OwnerEntity.Uid, parent == null ? 0 : parent.OwnerEntity.Uid,
                 false, OwnerEntity.Name);
@@ -141,7 +141,7 @@ namespace CkfEngine.Core
 
         private void UnsetParent()
         {
-            if(m_parent != null)
+            if (m_parent != null)
             {
                 m_parent.m_children.Remove(this);
                 m_parent = null;
@@ -165,7 +165,7 @@ namespace CkfEngine.Core
             base.OnDestroyed();
 
             UnsetParent();
-            EventSetParent?.Invoke(OwnerEntity.Uid,0,true, OwnerEntity.Name);
+            EventSetParent?.Invoke(OwnerEntity.Uid, 0, true, OwnerEntity.Name);
         }
 
         // entity UID, parent UID(null = 0), is delete
@@ -186,13 +186,13 @@ namespace CkfEngine.Core
         [JsonProperty]
         internal float m_near;
         [JsonProperty]
-        internal float m_far; 
+        internal float m_far;
 
         public Camera()
         {
             m_fovAngleY = (float)Math.PI / 2;
             m_width = 800;
-            m_height= 600;
+            m_height = 600;
             m_near = 1.0f;
             m_far = 100.0f;
         }
@@ -265,7 +265,7 @@ namespace CkfEngine.Core
         [JsonProperty]
         [MyAttributeLoadFileType("PMD")]
         [MyAttributeShowInspector]
-        private  FileLoad m_file;
+        private FileLoad m_file;
         [JsonIgnore]
         public FileLoad File
         { get { return m_file; } }
@@ -277,7 +277,7 @@ namespace CkfEngine.Core
         protected override void OnCreated()
         {
             m_isLoaded = false;
-            if(m_file == null)
+            if (m_file == null)
             {
                 m_file = new FileLoad();
 
@@ -299,7 +299,7 @@ namespace CkfEngine.Core
 
         private void SetPMDModel()
         {
-            if(m_isLoaded)
+            if (m_isLoaded)
             {
                 m_isLoaded = false;
             }
@@ -314,7 +314,7 @@ namespace CkfEngine.Core
                         {
                             if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
                             {
-                                m_pmdModelInstance = new PMDModelInstance(m_model,OwnerEntity.Uid);
+                                m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
                                 m_isLoaded = true;
                             }
                         }
@@ -352,6 +352,9 @@ namespace CkfEngine.Core
 
         private bool m_isLoaded;
 
+        private Model m_model;
+        internal ModelInstance m_modelInstance;
+
         protected override void OnCreated()
         {
             m_isLoaded = false;
@@ -387,12 +390,20 @@ namespace CkfEngine.Core
                 m_isLoaded = false;
             }
 
-
-            var result = D3DAPICall.SetBasicModel(OwnerEntity.Uid, m_file.FullPath);
-            if (result == 1)
+            if (ModelManager.LoadVDFile(m_file.FullPath, out m_model))
             {
-                m_isLoaded = true;
+                if (ModelManager.SetVDVertices(m_file.FullPath, m_model))
+                {
+
+                    if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
+                    {
+                        m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
+                        m_isLoaded = true;
+                    }
+
+                }
             }
+
 
             OwnerEntity.Transform.EffectiveTransform();
         }
@@ -440,8 +451,8 @@ namespace CkfEngine.Core
         {
             var boneRenderer = OwnerEntity.CreateComponent<ModelBoneRenderer>();
             if (boneRenderer != null)
-            { 
-                boneRenderer.File.OnChenged -= BoneRendererChanged; 
+            {
+                boneRenderer.File.OnChenged -= BoneRendererChanged;
             }
         }
 
@@ -480,7 +491,7 @@ namespace CkfEngine.Core
             m_file.FullPath = path;
         }
 
-        protected override void Update() 
+        protected override void Update()
         {
             m_animaionControl.UpdateAnimation();
         }

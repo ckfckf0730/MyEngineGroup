@@ -15,13 +15,10 @@ namespace CkfEngine.Core
 
     }
 
-    internal class RenderPipeline
-    {
-        private Shader shader;
-    }
 
     internal class Shader
     {
+        internal string m_name;
         internal string text;
     }
 

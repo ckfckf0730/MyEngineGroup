@@ -35,13 +35,10 @@ D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(891,43
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(919,20): warning C4018: '<': signed/unsigned mismatch
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1006,36): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1186,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1264,40): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1295,44): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1311,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1378,43): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1406,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1527,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1381,20): warning C4018: '<': signed/unsigned mismatch
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1448,43): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1476,20): warning C4018: '<': signed/unsigned mismatch
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1597,55): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
   Generating Code...
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1296): warning C4715: 'BasicModel::SetBasicModel': not all control paths return a value
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1479): warning C4715: 'BasicModel::InitMaterial': not all control paths return a value
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1549): warning C4715: 'BasicModel::InitMaterial': not all control paths return a value
   MyDirectx12.vcxproj -> D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll

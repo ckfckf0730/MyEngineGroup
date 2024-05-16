@@ -85,7 +85,7 @@ namespace CkfEngine.Core
             {
                 BoneNode nodeIter;
 
-                bool isGet = m_owner.m_model.m_boneNodeTable.TryGetValue(boneMotion.Key, out nodeIter);
+                bool isGet = m_owner.PMDModel.m_boneNodeTable.TryGetValue(boneMotion.Key, out nodeIter);
                 if (!isGet)
                 {
                     //Console.WriteLine("Can't find bone name:");
@@ -121,7 +121,7 @@ namespace CkfEngine.Core
                      Matrix4x4.CreateTranslation(pos.X, pos.Y, pos.Z);
                 m_owner.m_boneMatrices[nodeIter.boneIdx] = mat;
             }
-            RecursiveMatrixMultiply(m_owner.m_model.m_boneNodeTable[m_owner.m_model.m_rootNodeStr], Matrix4x4.Identity);
+            RecursiveMatrixMultiply(m_owner.PMDModel.m_boneNodeTable[m_owner.PMDModel.m_rootNodeStr], Matrix4x4.Identity);
 
             IKSolve((int)frameNo);
 
@@ -154,10 +154,10 @@ namespace CkfEngine.Core
                 }
             }
 
-            foreach (var ik in m_owner.m_model.m_iks)
+            foreach (var ik in m_owner.PMDModel.m_iks)
             {
                 bool ikEnableIt;
-                bool isGet = m_animation.m_ikEnableData[it].ikEnableTable.TryGetValue(m_owner.m_model.m_boneNameArr[ik.boneIdx], out ikEnableIt);
+                bool isGet = m_animation.m_ikEnableData[it].ikEnableTable.TryGetValue(m_owner.PMDModel.m_boneNameArr[ik.boneIdx], out ikEnableIt);
                 if (isGet)
                 {
                     if (!ikEnableIt)
@@ -187,8 +187,8 @@ namespace CkfEngine.Core
 
         private void SolveLookAt(PMDIK ik)
         {
-            var rootNode = m_owner.m_model.m_boneNodeAddressArr[ik.nodeIdxes[0]];
-            var targetNode = m_owner.m_model.m_boneNodeAddressArr[ik.targetIdx];
+            var rootNode = m_owner.PMDModel.m_boneNodeAddressArr[ik.nodeIdxes[0]];
+            var targetNode = m_owner.PMDModel.m_boneNodeAddressArr[ik.targetIdx];
 
             Vector3 rpos1 = rootNode.startPos;
             Vector3 tpos1 = targetNode.startPos;
@@ -214,15 +214,15 @@ namespace CkfEngine.Core
         {
             positions.Clear();
 
-            var targetNode = m_owner.m_model.m_boneNodeAddressArr[ik.boneIdx];
+            var targetNode = m_owner.PMDModel.m_boneNodeAddressArr[ik.boneIdx];
             var targetPos = Vector3.Transform(targetNode.startPos, m_owner.m_boneMatrices[ik.boneIdx]);
 
-            var endNode = m_owner.m_model.m_boneNodeAddressArr[ik.boneIdx];
+            var endNode = m_owner.PMDModel.m_boneNodeAddressArr[ik.boneIdx];
             positions.Add(endNode.startPos);
 
             for (int i = 0; i < ik.nodeIdxes.Count; i++)
             {
-                var boneNode = m_owner.m_model.m_boneNodeAddressArr[ik.nodeIdxes[i]];
+                var boneNode = m_owner.PMDModel.m_boneNodeAddressArr[ik.nodeIdxes[i]];
                 positions.Add(boneNode.startPos);
             }
 
@@ -248,7 +248,7 @@ namespace CkfEngine.Core
 
             //get the axis, if there is a knee in nodes, then get a fixed axis
             Vector3 axis;
-            if (m_owner.m_model.m_kneeIdxes.FindIndex((num) => { return num == ik.nodeIdxes[0]; }) == -1)
+            if (m_owner.PMDModel.m_kneeIdxes.FindIndex((num) => { return num == ik.nodeIdxes[0]; }) == -1)
             {
                 //can't find knee node in ik node list
                 var vm = Vector3.Normalize(Vector3.Subtract(positions[2], positions[0]));
@@ -287,21 +287,21 @@ namespace CkfEngine.Core
         {
             positions.Clear();
 
-            var targetBoneNode = m_owner.m_model.m_boneNodeAddressArr[ik.boneIdx];
+            var targetBoneNode = m_owner.PMDModel.m_boneNodeAddressArr[ik.boneIdx];
             var targetOriginPos = targetBoneNode.startPos;
 
-            var parentMat = m_owner.m_boneMatrices[m_owner.m_model.m_boneNodeAddressArr[ik.boneIdx].ikParentBone];
+            var parentMat = m_owner.m_boneMatrices[m_owner.PMDModel.m_boneNodeAddressArr[ik.boneIdx].ikParentBone];
             Matrix4x4 invPatrentMat;
             Matrix4x4.Invert(parentMat, out invPatrentMat);
             var targetNextPos = Vector3.Transform(
                 targetOriginPos, m_owner.m_boneMatrices[ik.boneIdx] * invPatrentMat);
 
             bonePositions.Clear();
-            var endPos = m_owner.m_model.m_boneNodeAddressArr[ik.targetIdx].startPos;
+            var endPos = m_owner.PMDModel.m_boneNodeAddressArr[ik.targetIdx].startPos;
 
             for (int i =0;i< ik.nodeIdxes.Count;i++)
             {
-                bonePositions.Add(m_owner.m_model.m_boneNodeAddressArr[ik.nodeIdxes[i]].startPos);
+                bonePositions.Add(m_owner.PMDModel.m_boneNodeAddressArr[ik.nodeIdxes[i]].startPos);
             }
 
             mats.Clear();
@@ -369,7 +369,7 @@ namespace CkfEngine.Core
                 idx2++;
             }
 
-            var rootNode = m_owner.m_model.m_boneNodeAddressArr[ik.nodeIdxes.Last()];
+            var rootNode = m_owner.PMDModel.m_boneNodeAddressArr[ik.nodeIdxes.Last()];
             RecursiveMatrixMultiply(rootNode, parentMat);
 
         }
@@ -377,23 +377,36 @@ namespace CkfEngine.Core
 
 
 
-    internal class PMDModelInstance
+    internal class PMDModelInstance : ModelInstance
     {
-        public PMDModelInstance(PMDModel model, ulong uid)
+        public PMDModelInstance(PMDModel model, ulong uid) : base(model,uid)
         {
-            m_model = model;
-            m_uid = uid;
             CreateTransformView();
         }
 
         internal Matrix4x4[] m_boneMatrices;
-        internal PMDModel m_model;
-        internal ulong m_uid;
+        internal PMDModel PMDModel
+        {
+            get { return m_model as PMDModel; }
+        }
+
 
         internal void CreateTransformView()
         {
-            m_boneMatrices = new Matrix4x4[m_model.m_bones.Count];
+            m_boneMatrices = new Matrix4x4[PMDModel.m_bones.Count];
         }
+    }
+
+    internal class ModelInstance
+    {
+        public ModelInstance(Model model, ulong uid)
+        {
+            m_model = model;
+            m_uid = uid;
+        }
+
+        internal Model m_model;
+        internal ulong m_uid;
     }
 
 

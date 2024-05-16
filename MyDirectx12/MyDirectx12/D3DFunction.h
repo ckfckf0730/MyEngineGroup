@@ -7,6 +7,7 @@
 struct SceneMatrix;
 
 class D3DMulPassRender;
+class ModelInstance;
 
 class D3DDevice 
 {
@@ -90,4 +91,6 @@ public:
 	void SetCameraTransform(DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	//void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);
 	void Draw(ID3D12GraphicsCommandList*, ID3D12Device*);
+	void Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddevice,
+		ModelInstance* modelInstance);
 };

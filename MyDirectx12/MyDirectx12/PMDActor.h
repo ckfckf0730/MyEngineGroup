@@ -160,6 +160,7 @@ struct KeyFrame
 
 class PMDModel;
 class PMDModelInstance;
+class ModelInstance;
 
 struct PMDIK
 {
@@ -233,8 +234,8 @@ public:
 	D3D12_VERTEX_BUFFER_VIEW m_vbView = {};
 	D3D12_INDEX_BUFFER_VIEW m_ibView = {};
 	ID3D12DescriptorHeap* m_materialDescHeap = nullptr;
-	unsigned int m_vertNum;
-	unsigned int m_indicesNum;
+	//unsigned int m_vertNum;
+	//unsigned int m_indicesNum;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertBuff;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_idxBuff = nullptr;
@@ -250,10 +251,12 @@ public:
 
 public:
 	//int SetVertex(D3DDevice* _cD3DDev, Vertex* vertices, int verNum, unsigned short* indices, int indexNum);
-	int SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName);
+	//int SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName);
+	virtual int SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
+		unsigned int _indCount, unsigned short* _indices);
 
 public:
-	int InitMaterial();
+	int InitMaterial(int indicesNum);
 
 };
 
@@ -273,8 +276,7 @@ public:
 	//int SetVertex(D3DDevice* _cD3DDev, Vertex* vertices, int verNum, unsigned short* indices, int indexNum);
 	
 	//int SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName);
-	int SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
-		unsigned int _indCount, unsigned short* _indices);
+	
 	int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 		unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[], const char* _FileFullName);
@@ -284,7 +286,8 @@ public:
 		uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[],
 		uint8_t chainLen[], uint16_t** nodeIdxes);
 	int SetBone();
-
+	 int SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
+		unsigned int _indCount, unsigned short* _indices) override;
 };
 
 class ModelInstance

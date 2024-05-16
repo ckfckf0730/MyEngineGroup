@@ -143,63 +143,63 @@ int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 
 
 
-#ifdef __cplusplus 
-extern"C"
-{
-#endif
-	int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName);
-#ifdef __cplusplus 
-}
-#endif
-
-int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName)
-{
-	if (_FileFullName == nullptr)
-	{
-		return -1;
-	}
-
-	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
-	BasicModel* verRes = nullptr;
-	int result = -1;
-	if (iter == BasicModel::s_modelTable.end())
-	{
-		//------------create model from file------------------------
-		verRes = new BasicModel();
-		int result = verRes->SetBasicModel(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
-		verRes->InitMaterial();
-		if (result < 1)
-		{
-			return result;
-		}
-
-		if (result < 1)
-		{
-			return result;
-		}
-
-		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("NoboneStandard");
-		iter2->second->push_back(verRes);
-	}
-	else
-	{
-		verRes = iter->second;
-		result = 1;
-		ShowMsgBox(L"error", L"find exist model.");
-	}
-
-	DeleteModelInstance(_uid);
-	//------------create instance------------
-	ModelInstance* instance = new ModelInstance();
-	instance->m_model = verRes;
-	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
-
-	verRes->m_instances.push_back(instance);
-	ModelInstance::s_uidModelTable.insert(
-		pair<unsigned long long, ModelInstance*>(_uid, instance));
-
-	return result;
-}
+//#ifdef __cplusplus 
+//extern"C"
+//{
+//#endif
+//	int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName);
+//#ifdef __cplusplus 
+//}
+//#endif
+//
+//int __declspec(dllexport) __stdcall SetBasicModel(unsigned long long _uid, const char* _FileFullName)
+//{
+//	if (_FileFullName == nullptr)
+//	{
+//		return -1;
+//	}
+//
+//	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+//	BasicModel* verRes = nullptr;
+//	int result = -1;
+//	if (iter == BasicModel::s_modelTable.end())
+//	{
+//		//------------create model from file------------------------
+//		verRes = new BasicModel();
+//		int result = verRes->SetBasicModel(D3DResourceManage::Instance().pGraphicsCard, _FileFullName);
+//		verRes->InitMaterial();
+//		if (result < 1)
+//		{
+//			return result;
+//		}
+//
+//		if (result < 1)
+//		{
+//			return result;
+//		}
+//
+//		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("NoboneStandard");
+//		iter2->second->push_back(verRes);
+//	}
+//	else
+//	{
+//		verRes = iter->second;
+//		result = 1;
+//		ShowMsgBox(L"error", L"find exist model.");
+//	}
+//
+//	DeleteModelInstance(_uid);
+//	//------------create instance------------
+//	ModelInstance* instance = new ModelInstance();
+//	instance->m_model = verRes;
+//	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
+//
+//	verRes->m_instances.push_back(instance);
+//	ModelInstance::s_uidModelTable.insert(
+//		pair<unsigned long long, ModelInstance*>(_uid, instance));
+//
+//	return result;
+//}
 
 //set Tansform
 #ifdef __cplusplus 
@@ -577,6 +577,46 @@ int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, un
 
 extern"C"
 {
+	int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
+		unsigned int _indCount, unsigned short* _indices);
+}
+
+int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
+	unsigned int _indCount, unsigned short* _indices)
+{
+	if (_FileFullName == nullptr)
+	{
+		return -1;
+	}
+
+	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+	BasicModel* verRes = nullptr;
+	int result = -1;
+	if (iter == BasicModel::s_modelTable.end())
+	{
+		//------------create model from file------------------------
+		verRes = new BasicModel();
+		BasicModel::s_modelTable.insert(
+			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
+		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount, _vertices, _indCount, _indices);
+		verRes->InitMaterial(_indCount);
+		if (result < 1)
+		{
+			return result;
+		}
+		auto iter2 = D3DResourceManage::Instance().PipelineModelTable->find("NoboneStandard");
+		iter2->second->push_back(verRes);
+	}
+	else
+	{
+		verRes = iter->second;
+		result = 1;
+	}
+	return result;
+}
+
+extern"C"
+{
 	int __declspec(dllexport) __stdcall SetPMDMaterials(const char* _FileFullName, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 		unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[]);
@@ -723,6 +763,47 @@ int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid,
 	verRes->m_instances.push_back(static_cast<ModelInstance*>(instance));
 	ModelInstance::s_uidModelTable.insert(
 		pair<unsigned long long, ModelInstance*>(_uid, static_cast<ModelInstance*>(instance)));
+
+	return result;
+}
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall InstantiateBasicModel(unsigned long long _uid, const char* _FileFullName);
+}
+
+int __declspec(dllexport) __stdcall InstantiateBasicModel(unsigned long long _uid, const char* _FileFullName)
+{
+	if (_FileFullName == nullptr)
+	{
+		return -1;
+	}
+
+	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
+	BasicModel* verRes = nullptr;
+	int result = -1;
+	if (iter == BasicModel::s_modelTable.end())
+	{
+		return -1;
+	}
+	else
+	{
+		verRes = iter->second;
+		result = 1;
+	}
+
+	//------------delete if exist instance-------------
+	DeleteModelInstance(_uid);
+
+	//------------create instance------------
+	ModelInstance* instance = new ModelInstance();
+	instance->m_model = verRes;
+	//instance->BindAnimation(verRes->m_animation);
+	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
+
+	verRes->m_instances.push_back(instance);
+	ModelInstance::s_uidModelTable.insert(
+		pair<unsigned long long, ModelInstance*>(_uid, instance));
 
 	return result;
 }

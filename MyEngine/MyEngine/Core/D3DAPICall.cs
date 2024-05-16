@@ -69,6 +69,10 @@ namespace CkfEngine.Core
         uint _indCount, ushort[] _indices);
 
         [DllImport("MyDirectx12.dll")]
+        public static extern int SetBasicVertices(string _FileFullName, uint _vertCount, byte[] _vertices,
+        uint _indCount, ushort[] _indices);
+
+        [DllImport("MyDirectx12.dll")]
         public static extern int SetPMDMaterials(string fileFullName, uint matCount, Vector3[] diffuse, float[] alpha,
         float[] specularity, Vector3[] specular, Vector3[] ambient, byte[] edgeFlg,
         byte[] toonIdx, uint[] indicesNum, string[] texFilePath);
@@ -85,6 +89,9 @@ namespace CkfEngine.Core
 
         [DllImport("MyDirectx12.dll")]
         public static extern void UpdatePMDBoneMatrices(ulong _uid, Matrix4x4[] boneMatrices, int size);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int InstantiateBasicModel(ulong _uid, string _FileFullName);
 
         #endregion
 
