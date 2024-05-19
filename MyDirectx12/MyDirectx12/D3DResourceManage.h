@@ -11,6 +11,18 @@ class D3DDevice;
 class D3DPipeline;
 class D3DAnimation;
 
+
+struct RootSignatureSetting
+{
+public:
+    std::string name;
+    uint16_t dataSize;
+
+    D3D12_DESCRIPTOR_RANGE  rootSignatureRange;
+
+    D3D12_SHADER_VISIBILITY visibility;
+};
+
 class D3DResourceManage
 {
 public:
@@ -32,6 +44,7 @@ public:
     std::map<std::string, D3DPipeline*> PipelineTable;
     std::map<std::string, D3DAnimation*> AnimationTable;
     std::map<std::string, ID3D12Resource*> ResourceTable;
+    std::vector<RootSignatureSetting> RootSignatureSetting;
 
     ID3D12Resource* WhiteTexture;
     ID3D12Resource* BlackTexture;

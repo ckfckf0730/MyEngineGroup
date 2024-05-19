@@ -292,6 +292,18 @@ public:
 
 class D3DPipeline;
 
+struct ShaderResource
+{
+	uint16_t datasize;
+
+	ID3D12DescriptorHeap* heap;
+	ID3D12Resource* buffer;
+	void* mapData;
+
+	UINT shaderRegisterNum;
+};
+
+
 class ModelInstance
 {
 public:
@@ -305,6 +317,8 @@ public:
 	DirectX::XMMATRIX* m_mapMatrices = nullptr;
 
 	D3DPipeline* m_bindPipeline = nullptr;
+
+	std::map<std::string, ShaderResource> m_shaderResouceTable;
 
 
 	virtual int CreateTransformView(D3DDevice* _cD3DDev);

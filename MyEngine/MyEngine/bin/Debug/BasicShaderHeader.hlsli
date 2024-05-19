@@ -35,3 +35,4 @@ cbuffer Material : register(b2)
 	float4 specular;
 	float3 ambient;
 }
+

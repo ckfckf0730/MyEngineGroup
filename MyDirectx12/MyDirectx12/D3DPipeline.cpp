@@ -144,42 +144,77 @@ int D3DPipeline::SetPipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC input
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	D3D12_DESCRIPTOR_RANGE descTblRange[4] = {};
-	descTblRange[0].NumDescriptors = 1;
-	descTblRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descTblRange[0].BaseShaderRegister = 0;
-	descTblRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	std::vector<D3D12_DESCRIPTOR_RANGE> descTblRangeAll;
+	std::vector<D3D12_DESCRIPTOR_RANGE> descTblRangeVertex;
+	std::vector<D3D12_DESCRIPTOR_RANGE> descTblRangePixel;
+	
+	//--------------Add default transform, material, texture root parameter-----------------
+	D3D12_DESCRIPTOR_RANGE descTblRange = {};
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 0;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descTblRange[1].NumDescriptors = 1;
-	descTblRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descTblRange[1].BaseShaderRegister = 1;
-	descTblRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	descTblRangeAll.push_back(descTblRange);
 
-	descTblRange[2].NumDescriptors = 1;
-	descTblRange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descTblRange[2].BaseShaderRegister = 2;
-	descTblRange[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 1;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descTblRange[3].NumDescriptors = 4;
-	descTblRange[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descTblRange[3].BaseShaderRegister = 0;
-	descTblRange[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	descTblRangeVertex.push_back(descTblRange);
+
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 2;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	descTblRangePixel.push_back(descTblRange);
+
+	descTblRange.NumDescriptors = 4;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descTblRange.BaseShaderRegister = 0;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	descTblRangePixel.push_back(descTblRange);
+
+	//--------------Add customize root parameter-----------------
+	for (auto& setting : D3DResourceManage::Instance().RootSignatureSetting)
+	{
+		descTblRange = setting.rootSignatureRange;
+
+		if (setting.visibility == D3D12_SHADER_VISIBILITY_ALL)
+		{
+			descTblRangeAll.push_back(descTblRange);
+		}
+		else if (setting.visibility == D3D12_SHADER_VISIBILITY_VERTEX)
+		{
+			descTblRangeVertex.push_back(descTblRange);
+		}
+		else if (setting.visibility == D3D12_SHADER_VISIBILITY_PIXEL)
+		{
+			descTblRangePixel.push_back(descTblRange);
+		}
+
+
+	}
+
 
 	D3D12_ROOT_PARAMETER rootparam[3] = {};
 	rootparam[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootparam[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	rootparam[0].DescriptorTable.pDescriptorRanges = &descTblRange[0];
-	rootparam[0].DescriptorTable.NumDescriptorRanges = 1;
+	rootparam[0].DescriptorTable.pDescriptorRanges = descTblRangeAll.data();
+	rootparam[0].DescriptorTable.NumDescriptorRanges = descTblRangeAll.size();
 
 	rootparam[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootparam[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootparam[1].DescriptorTable.pDescriptorRanges = &descTblRange[1];
-	rootparam[1].DescriptorTable.NumDescriptorRanges = 1;
+	rootparam[1].DescriptorTable.pDescriptorRanges = descTblRangeVertex.data();
+	rootparam[1].DescriptorTable.NumDescriptorRanges = descTblRangeVertex.size();
 
 	rootparam[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootparam[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootparam[2].DescriptorTable.pDescriptorRanges = &descTblRange[2];
-	rootparam[2].DescriptorTable.NumDescriptorRanges = 2;
+	rootparam[2].DescriptorTable.pDescriptorRanges = descTblRangePixel.data();
+	rootparam[2].DescriptorTable.NumDescriptorRanges = descTblRangePixel.size();
 
 	rootSignatureDesc.pParameters = rootparam;
 	rootSignatureDesc.NumParameters = 3;
@@ -580,11 +615,11 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			//--------------set const buff and texture buff heap-------
 			_cmdList->SetDescriptorHeaps(1, &m_sceneDescHeap);
 			_cmdList->SetGraphicsRootDescriptorTable(0,
-				m_sceneDescHeap->GetGPUDescriptorHandleForHeapStart());
+				m_sceneDescHeap->GetGPUDescriptorHandleForHeapStart());		//set camera info root
 
 			_cmdList->SetDescriptorHeaps(1, &instance->m_transformDescHeap);
 			_cmdList->SetGraphicsRootDescriptorTable(1,
-				instance->m_transformDescHeap->GetGPUDescriptorHandleForHeapStart());
+				instance->m_transformDescHeap->GetGPUDescriptorHandleForHeapStart()); // set transform matrices root
 
 			_cmdList->SetDescriptorHeaps(1, &model->m_materialDescHeap);
 			auto cbvsrvIncSize = d3ddevice->
@@ -592,9 +627,17 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			auto materialH = model->m_materialDescHeap->GetGPUDescriptorHandleForHeapStart();
 			unsigned int idxOffset = 0;
 
+			for (auto& pair : instance->m_shaderResouceTable)
+			{
+				auto& resource = pair.second;
+				_cmdList->SetDescriptorHeaps(1, &resource.heap);
+				_cmdList->SetGraphicsRootDescriptorTable(resource.shaderRegisterNum,
+					resource.heap->GetGPUDescriptorHandleForHeapStart());
+			}
+
 			for (auto& m : model->m_materials)
 			{
-				_cmdList->SetGraphicsRootDescriptorTable(2, materialH);
+				_cmdList->SetGraphicsRootDescriptorTable(2, materialH);				 // set material root
 
 				_cmdList->DrawIndexedInstanced(m.indicesNum, 1, idxOffset, 0, 0);
 

@@ -213,6 +213,31 @@ int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
 	return result;
 }
 
+extern"C"
+{void __declspec(dllexport) __stdcall ClearRootSignatureSetting(); }
+
+void __declspec(dllexport) __stdcall ClearRootSignatureSetting()
+{
+	D3DResourceManage::Instance().RootSignatureSetting.clear();
+}
+
+extern"C"
+{
+	void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,uint16_t dataSize,
+	D3D12_DESCRIPTOR_RANGE_TYPE type,int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility);
+}
+
+void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name, uint16_t dataSize, 
+	D3D12_DESCRIPTOR_RANGE_TYPE type,int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility)
+{
+	D3D12_DESCRIPTOR_RANGE desc = {};
+	desc.NumDescriptors = 1;  //testing phase just 1 each time
+	desc.RangeType = type;
+	desc.BaseShaderRegister = baseShaderRegister;
+	desc.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3DResourceManage::Instance().RootSignatureSetting.push_back(RootSignatureSetting{ name,dataSize, desc  , visibility });
+}
 
 #ifdef __cplusplus 
 extern"C"

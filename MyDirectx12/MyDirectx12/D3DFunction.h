@@ -99,3 +99,4 @@ public:
 	//void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);
 	void Draw(ID3D12GraphicsCommandList*, ID3D12Device*);
 };
+
