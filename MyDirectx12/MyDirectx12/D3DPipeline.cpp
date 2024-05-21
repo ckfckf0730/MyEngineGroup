@@ -406,45 +406,93 @@ int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC in
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	D3D12_DESCRIPTOR_RANGE descTblRange[4] = {};
-	descTblRange[0].NumDescriptors = 1;
-	descTblRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descTblRange[0].BaseShaderRegister = 0;
-	descTblRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	std::vector<D3D12_DESCRIPTOR_RANGE> descTblRangeAll;
+	std::vector<D3D12_DESCRIPTOR_RANGE> descTblRangeVertex;
+	std::vector<D3D12_DESCRIPTOR_RANGE> descTblRangePixel;
 
-	descTblRange[1].NumDescriptors = 1;
-	descTblRange[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descTblRange[1].BaseShaderRegister = 1;
-	descTblRange[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	D3D12_DESCRIPTOR_RANGE descTblRange = {};
 
-	descTblRange[2].NumDescriptors = 1;
-	descTblRange[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descTblRange[2].BaseShaderRegister = 2;
-	descTblRange[2].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//--------------Add default transform, material, texture root parameter-----------------
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 0;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descTblRange[3].NumDescriptors = 4;
-	descTblRange[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descTblRange[3].BaseShaderRegister = 0;
-	descTblRange[3].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	descTblRangeAll.push_back(descTblRange);
 
-	D3D12_ROOT_PARAMETER rootparam[3] = {};
-	rootparam[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootparam[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	rootparam[0].DescriptorTable.pDescriptorRanges = &descTblRange[0];
-	rootparam[0].DescriptorTable.NumDescriptorRanges = 1;
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 1;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	rootparam[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootparam[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootparam[1].DescriptorTable.pDescriptorRanges = &descTblRange[1];
-	rootparam[1].DescriptorTable.NumDescriptorRanges = 1;
+	descTblRangeVertex.push_back(descTblRange);
 
-	rootparam[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootparam[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootparam[2].DescriptorTable.pDescriptorRanges = &descTblRange[2];
-	rootparam[2].DescriptorTable.NumDescriptorRanges = 2;
+	descTblRange.NumDescriptors = 1;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descTblRange.BaseShaderRegister = 2;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	rootSignatureDesc.pParameters = rootparam;
-	rootSignatureDesc.NumParameters = 3;
+	descTblRangePixel.push_back(descTblRange);
+
+	descTblRange.NumDescriptors = 4;
+	descTblRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descTblRange.BaseShaderRegister = 0;
+	descTblRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	descTblRangePixel.push_back(descTblRange);
+
+	std::vector<D3D12_ROOT_PARAMETER>  rootparamList;
+	D3D12_ROOT_PARAMETER rootparam = {};
+	rootparam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootparam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootparam.DescriptorTable.pDescriptorRanges = descTblRangeAll.data();
+	rootparam.DescriptorTable.NumDescriptorRanges = descTblRangeAll.size();
+
+	rootparamList.push_back(rootparam);
+
+	rootparam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootparam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootparam.DescriptorTable.pDescriptorRanges = descTblRangeVertex.data();
+	rootparam.DescriptorTable.NumDescriptorRanges = descTblRangeVertex.size();
+
+	rootparamList.push_back(rootparam);
+
+	rootparam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootparam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootparam.DescriptorTable.pDescriptorRanges = descTblRangePixel.data();
+	rootparam.DescriptorTable.NumDescriptorRanges = descTblRangePixel.size();
+
+	rootparamList.push_back(rootparam);
+
+	std::vector<D3D12_DESCRIPTOR_RANGE> descTblRangeCustomize;
+	//--------------Add customize root parameter-----------------
+	for (auto& setting : D3DResourceManage::Instance().RootSignatureSetting)
+	{
+		descTblRange = setting.rootSignatureRange;
+
+		if (setting.visibility == D3D12_SHADER_VISIBILITY_ALL)
+		{
+			rootparam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		}
+		else if (setting.visibility == D3D12_SHADER_VISIBILITY_VERTEX)
+		{
+			rootparam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+		}
+		else if (setting.visibility == D3D12_SHADER_VISIBILITY_PIXEL)
+		{
+			rootparam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		}
+
+		descTblRangeCustomize.push_back(descTblRange);
+		rootparam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+		rootparam.DescriptorTable.pDescriptorRanges = (descTblRangeCustomize.end() - 1)._Ptr;
+		rootparam.DescriptorTable.NumDescriptorRanges = 1;
+
+		rootparamList.push_back(rootparam);
+	}
+
+	rootSignatureDesc.pParameters = rootparamList.data();
+	rootSignatureDesc.NumParameters = rootparamList.size();
 
 	D3D12_STATIC_SAMPLER_DESC samplerDesc[2] = {};
 	samplerDesc[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -498,9 +546,6 @@ int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC in
 		ShowMsgBox(L"Error", L"create graphics pipeline fault. ");
 		return -1;
 	}
-
-
-
 
 	return 1;
 }
@@ -621,24 +666,25 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			_cmdList->SetGraphicsRootDescriptorTable(1,
 				instance->m_transformDescHeap->GetGPUDescriptorHandleForHeapStart()); // set transform matrices root
 
+			for (auto& pair : instance->m_shaderResouceTable)
+			{
+				auto& resource = pair.second;
+				_cmdList->SetDescriptorHeaps(1, &resource.descHeap);
+				_cmdList->SetGraphicsRootDescriptorTable(resource.shaderRegisterNum,
+					resource.descHeap->GetGPUDescriptorHandleForHeapStart());
+			}
+
 			_cmdList->SetDescriptorHeaps(1, &model->m_materialDescHeap);
 			auto cbvsrvIncSize = d3ddevice->
 				GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 5;
 			auto materialH = model->m_materialDescHeap->GetGPUDescriptorHandleForHeapStart();
 			unsigned int idxOffset = 0;
 
-			for (auto& pair : instance->m_shaderResouceTable)
-			{
-				auto& resource = pair.second;
-				_cmdList->SetDescriptorHeaps(1, &resource.heap);
-				_cmdList->SetGraphicsRootDescriptorTable(resource.shaderRegisterNum,
-					resource.heap->GetGPUDescriptorHandleForHeapStart());
-			}
-
 			for (auto& m : model->m_materials)
 			{
 				_cmdList->SetGraphicsRootDescriptorTable(2, materialH);				 // set material root
 
+				
 				_cmdList->DrawIndexedInstanced(m.indicesNum, 1, idxOffset, 0, 0);
 
 				materialH.ptr += cbvsrvIncSize;

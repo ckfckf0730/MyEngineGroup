@@ -450,7 +450,7 @@ int PMDModel::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::
 	//------------cvb desc--------------
 	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
 	matCbvDesc.BufferLocation = m_materialBuff->GetGPUVirtualAddress();
-	matCbvDesc.SizeInBytes = materialBuffSize;
+	matCbvDesc.SizeInBytes = m_materialBuff->GetDesc().Width;
 
 	//------------cvb & srv view-------------
 	auto matDescHeapH = m_materialDescHeap->GetCPUDescriptorHandleForHeapStart();
@@ -757,100 +757,6 @@ void PMDModelInstance::UpdateBoneMatrices(DirectX::XMMATRIX* boneMatrices, int s
 {
 	std::copy(boneMatrices, boneMatrices + size, m_mapMatrices + 1);
 }
-
-//int BasicModel::SetBasicModel(D3DDevice* _cD3DDev, const char* _FileFullName)
-//{
-//	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
-//
-//	//read pmd file data
-//	FILE* fp;
-//	errno_t err = fopen_s(&fp, _FileFullName, "rb");
-//	if (err != 0)
-//	{
-//		PrintDebug(L"Load basic model file fault:");
-//		PrintDebug(_FileFullName);
-//		return -1;
-//	}
-//
-//	fread(&m_vertNum, sizeof(m_vertNum), 1, fp);  //first is vertex count
-//
-//	constexpr unsigned int basicVertex_size = 32;
-//
-//	std::vector<unsigned char> vertices(m_vertNum * basicVertex_size);
-//	fread(vertices.data(), vertices.size(), 1, fp); //next vertex data
-//
-//	std::vector<unsigned short> indices;
-//	fread(&m_indicesNum, sizeof(m_indicesNum), 1, fp);	//next indices number
-//	indices.resize(m_indicesNum);
-//	size_t indicesAllData_size = m_indicesNum * sizeof(indices[0]);
-//	fread(indices.data(), indicesAllData_size, 1, fp); //next indices data
-//
-//	fclose(fp);
-//
-//	//----------vertex buff------------------
-//	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-//	auto vertBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(vertices.size());
-//	//ID3D12Device::CreateHeap() and ID3D12Device::CreatePlaced Resource() similar, this book doesn't teach.
-//	HRESULT result = d3ddevice->CreateCommittedResource(
-//		&heapTypeUpload,
-//		D3D12_HEAP_FLAG_NONE,
-//		&vertBuffDesc,
-//		D3D12_RESOURCE_STATE_GENERIC_READ,
-//		nullptr,
-//		IID_PPV_ARGS(m_vertBuff.ReleaseAndGetAddressOf()));
-//	if (FAILED(result))
-//	{
-//		PrintDebug("CreateCommittedResource basic Vertex fault.");
-//		return -1;
-//	}
-//
-//	unsigned char* s_vertMap = nullptr;
-//	result = m_vertBuff->Map(0, nullptr, (void**)&s_vertMap);
-//	if (FAILED(result))
-//	{
-//		PrintDebug(L"vertMap fault.");
-//		return -1;
-//	}
-//
-//	memcpy(s_vertMap, vertices.data(), vertices.size());
-//
-//	m_vertBuff->Unmap(0, nullptr);
-//
-//	//create vertex buffer view
-//	m_vbView.BufferLocation = m_vertBuff->GetGPUVirtualAddress();
-//	m_vbView.SizeInBytes = vertices.size();
-//	m_vbView.StrideInBytes = basicVertex_size;
-//
-//	//----------------------index part----------------------------
-//
-//	auto indicesBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(indicesAllData_size);
-//	result = d3ddevice->CreateCommittedResource(
-//		&heapTypeUpload,
-//		D3D12_HEAP_FLAG_NONE,
-//		&indicesBufferDesc,
-//		D3D12_RESOURCE_STATE_GENERIC_READ,
-//		nullptr,
-//		IID_PPV_ARGS(m_idxBuff.ReleaseAndGetAddressOf()));
-//	if (FAILED(result))
-//	{
-//		PrintDebug(L"CreateCommittedResource index fault.");
-//		return -1;
-//	}
-//
-//	unsigned short* mappedIdx = nullptr;
-//	result = m_idxBuff->Map(0, nullptr, (void**)&mappedIdx);
-//	if (FAILED(result))
-//	{
-//		PrintDebug(L"index Map fault.");
-//		return -1;
-//	}
-//	std::copy(indices.begin(), indices.end(), mappedIdx);
-//	m_idxBuff->Unmap(0, nullptr);
-//
-//	m_ibView.BufferLocation = m_idxBuff->GetGPUVirtualAddress();
-//	m_ibView.Format = DXGI_FORMAT_R16_UINT;
-//	m_ibView.SizeInBytes = indicesAllData_size;
-//}
 	
 int BasicModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
 	unsigned int _indCount, unsigned short* _indices)
@@ -1002,7 +908,7 @@ int BasicModel::InitMaterial(int indicesNum)
 	//------------cvb desc--------------
 	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
 	matCbvDesc.BufferLocation = m_materialBuff->GetGPUVirtualAddress();
-	matCbvDesc.SizeInBytes = materialBuffSize;
+	matCbvDesc.SizeInBytes = m_materialBuff->GetDesc().Width;
 
 	//------------cvb & srv view-------------
 	auto matDescHeapH = m_materialDescHeap->GetCPUDescriptorHandleForHeapStart();
@@ -1162,7 +1068,88 @@ int ModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 	return 1;
 }
 
+
+int ModelInstance::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,
+	UINT shaderRegisterNum)
+{
+	m_shaderResouceTable.insert(std::pair<std::string, ShaderResource>(name, ShaderResource{}));
+	auto& res = m_shaderResouceTable[name];
+	res.shaderRegisterNum = shaderRegisterNum;
+	res.datasize = datasize;
+
+	// Ensure buffer size is a multiple of 256
+	unsigned long long buffSize = (res.datasize + 0xff) & ~0xff;
+
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(buffSize);
+
+	auto result = _cD3DDev->pD3D12Device->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&res.resource));
+	if (FAILED(result))
+	{
+		PrintDebug("Create Customized const buff fault.");
+		return -1;
+	}
+
+	result = res.resource->Map(0, nullptr, (void**)&res.mapData);
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"Map Customized const buff fault.");
+		return -1;
+	}
+
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDesc.NodeMask = 0;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+
+	result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
+		&heapDesc, IID_PPV_ARGS(&res.descHeap));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"Create Customized const heap fault.");
+		return -1;
+	}
+
+	auto heapHandle = res.descHeap->GetCPUDescriptorHandleForHeapStart();
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation = res.resource->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes = res.resource->GetDesc().Width;
+
+	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbvDesc, heapHandle);
+
+	memset(res.mapData, 0, buffSize);
+
+	return 1;
+}
+
+void ModelInstance::SetCustomizedResourceValue(LPCSTR name, unsigned char* data)
+{
+	auto iter = m_shaderResouceTable.find(name);
+	if (iter != m_shaderResouceTable.end())
+	{
+		std::memcpy(iter->second.mapData, data, iter->second.datasize);
+		PrintDebug("Set Customized Resource Value success!");
+	}
+}
+
 ModelInstance::~ModelInstance()
 {
 	m_transformDescHeap->Release();
+	m_transformConstBuff->Release();
+
+	for (auto& iter : m_shaderResouceTable)
+	{
+		auto& res = iter.second;
+		res.descHeap->Release();
+		res.resource->Release();
+	}
+	m_shaderResouceTable.clear();
 }

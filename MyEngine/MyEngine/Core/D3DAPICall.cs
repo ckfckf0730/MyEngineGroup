@@ -96,9 +96,41 @@ namespace CkfEngine.Core
         [DllImport("MyDirectx12.dll")]
         public static extern int BindPipeline(ulong _uid, string pipeline);
 
+        [DllImport("MyDirectx12.dll")]
+        public static extern void ClearRootSignatureSetting();
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern void SetRootSignature(string name, 
+            D3D12_DESCRIPTOR_RANGE_TYPE type, int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern void CreateCustomizedResource(UInt64 uid, string name, UInt16 datasize, UInt32 shaderRegisterNum);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern void SetCustomizedResourceValue(UInt64 uid, string name, byte[] data);
+
         #endregion
 
 
+        public enum D3D12_DESCRIPTOR_RANGE_TYPE
+        {
+            D3D12_DESCRIPTOR_RANGE_TYPE_SRV = 0,
+            D3D12_DESCRIPTOR_RANGE_TYPE_UAV = (D3D12_DESCRIPTOR_RANGE_TYPE_SRV + 1),
+            D3D12_DESCRIPTOR_RANGE_TYPE_CBV = (D3D12_DESCRIPTOR_RANGE_TYPE_UAV + 1),
+            D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER = (D3D12_DESCRIPTOR_RANGE_TYPE_CBV + 1)
+        }
+
+        public enum D3D12_SHADER_VISIBILITY
+        {
+            D3D12_SHADER_VISIBILITY_ALL = 0,
+            D3D12_SHADER_VISIBILITY_VERTEX = 1,
+            D3D12_SHADER_VISIBILITY_HULL = 2,
+            D3D12_SHADER_VISIBILITY_DOMAIN = 3,
+            D3D12_SHADER_VISIBILITY_GEOMETRY = 4,
+            D3D12_SHADER_VISIBILITY_PIXEL = 5,
+            D3D12_SHADER_VISIBILITY_AMPLIFICATION = 6,
+            D3D12_SHADER_VISIBILITY_MESH = 7
+        }
 
         public struct Vertex
         {
@@ -130,7 +162,12 @@ namespace CkfEngine.Core
             }
 
             string vsCode = File.ReadAllText("BasicVertexShader.hlsl");
-            string psCode = File.ReadAllText("BasicPixelShader.hlsl");
+            string psCode = File.ReadAllText("BasicPixelShader2.hlsl");
+
+            ClearRootSignatureSetting();
+            SetRootSignature("testColor", D3D12_DESCRIPTOR_RANGE_TYPE.D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
+               3, D3D12_SHADER_VISIBILITY.D3D12_SHADER_VISIBILITY_PIXEL);
+
 
             if (CreateBonePipeline("PmdStandard", vsCode, "BasicVS", psCode, "BasicPS") < 1)
             {

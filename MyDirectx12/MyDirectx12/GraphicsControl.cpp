@@ -223,11 +223,11 @@ void __declspec(dllexport) __stdcall ClearRootSignatureSetting()
 
 extern"C"
 {
-	void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,uint16_t dataSize,
+	void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,
 	D3D12_DESCRIPTOR_RANGE_TYPE type,int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility);
 }
 
-void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name, uint16_t dataSize, 
+void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name, 
 	D3D12_DESCRIPTOR_RANGE_TYPE type,int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility)
 {
 	D3D12_DESCRIPTOR_RANGE desc = {};
@@ -236,17 +236,54 @@ void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name, uint16_t data
 	desc.BaseShaderRegister = baseShaderRegister;
 	desc.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3DResourceManage::Instance().RootSignatureSetting.push_back(RootSignatureSetting{ name,dataSize, desc  , visibility });
+	D3DResourceManage::Instance().RootSignatureSetting.push_back(RootSignatureSetting{ name, desc  , visibility });
 }
 
-#ifdef __cplusplus 
 extern"C"
 {
-#endif
-	int __declspec(dllexport) __stdcall SetPmdStandardPipeline();
-#ifdef __cplusplus 
+	void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT64 uid, 
+		LPCSTR name, uint16_t datasize, UINT shaderRegisterNum);
 }
-#endif
+
+void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT64 uid,
+	LPCSTR name, uint16_t datasize, UINT shaderRegisterNum)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(uid);
+	if (iter == ModelInstance::s_uidModelTable.end())
+	{
+		PrintDebug("CreateCustomizedResource fault, can't find: ");
+		PrintDebug((int)uid);
+		return;
+	}
+	auto pInstance = iter->second;
+	pInstance->CreateCustomizedResource(D3DResourceManage::Instance().pGraphicsCard,
+		name, datasize, shaderRegisterNum);
+}
+
+extern"C"
+{
+	void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT64 uid,
+		LPCSTR name, unsigned char* data);
+}
+
+void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT64 uid,
+	LPCSTR name, unsigned char* data)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(uid);
+	if (iter == ModelInstance::s_uidModelTable.end())
+	{
+		PrintDebug("UpdatePMDBoneMatrices fault, can't find: ");
+		PrintDebug((int)uid);
+		return;
+	}
+	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
+	pInstance->SetCustomizedResourceValue(name, data);
+}
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall SetPmdStandardPipeline();
+}
 
 int __declspec(dllexport) __stdcall SetPmdStandardPipeline()
 {

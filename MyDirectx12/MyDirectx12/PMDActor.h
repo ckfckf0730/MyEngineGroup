@@ -296,9 +296,9 @@ struct ShaderResource
 {
 	uint16_t datasize;
 
-	ID3D12DescriptorHeap* heap;
-	ID3D12Resource* buffer;
-	void* mapData;
+	ID3D12DescriptorHeap* descHeap;
+	ID3D12Resource* resource;
+	char* mapData;
 
 	UINT shaderRegisterNum;
 };
@@ -322,6 +322,9 @@ public:
 
 
 	virtual int CreateTransformView(D3DDevice* _cD3DDev);
+
+	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT shaderRegisterNum);
+	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
 
 	~ModelInstance();
 };

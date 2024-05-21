@@ -16,7 +16,7 @@ struct RootSignatureSetting
 {
 public:
     std::string name;
-    uint16_t dataSize;
+//    uint16_t dataSize;
 
     D3D12_DESCRIPTOR_RANGE  rootSignatureRange;
 

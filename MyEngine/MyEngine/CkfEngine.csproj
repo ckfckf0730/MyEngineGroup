@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Common.cs" />
     <Compile Include="Core\TimeManager.cs" />
     <Compile Include="Core\Behaviour.cs" />
     <Compile Include="Core\CoreEvents.cs" />
