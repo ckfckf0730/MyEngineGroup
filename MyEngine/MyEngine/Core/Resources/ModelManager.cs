@@ -18,7 +18,7 @@ namespace CkfEngine.Core
 
         private static Dictionary<string, VMDAnimation> s_animationTable = new Dictionary<string, VMDAnimation>();
 
-        internal static bool LoadPMDFile(string path, out PMDModel pmdModel)
+        internal static bool LoadPMDFile(string path, out PMDModel pmdModel, Shader shader = null)
         {
             pmdModel = null;
             Model model;
@@ -95,6 +95,11 @@ namespace CkfEngine.Core
                         material.edgeFlg = reader.ReadByte();
                         material.indicesNum = reader.ReadUInt32();
                         material.texFilePath = jis.GetString(reader.ReadBytes(20)).Split('\0')[0];
+
+                        if(shader == null)
+                        {
+                            material.shader = Shader.BasicBoneShader;
+                        }
 
                         pmdModel.m_materials.Add(material);
                     }

@@ -61,6 +61,10 @@ namespace CkfEngine.Core
         public static extern int CreateBonePipeline(string pipelineName,
         string vsCode, string vsEntry, string psCode, string psEntry);
 
+        [DllImport("MyDirectx12.dll", CharSet = CharSet.Ansi)]
+        public static extern int CreateNoBonePipeline(string pipelineName,
+        string vsCode, string vsEntry, string psCode, string psEntry);
+
         [DllImport("MyDirectx12.dll")]
         public static extern int SetRenderTargetBackColor(UInt64 uid, float[] color);
 
@@ -155,33 +159,14 @@ namespace CkfEngine.Core
                 return -1;
             }
 
-            if (SetPmdStandardPipeline() < 1)
-            {
-                Console.WriteLine("Create standard pipeline fault");
-                return -1;
-            }
+            Shader.InitBasicShader();
 
-            string vsCode = File.ReadAllText("BasicVertexShader.hlsl");
-            string psCode = File.ReadAllText("BasicPixelShader2.hlsl");
-
-            ClearRootSignatureSetting();
-            SetRootSignature("testColor", D3D12_DESCRIPTOR_RANGE_TYPE.D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
-               3, D3D12_SHADER_VISIBILITY.D3D12_SHADER_VISIBILITY_PIXEL);
+            //ClearRootSignatureSetting();
+            //SetRootSignature("testColor", D3D12_DESCRIPTOR_RANGE_TYPE.D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
+            //   3, D3D12_SHADER_VISIBILITY.D3D12_SHADER_VISIBILITY_PIXEL);
 
 
-            if (CreateBonePipeline("PmdStandard", vsCode, "BasicVS", psCode, "BasicPS") < 1)
-            {
-                Console.WriteLine("Create bone pipeline fault");
-                return -1;
-            }
-
-            //vsCode = File.ReadAllText("NoBoneVertexShader.hlsl");
-
-            //if (CreateBonePipeline("PmdStandard", vsCode, "BasicVS", psCode, "BasicPS") < 1)
-            //{
-            //    Console.WriteLine("Create bone pipeline fault");
-            //    return -1;
-            //}
+            
 
 
             return 1;

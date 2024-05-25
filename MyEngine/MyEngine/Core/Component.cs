@@ -315,14 +315,14 @@ namespace CkfEngine.Core
                             if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
                             {
                                 m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
-                                D3DAPICall.BindPipeline(OwnerEntity.Uid, "PmdStandard");
+                                D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
                                 m_isLoaded = true;
 
-                                D3DAPICall.CreateCustomizedResource(OwnerEntity.Uid, "testColor", 12, 3);
+                                //D3DAPICall.CreateCustomizedResource(OwnerEntity.Uid, "testColor", 12, 3);
 
-                                Vector3 color = new Vector3(1.0f,0,0);
-                                var data = CommonFuction.StructToByteArray(color);
-                                D3DAPICall.SetCustomizedResourceValue(OwnerEntity.Uid, "testColor", data);
+                                //Vector3 color = new Vector3(0.0f,0,1);
+                                //var data = CommonFuction.StructToByteArray(color);
+                                //D3DAPICall.SetCustomizedResourceValue(OwnerEntity.Uid, "testColor", data);
                             }
                         }
                     }
@@ -405,7 +405,7 @@ namespace CkfEngine.Core
                     if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
                     {
                         m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
-                        D3DAPICall.BindPipeline(OwnerEntity.Uid, "NoboneStandard");
+                        D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicNoBoneShader.m_name);
                         m_isLoaded = true;
                     }
 

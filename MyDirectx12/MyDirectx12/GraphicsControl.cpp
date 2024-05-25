@@ -214,6 +214,45 @@ int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
 }
 
 extern"C"
+{
+	int __declspec(dllexport) __stdcall CreateNoBonePipeline(LPCSTR pipelineName,
+		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry);
+}
+
+int __declspec(dllexport) __stdcall CreateNoBonePipeline(LPCSTR pipelineName,
+	LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry)
+{
+	auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	if (iter != D3DResourceManage::Instance().PipelineTable.end())
+	{
+		PrintDebug("Already exist pipeline name:");
+		PrintDebug(pipelineName);
+		return -1;
+	}
+	D3DPipeline* pipeline = new D3DPipeline(pipelineName);
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+	{
+				{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+				{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+				{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+	};
+	UINT numElements = _countof(inputLayout);
+	int result = pipeline->CreatePipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
+		vsCode, vsEntry, psCode, psEntry);
+	pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
+	D3DResourceManage::Instance().PipelineTable.insert(
+		pair<std::string, D3DPipeline*>(pipelineName, pipeline));
+
+	if (result != 1)
+	{
+		ShowMsgBox(L"Error", L"Create pipeline fault:");
+		return result;
+	}
+
+	return result;
+}
+
+extern"C"
 {void __declspec(dllexport) __stdcall ClearRootSignatureSetting(); }
 
 void __declspec(dllexport) __stdcall ClearRootSignatureSetting()
@@ -280,73 +319,73 @@ void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT64 uid,
 	pInstance->SetCustomizedResourceValue(name, data);
 }
 
-extern"C"
-{
-	int __declspec(dllexport) __stdcall SetPmdStandardPipeline();
-}
-
-int __declspec(dllexport) __stdcall SetPmdStandardPipeline()
-{
-	////-------------------create PmdStandard pipeline------------------------------------------------
-	//auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
-	//if (iter != D3DResourceManage::Instance().PipelineTable.end())
-	//{
-	//	PrintDebug("Already exist pipeline PmdStandard.");
-	//	return -1;
-	//}
-	//D3DPipeline* pipeline = new D3DPipeline("PmdStandard");
-	//D3D12_INPUT_ELEMENT_DESC inputLayout[] =
-	//{
-	//	{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-	//	{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-	//	{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-	//	{ "BONE_NO",0,DXGI_FORMAT_R16G16_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-	//	{ "WEIGHT",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-	//	/*{"EDGE_FLG",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}*/
-	//};
-	//UINT numElements = _countof(inputLayout);
-	//int result = pipeline->SetPipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
-	//	L"BasicVertexShader.hlsl", L"BasicPixelShader.hlsl");
-	//pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
-	//D3DResourceManage::Instance().PipelineTable.insert(
-	//	pair< const char*, D3DPipeline*>("PmdStandard", pipeline));
-
-	//if (result != 1)
-	//{
-	//	ShowMsgBox(L"Error", L"Create PmdStandard fault.");
-	//	return result;
-	//}
-
-	//-------------------create NoboneStandard pipeline------------------------------------------------
-	auto iter = D3DResourceManage::Instance().PipelineTable.find("NoboneStandard");
-	if (iter != D3DResourceManage::Instance().PipelineTable.end())
-	{
-		PrintDebug("Already exist pipeline NoboneStandard.");
-		return -1;
-	}
-
-	D3DPipeline* pipeline = new D3DPipeline("NoboneStandard");
-	D3D12_INPUT_ELEMENT_DESC inputLayout2[] =
-	{
-		{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-		{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-		{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
-	};
-
-	UINT numElements = _countof(inputLayout2);
-	int result = pipeline->SetPipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout2, numElements,
-		L"NoBoneVertexShader.hlsl", L"BasicPixelShader.hlsl");
-	pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
-	D3DResourceManage::Instance().PipelineTable.insert(
-		pair< std::string, D3DPipeline*>("NoboneStandard", pipeline));
-	if (result != 1)
-	{
-		ShowMsgBox(L"Error", L"Create NoboneStandard fault.");
-		return result;
-	}
-
-	return result;
-}
+//extern"C"
+//{
+//	int __declspec(dllexport) __stdcall SetPmdStandardPipeline();
+//}
+//
+//int __declspec(dllexport) __stdcall SetPmdStandardPipeline()
+//{
+//	////-------------------create PmdStandard pipeline------------------------------------------------
+//	//auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
+//	//if (iter != D3DResourceManage::Instance().PipelineTable.end())
+//	//{
+//	//	PrintDebug("Already exist pipeline PmdStandard.");
+//	//	return -1;
+//	//}
+//	//D3DPipeline* pipeline = new D3DPipeline("PmdStandard");
+//	//D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+//	//{
+//	//	{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//	//	{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//	//	{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//	//	{ "BONE_NO",0,DXGI_FORMAT_R16G16_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//	//	{ "WEIGHT",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//	//	/*{"EDGE_FLG",0,DXGI_FORMAT_R8_UINT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0}*/
+//	//};
+//	//UINT numElements = _countof(inputLayout);
+//	//int result = pipeline->SetPipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
+//	//	L"BasicVertexShader.hlsl", L"BasicPixelShader.hlsl");
+//	//pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
+//	//D3DResourceManage::Instance().PipelineTable.insert(
+//	//	pair< const char*, D3DPipeline*>("PmdStandard", pipeline));
+//
+//	//if (result != 1)
+//	//{
+//	//	ShowMsgBox(L"Error", L"Create PmdStandard fault.");
+//	//	return result;
+//	//}
+//
+//	//-------------------create NoboneStandard pipeline------------------------------------------------
+//	auto iter = D3DResourceManage::Instance().PipelineTable.find("NoboneStandard");
+//	if (iter != D3DResourceManage::Instance().PipelineTable.end())
+//	{
+//		PrintDebug("Already exist pipeline NoboneStandard.");
+//		return -1;
+//	}
+//
+//	D3DPipeline* pipeline = new D3DPipeline("NoboneStandard");
+//	D3D12_INPUT_ELEMENT_DESC inputLayout2[] =
+//	{
+//		{ "POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//		{ "NORMAL",0,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//		{ "TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,0,D3D12_APPEND_ALIGNED_ELEMENT,D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,0 },
+//	};
+//
+//	UINT numElements = _countof(inputLayout2);
+//	int result = pipeline->SetPipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout2, numElements,
+//		L"NoBoneVertexShader.hlsl", L"BasicPixelShader.hlsl");
+//	pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
+//	D3DResourceManage::Instance().PipelineTable.insert(
+//		pair< std::string, D3DPipeline*>("NoboneStandard", pipeline));
+//	if (result != 1)
+//	{
+//		ShowMsgBox(L"Error", L"Create NoboneStandard fault.");
+//		return result;
+//	}
+//
+//	return result;
+//}
 
 #pragma endregion
 

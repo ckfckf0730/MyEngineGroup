@@ -19,7 +19,7 @@ float4 BasicPS(Output input) : SV_TARGET
 	float2 sphereMapUV = input.vnormal.xy;
 	sphereMapUV = (sphereMapUV + float2(1, -1)) * float2(0.5, -0.5);
 
-	float4 texColor = tex.Sample(smp,input.uv) + float4(testColor.x,testColor.y,0, 0);
+	float4 texColor = tex.Sample(smp,input.uv) + float4(testColor, 0);
 
 	return max(toonDif
 		* diffuse
