@@ -204,6 +204,7 @@ int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
 	D3DResourceManage::Instance().PipelineTable.insert(
 		pair<std::string, D3DPipeline*>(pipelineName, pipeline));
 
+
 	if (result != 1)
 	{
 		ShowMsgBox(L"Error", L"Create pipeline fault:");

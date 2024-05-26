@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace CkfEngine.Core
 {
@@ -31,51 +33,110 @@ namespace CkfEngine.Core
 
             string vsCode = File.ReadAllText("BasicVertexShader.hlsl");
             string psCode = File.ReadAllText("BasicPixelShader.hlsl");
-            BasicBoneShader = new Shader(boneName, vsCode, psCode, "BasicVS", "BasicPS",true);
+            BasicBoneShader = new Shader(boneName);
+            BasicBoneShader.CreatePipeline(vsCode, psCode, "BasicVS", "BasicPS", true);
 
             vsCode = File.ReadAllText("NoBoneVertexShader.hlsl");
-            BasicNoBoneShader = new Shader(noBoneName, vsCode, psCode, "BasicVS", "BasicPS", false);
-
+            BasicNoBoneShader = new Shader(noBoneName);
+            BasicNoBoneShader.CreatePipeline(vsCode, psCode, "BasicVS", "BasicPS", false);
 
             ShaderTable.Add(boneName, BasicBoneShader);
             ShaderTable.Add(noBoneName, BasicNoBoneShader);
         }
 
-        public Shader(string name, string vsText, string psText, string vsEntrance, string psEntrance,bool isBoneModel)
+        internal string m_name;
+        internal List<RootParameter> rootParameters;
+        //internal string m_vsText;
+        //internal string m_psText;
+        //internal string m_vsEntrance;
+        //internal string m_psEntrance;
+
+        public Shader(string name)
         {
             m_name = name;
-            m_vsText = vsText;
-            m_psText = psText;
-            m_vsEntrance = vsEntrance;
-            m_psEntrance = psEntrance;
+            rootParameters = new List<RootParameter>();
+            //m_vsText = vsText;
+            //m_psText = psText;
+            //m_vsEntrance = vsEntrance;
+            //m_psEntrance = psEntrance;
+        }
 
-            if(isBoneModel)
+        public bool CreatePipeline(string vsText, string psText, string vsEntrance, string psEntrance, bool isBoneModel)
+        {
+            D3DAPICall.ClearRootSignatureSetting();
+            foreach (var parameter in rootParameters)
             {
-                if (D3DAPICall.CreateBonePipeline(m_name, m_vsText,
-                        m_vsEntrance, m_psText, m_psEntrance) < 1)
+                D3DAPICall.SetRootSignature(parameter.name, 
+                    parameter.descRangeType, parameter.register, parameter.visibility);
+            }
+
+            if (isBoneModel)
+            {
+                if (D3DAPICall.CreateBonePipeline(m_name, vsText,
+                        vsEntrance, psText, psEntrance) < 1)
                 {
-                    Console.WriteLine("Create bone pipeline fault: " + name);
+                    Console.WriteLine("Create bone pipeline fault: " + m_name);
+                    return false;
                 }
             }
             else
             {
-                if (D3DAPICall.CreateNoBonePipeline(m_name, m_vsText,
-                        m_vsEntrance, m_psText, m_psEntrance) < 1)
+                if (D3DAPICall.CreateNoBonePipeline(m_name, vsText,
+                        vsEntrance, psText, psEntrance) < 1)
                 {
-                    Console.WriteLine("Create bone pipeline fault: " + name);
+                    Console.WriteLine("Create bone pipeline fault: " + m_name);
+                    return false;
                 }
             }
-
+            return true;
         }
 
 
+        /// <summary>
+        /// Should Add all Root Parameter before CreatePipeline.
+        /// </summary>
+        public void AddRootParameter(string name, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, 
+            int register, D3D12_SHADER_VISIBILITY visibility, Type dataType)
+        {
+            rootParameters.Add(new RootParameter()
+            {
+                name = name,
+                descRangeType = rangeType,
+                register = register,
+                visibility = visibility,
+                dataType = dataType
+            });
+        }
+    }
 
-        internal string m_name;
-        internal string m_vsText;
-        internal string m_psText;
-        internal string m_vsEntrance;
-        internal string m_psEntrance;
+    internal struct RootParameter
+    {
+        internal string name;
+        internal D3D12_DESCRIPTOR_RANGE_TYPE descRangeType;
+        internal int register;
+        internal D3D12_SHADER_VISIBILITY visibility;
 
+        internal Type dataType;
+    }
+
+    public enum D3D12_DESCRIPTOR_RANGE_TYPE
+    {
+        D3D12_DESCRIPTOR_RANGE_TYPE_SRV = 0,
+        D3D12_DESCRIPTOR_RANGE_TYPE_UAV = (D3D12_DESCRIPTOR_RANGE_TYPE_SRV + 1),
+        D3D12_DESCRIPTOR_RANGE_TYPE_CBV = (D3D12_DESCRIPTOR_RANGE_TYPE_UAV + 1),
+        D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER = (D3D12_DESCRIPTOR_RANGE_TYPE_CBV + 1)
+    }
+
+    public enum D3D12_SHADER_VISIBILITY
+    {
+        D3D12_SHADER_VISIBILITY_ALL = 0,
+        D3D12_SHADER_VISIBILITY_VERTEX = 1,
+        D3D12_SHADER_VISIBILITY_HULL = 2,
+        D3D12_SHADER_VISIBILITY_DOMAIN = 3,
+        D3D12_SHADER_VISIBILITY_GEOMETRY = 4,
+        D3D12_SHADER_VISIBILITY_PIXEL = 5,
+        D3D12_SHADER_VISIBILITY_AMPLIFICATION = 6,
+        D3D12_SHADER_VISIBILITY_MESH = 7
     }
 
 }
