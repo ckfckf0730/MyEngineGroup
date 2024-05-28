@@ -315,14 +315,18 @@ namespace CkfEngine.Core
                             if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
                             {
                                 m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
-                                D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
+                                D3DAPICall.CreateCustomizedResource(OwnerEntity.Uid, "testColor", 12, 3);
+                                Vector3 color = new Vector3(0.0f, 0, 1);
+                                var data = CommonFuction.StructToByteArray(color);
+                                D3DAPICall.SetCustomizedResourceValue(OwnerEntity.Uid, "testColor", data);
+
+                                D3DAPICall.BindPipeline(OwnerEntity.Uid, "TestShader");
+                                //D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
                                 m_isLoaded = true;
 
-                                //D3DAPICall.CreateCustomizedResource(OwnerEntity.Uid, "testColor", 12, 3);
 
-                                //Vector3 color = new Vector3(0.0f,0,1);
-                                //var data = CommonFuction.StructToByteArray(color);
-                                //D3DAPICall.SetCustomizedResourceValue(OwnerEntity.Uid, "testColor", data);
+
+                                
                             }
                         }
                     }

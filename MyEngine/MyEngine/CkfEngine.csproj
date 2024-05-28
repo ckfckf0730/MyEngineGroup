@@ -62,7 +62,7 @@
     <Compile Include="Core\Animation\AnimationManager.cs" />
     <Compile Include="Core\Resources\MaterialManager.cs" />
     <Compile Include="Core\Resources\ModelManager.cs" />
-    <Compile Include="Core\Resources\RenderPipelineManager.cs" />
+    <Compile Include="Core\Resources\ShaderManager.cs" />
     <Compile Include="Core\RuntimeControl.cs" />
     <Compile Include="Core\GraphAlgorithms.cs" />
     <Compile Include="Core\Prefab.cs" />

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,11 +10,34 @@ using System.Xml.Linq;
 
 namespace CkfEngine.Core
 {
-    internal static class RenderPipelineManager
+    internal static class ShaderManager
     {
-        public static void CreatePipeline(MaterialBase material,bool isBoneModel)
+        public static void CreateShaderFile(string output)
         {
-            var matType = material.GetType();
+            ShaderBuilder shaderBuilder = new ShaderBuilder();
+            RootParameter rootParameter = new RootParameter();
+            rootParameter.name = "data1";
+            rootParameter.dataType = "float4";
+            rootParameter.descRangeType = D3D12_DESCRIPTOR_RANGE_TYPE.D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+            rootParameter.register = 3;
+            rootParameter.visibility = D3D12_SHADER_VISIBILITY.D3D12_SHADER_VISIBILITY_PIXEL;
+            shaderBuilder.Properties.Add(rootParameter);
+            shaderBuilder.name = "TestShader";
+            shaderBuilder.vsCode = "vscode test .....";
+            shaderBuilder.psCode = "vscode test .....";
+            shaderBuilder.isBoneModel = true;
+
+            var json = JsonConvert.SerializeObject(shaderBuilder, Formatting.Indented);
+
+            File.WriteAllText(output, json);
+        }
+
+        public static void CreateShader(string file)
+        {
+            var json = File.ReadAllText(file);
+            ShaderBuilder shaderBuilder = JsonConvert.DeserializeObject<ShaderBuilder>(json);
+            Shader.CreateShaderByBuilder(shaderBuilder);
+
         }
 
     }
@@ -44,21 +68,27 @@ namespace CkfEngine.Core
             ShaderTable.Add(noBoneName, BasicNoBoneShader);
         }
 
+        internal static void CreateShaderByBuilder(ShaderBuilder builder)
+        {
+            var shader = new Shader(builder.name);
+            foreach(var property in builder.Properties)
+            {
+                shader.AddRootParameter(property.name, 
+                    property.descRangeType, property.register, property.visibility, property.dataType);
+            }
+            shader.CreatePipeline(builder.vsCode, builder.psCode,
+                builder.vsEntrance, builder.psEntrance, builder.isBoneModel);
+
+            ShaderTable.Add(builder.name,shader);
+        }
+
         internal string m_name;
         internal List<RootParameter> rootParameters;
-        //internal string m_vsText;
-        //internal string m_psText;
-        //internal string m_vsEntrance;
-        //internal string m_psEntrance;
 
-        public Shader(string name)
+        private Shader(string name)
         {
             m_name = name;
             rootParameters = new List<RootParameter>();
-            //m_vsText = vsText;
-            //m_psText = psText;
-            //m_vsEntrance = vsEntrance;
-            //m_psEntrance = psEntrance;
         }
 
         public bool CreatePipeline(string vsText, string psText, string vsEntrance, string psEntrance, bool isBoneModel)
@@ -96,7 +126,7 @@ namespace CkfEngine.Core
         /// Should Add all Root Parameter before CreatePipeline.
         /// </summary>
         public void AddRootParameter(string name, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, 
-            int register, D3D12_SHADER_VISIBILITY visibility, Type dataType)
+            int register, D3D12_SHADER_VISIBILITY visibility, string dataType)
         {
             rootParameters.Add(new RootParameter()
             {
@@ -111,12 +141,11 @@ namespace CkfEngine.Core
 
     internal struct RootParameter
     {
-        internal string name;
-        internal D3D12_DESCRIPTOR_RANGE_TYPE descRangeType;
-        internal int register;
-        internal D3D12_SHADER_VISIBILITY visibility;
-
-        internal Type dataType;
+        public string name;
+        public D3D12_DESCRIPTOR_RANGE_TYPE descRangeType;
+        public int register;
+        public D3D12_SHADER_VISIBILITY visibility;
+        public string dataType;
     }
 
     public enum D3D12_DESCRIPTOR_RANGE_TYPE
@@ -137,6 +166,18 @@ namespace CkfEngine.Core
         D3D12_SHADER_VISIBILITY_PIXEL = 5,
         D3D12_SHADER_VISIBILITY_AMPLIFICATION = 6,
         D3D12_SHADER_VISIBILITY_MESH = 7
+    }
+
+    [Serializable]
+    internal class ShaderBuilder
+    {
+        public string name;
+        public List<RootParameter> Properties = new List<RootParameter>();
+        public string vsCode;
+        public string psCode;
+        public string vsEntrance;
+        public string psEntrance;
+        public bool isBoneModel;
     }
 
 }
