@@ -316,7 +316,7 @@ namespace CkfEngine.Core
                             {
                                 m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
                                 D3DAPICall.CreateCustomizedResource(OwnerEntity.Uid, "testColor", 12, 3);
-                                Vector3 color = new Vector3(0.0f, 0, 1);
+                                Vector3 color = new Vector3(0.0f, 0, 0);
                                 var data = CommonFuction.StructToByteArray(color);
                                 D3DAPICall.SetCustomizedResourceValue(OwnerEntity.Uid, "testColor", data);
 

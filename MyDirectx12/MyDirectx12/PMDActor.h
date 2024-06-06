@@ -64,9 +64,10 @@ struct AdditionalMaterial
 
 struct Material
 {
-	unsigned int indicesNum;
+	UINT indicesNum;
 	MaterialForHlsl material;
 	AdditionalMaterial additional;
+	UINT descOffset;
 };
 
 #pragma pack(1)
@@ -233,7 +234,8 @@ public:
 
 	D3D12_VERTEX_BUFFER_VIEW m_vbView = {};
 	D3D12_INDEX_BUFFER_VIEW m_ibView = {};
-	ID3D12DescriptorHeap* m_materialDescHeap = nullptr;
+	//ID3D12DescriptorHeap* m_materialDescHeap = nullptr;
+	UINT m_firstDescOffset;
 	//unsigned int m_vertNum;
 	//unsigned int m_indicesNum;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertBuff;
@@ -296,7 +298,8 @@ struct ShaderResource
 {
 	uint16_t datasize;
 
-	ID3D12DescriptorHeap* descHeap;
+	//ID3D12DescriptorHeap* descHeap;
+	UINT descOffset;
 	ID3D12Resource* resource;
 	char* mapData;
 
@@ -311,7 +314,8 @@ public:
 
 	static std::map <unsigned long long, ModelInstance*> s_uidModelTable;     //key is uid
 
-	ID3D12DescriptorHeap* m_transformDescHeap = nullptr;
+	//ID3D12DescriptorHeap* m_transformDescHeap = nullptr;
+	UINT m_transformDescOffset;
 	ID3D12Resource* m_transformConstBuff = nullptr;
 	Transform m_transform;
 	DirectX::XMMATRIX* m_mapMatrices = nullptr;
@@ -325,6 +329,8 @@ public:
 
 	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT shaderRegisterNum);
 	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
+
+	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
 
 	~ModelInstance();
 };

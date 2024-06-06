@@ -426,132 +426,6 @@ int PMDModel::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::
 	}
 	m_materialBuff->Unmap(0, nullptr);
 
-	D3D12_DESCRIPTOR_HEAP_DESC matHeapDesc = {};
-	matHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	matHeapDesc.NodeMask = 0;
-	matHeapDesc.NumDescriptors = matCount * 5;
-	matHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-
-	result = d3ddevice->CreateDescriptorHeap(
-		&matHeapDesc, IID_PPV_ARGS(&m_materialDescHeap));
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"error", L"Create material DescHeap fault.");
-		return -1;
-	}
-
-	//------------srv desc--------------
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-
-	//------------cvb desc--------------
-	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
-	matCbvDesc.BufferLocation = m_materialBuff->GetGPUVirtualAddress();
-	matCbvDesc.SizeInBytes = m_materialBuff->GetDesc().Width;
-
-	//------------cvb & srv view-------------
-	auto matDescHeapH = m_materialDescHeap->GetCPUDescriptorHandleForHeapStart();
-	auto inc = d3ddevice->
-		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-
-	auto whiteTex = D3DResourceManage::Instance().WhiteTexture;
-	if (whiteTex == nullptr)
-	{
-		whiteTex = CreateOneColorTexture(d3ddevice, 0xffffffff);
-		D3DResourceManage::Instance().WhiteTexture = whiteTex;
-	}
-	auto blackTex = D3DResourceManage::Instance().BlackTexture;
-	if (blackTex == nullptr)
-	{
-		blackTex = CreateOneColorTexture(d3ddevice, 0x000000ff);
-		D3DResourceManage::Instance().BlackTexture = blackTex;
-	}
-	auto gradTex = D3DResourceManage::Instance().GrayGradationTexture;
-	if (gradTex == nullptr)
-	{
-		gradTex = CreateGrayGradationTexture(d3ddevice);
-		D3DResourceManage::Instance().GrayGradationTexture = gradTex;
-	}
-
-
-	for (int i = 0; i < matCount; i++)
-	{
-		d3ddevice->CreateConstantBufferView(&matCbvDesc, matDescHeapH);
-		matDescHeapH.ptr += inc;
-		matCbvDesc.BufferLocation += materialBuffSize;
-
-		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		if (m_textureResources[i] != nullptr)
-		{
-			srvDesc.Format = m_textureResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				m_textureResources[i],
-				&srvDesc,
-				matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = whiteTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				whiteTex,
-				&srvDesc,
-				matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-
-		if (m_sphResources[i] != nullptr)
-		{
-			srvDesc.Format = m_sphResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				m_sphResources[i],
-				&srvDesc,
-				matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = whiteTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				whiteTex,
-				&srvDesc,
-				matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-
-		if (m_spaResources[i] != nullptr)
-		{
-			srvDesc.Format = m_spaResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				m_spaResources[i],
-				&srvDesc,
-				matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = blackTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				blackTex,
-				&srvDesc,
-				matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-
-		if (m_toonResources[i] != nullptr)
-		{
-			srvDesc.Format = m_toonResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(m_toonResources[i], &srvDesc, matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = gradTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(gradTex, &srvDesc, matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-	}
-
 	return 1;
 }
 
@@ -722,29 +596,6 @@ int PMDModelInstance::CreateTransformView(D3DDevice* _cD3DDev, int boneSize)
 		return -1;
 	}
 
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	heapDesc.NodeMask = 0;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-
-	result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
-		&heapDesc, IID_PPV_ARGS(&m_transformDescHeap));
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"Error", L"Create transform const heap fault.");
-		return -1;
-	}
-
-	auto heapHandle = m_transformDescHeap->GetCPUDescriptorHandleForHeapStart();
-
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = m_transformConstBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = m_transformConstBuff->GetDesc().Width;
-
-	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbvDesc, heapHandle);
-
-
 	m_transform.world = XMMatrixIdentity();
 	m_mapMatrices[0] = m_transform.world;
 
@@ -884,131 +735,7 @@ int BasicModel::InitMaterial(int indicesNum)
 	}
 	m_materialBuff->Unmap(0, nullptr);
 
-	D3D12_DESCRIPTOR_HEAP_DESC matHeapDesc = {};
-	matHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	matHeapDesc.NodeMask = 0;
-	matHeapDesc.NumDescriptors = materialNum * 5;
-	matHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 
-	result = d3ddevice->CreateDescriptorHeap(
-		&matHeapDesc, IID_PPV_ARGS(&m_materialDescHeap));
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"error", L"Create material DescHeap fault.");
-		return -1;
-	}
-
-	//------------srv desc--------------
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = 1;
-
-	//------------cvb desc--------------
-	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
-	matCbvDesc.BufferLocation = m_materialBuff->GetGPUVirtualAddress();
-	matCbvDesc.SizeInBytes = m_materialBuff->GetDesc().Width;
-
-	//------------cvb & srv view-------------
-	auto matDescHeapH = m_materialDescHeap->GetCPUDescriptorHandleForHeapStart();
-	auto inc = d3ddevice->
-		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-
-	auto whiteTex = D3DResourceManage::Instance().WhiteTexture;
-	if (whiteTex == nullptr)
-	{
-		whiteTex = CreateOneColorTexture(d3ddevice, 0xffffffff);
-		D3DResourceManage::Instance().WhiteTexture = whiteTex;
-	}
-	auto blackTex = D3DResourceManage::Instance().BlackTexture;
-	if (blackTex == nullptr)
-	{
-		blackTex = CreateOneColorTexture(d3ddevice, 0x000000ff);
-		D3DResourceManage::Instance().BlackTexture = blackTex;
-	}
-	auto gradTex = D3DResourceManage::Instance().GrayGradationTexture;
-	if (gradTex == nullptr)
-	{
-		gradTex = CreateGrayGradationTexture(d3ddevice);
-		D3DResourceManage::Instance().GrayGradationTexture = gradTex;
-	}
-
-
-	for (int i = 0; i < materialNum; i++)
-	{
-		d3ddevice->CreateConstantBufferView(&matCbvDesc, matDescHeapH);
-		matDescHeapH.ptr += inc;
-		matCbvDesc.BufferLocation += materialBuffSize;
-
-		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		if (m_textureResources[i] != nullptr)
-		{
-			srvDesc.Format = m_textureResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				m_textureResources[i],
-				&srvDesc,
-				matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = whiteTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				whiteTex,
-				&srvDesc,
-				matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-
-		if (m_sphResources[i] != nullptr)
-		{
-			srvDesc.Format = m_sphResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				m_sphResources[i],
-				&srvDesc,
-				matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = whiteTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				whiteTex,
-				&srvDesc,
-				matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-
-		if (m_spaResources[i] != nullptr)
-		{
-			srvDesc.Format = m_spaResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				m_spaResources[i],
-				&srvDesc,
-				matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = blackTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(
-				blackTex,
-				&srvDesc,
-				matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-
-		if (m_toonResources[i] != nullptr)
-		{
-			srvDesc.Format = m_toonResources[i]->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(m_toonResources[i], &srvDesc, matDescHeapH);
-		}
-		else
-		{
-			srvDesc.Format = gradTex->GetDesc().Format;
-			d3ddevice->CreateShaderResourceView(gradTex, &srvDesc, matDescHeapH);
-		}
-		matDescHeapH.ptr += inc;
-	}
 }
 
 int ModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
@@ -1039,33 +766,118 @@ int ModelInstance::CreateTransformView(D3DDevice* _cD3DDev)
 		return -1;
 	}
 
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	heapDesc.NodeMask = 0;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-
-	result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
-		&heapDesc, IID_PPV_ARGS(&m_transformDescHeap));
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"Error", L"Create transform const heap fault.");
-		return -1;
-	}
-
-	auto heapHandle = m_transformDescHeap->GetCPUDescriptorHandleForHeapStart();
-
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = m_transformConstBuff->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = m_transformConstBuff->GetDesc().Width;
-
-	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbvDesc, heapHandle);
-
-
 	m_transform.world = XMMatrixIdentity();
 	*m_mapMatrices = m_transform.world;
 
 	return 1;
+}
+
+void ModelInstance::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
+{
+	ID3D12Device* d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+	//basic Transform 
+	m_transformDescOffset = pipeline->CreateConstantDescript(
+		d3ddevice, m_transformConstBuff);
+
+
+	//CustomizedResource
+	for (auto& iter : m_shaderResouceTable)
+	{
+		auto& res = iter.second;
+		
+		res.descOffset = pipeline->CreateConstantDescript(
+			d3ddevice, res.resource);
+	}
+
+	//------------cvb & srv view-------------
+
+	auto whiteTex = D3DResourceManage::Instance().WhiteTexture;
+	if (whiteTex == nullptr)
+	{
+		whiteTex = CreateOneColorTexture(d3ddevice, 0xffffffff);
+		D3DResourceManage::Instance().WhiteTexture = whiteTex;
+	}
+	auto blackTex = D3DResourceManage::Instance().BlackTexture;
+	if (blackTex == nullptr)
+	{
+		blackTex = CreateOneColorTexture(d3ddevice, 0x000000ff);
+		D3DResourceManage::Instance().BlackTexture = blackTex;
+	}
+	auto gradTex = D3DResourceManage::Instance().GrayGradationTexture;
+	if (gradTex == nullptr)
+	{
+		gradTex = CreateGrayGradationTexture(d3ddevice);
+		D3DResourceManage::Instance().GrayGradationTexture = gradTex;
+	}
+
+	//------------srv desc--------------
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	//------------cvb desc--------------
+	D3D12_CONSTANT_BUFFER_VIEW_DESC matCbvDesc = {};
+	auto adress = m_model->m_materialBuff->GetGPUVirtualAddress();
+	UINT sizeInBytes = m_model->m_materialBuff->GetDesc().Width;
+
+
+	auto materialBuffSize = sizeof(MaterialForHlsl);
+	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
+
+	UINT matCount = m_model->m_materials.size();
+	for (int i = 0; i < matCount; i++)
+	{
+		m_model->m_materials[i].descOffset = pipeline->CreateConstantDescript(
+			d3ddevice, adress, sizeInBytes);
+		adress += materialBuffSize;
+
+		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		if (m_model->m_textureResources[i] != nullptr)
+		{
+			srvDesc.Format = m_model->m_textureResources[i]->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_model->m_textureResources[i]);
+		}
+		else
+		{
+			srvDesc.Format = whiteTex->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
+		}
+
+		if (m_model->m_sphResources[i] != nullptr)
+		{
+			srvDesc.Format = m_model->m_sphResources[i]->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_model->m_sphResources[i]);
+		}
+		else
+		{
+			srvDesc.Format = whiteTex->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
+		}
+
+		if (m_model->m_spaResources[i] != nullptr)
+		{
+			srvDesc.Format = m_model->m_spaResources[i]->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_model->m_spaResources[i]);
+		}
+		else
+		{
+			srvDesc.Format = blackTex->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, blackTex);
+		}
+
+		if (m_model->m_toonResources[i] != nullptr)
+		{
+			srvDesc.Format = m_model->m_toonResources[i]->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_model->m_toonResources[i]);
+		}
+		else
+		{
+			srvDesc.Format = gradTex->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, gradTex);
+		}
+	}
 }
 
 
@@ -1103,28 +915,6 @@ int ModelInstance::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, ui
 		return -1;
 	}
 
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	heapDesc.NodeMask = 0;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-
-	result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
-		&heapDesc, IID_PPV_ARGS(&res.descHeap));
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"Error", L"Create Customized const heap fault.");
-		return -1;
-	}
-
-	auto heapHandle = res.descHeap->GetCPUDescriptorHandleForHeapStart();
-
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = res.resource->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = res.resource->GetDesc().Width;
-
-	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbvDesc, heapHandle);
-
 	memset(res.mapData, 0, buffSize);
 
 	return 1;
@@ -1142,13 +932,12 @@ void ModelInstance::SetCustomizedResourceValue(LPCSTR name, unsigned char* data)
 
 ModelInstance::~ModelInstance()
 {
-	m_transformDescHeap->Release();
+	//m_transformDescHeap->Release();
 	m_transformConstBuff->Release();
 
 	for (auto& iter : m_shaderResouceTable)
 	{
 		auto& res = iter.second;
-		res.descHeap->Release();
 		res.resource->Release();
 	}
 	m_shaderResouceTable.clear();

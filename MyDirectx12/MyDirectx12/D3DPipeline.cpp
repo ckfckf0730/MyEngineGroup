@@ -538,6 +538,7 @@ int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC in
 		return -1;
 	}
 
+
 	 CreateDescriptHeap(_cD3DDev, InitInstanceNums);
 	 return CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
 }
@@ -546,13 +547,13 @@ int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC in
 
 int D3DPipeline::CreateDescriptHeap(D3DDevice* _cD3DDev, UINT64 instanceNums)
 {
-	m_nextInstanceIndex = 0;
-	m_curInstanceNums = instanceNums;
+	m_nextDescIndex = 0;
+	m_curNumDescriptors = instanceNums;
 	//Create descriptor heap View
 	D3D12_DESCRIPTOR_HEAP_DESC basicHeapDesc = {};
 	basicHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	basicHeapDesc.NodeMask = 0;
-	basicHeapDesc.NumDescriptors = m_curInstanceNums;//
+	basicHeapDesc.NumDescriptors = m_curNumDescriptors;//
 	basicHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	auto result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
 		&basicHeapDesc, IID_PPV_ARGS(&m_descHeap));
@@ -564,19 +565,91 @@ int D3DPipeline::CreateDescriptHeap(D3DDevice* _cD3DDev, UINT64 instanceNums)
 	return 1;
 }
 
-UINT D3DPipeline::CreateDescript(D3DDevice* _cD3DDev,ID3D12Resource*  res)
+D3D12_GPU_DESCRIPTOR_HANDLE D3DPipeline::GetDescHandle(UINT offset)
 {
-	auto inc = _cD3DDev->pD3D12Device->
+	auto handle = m_descHeap->GetGPUDescriptorHandleForHeapStart();
+	handle.ptr += offset;
+	return handle;
+}
+
+UINT D3DPipeline::CreateConstantDescript(ID3D12Device* pDevice,ID3D12Resource*  res)
+{
+	if (m_nextDescIndex >= m_curNumDescriptors)
+	{
+		ShowMsgBox(nullptr, "Over NumDescriptors!"); 
+		// -------------- recretea DescriptHeap logic  -----------------
+
+		return 0;
+	}
+
+	auto inc = pDevice->
 		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	auto basicHeapHandle = m_descHeap->GetCPUDescriptorHandleForHeapStart();
-	UINT offset = (UINT)(inc * m_nextInstanceIndex);
+	UINT offset = (UINT)(inc * m_nextDescIndex);
 	basicHeapHandle.ptr += offset;
-	m_nextInstanceIndex++;
+	m_nextDescIndex++;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbcDesc = {};
 	cbcDesc.BufferLocation = res->GetGPUVirtualAddress();
 	cbcDesc.SizeInBytes = res->GetDesc().Width;
-	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbcDesc, basicHeapHandle);
+	pDevice->CreateConstantBufferView(&cbcDesc, basicHeapHandle);
+
+	return offset;
+}
+
+UINT D3DPipeline::CreateConstantDescript(ID3D12Device* pDevice, D3D12_GPU_VIRTUAL_ADDRESS address, UINT resSize)
+{
+	if (m_nextDescIndex >= m_curNumDescriptors)
+	{
+		ShowMsgBox(nullptr, "Over NumDescriptors!");
+		// -------------- recretea DescriptHeap logic  -----------------
+
+		return 0;
+	}
+
+	auto inc = pDevice->
+		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	auto basicHeapHandle = m_descHeap->GetCPUDescriptorHandleForHeapStart();
+	UINT offset = (UINT)(inc * m_nextDescIndex);
+	basicHeapHandle.ptr += offset;
+	m_nextDescIndex++;
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbcDesc = {};
+	cbcDesc.BufferLocation = address;
+	cbcDesc.SizeInBytes = resSize;
+	pDevice->CreateConstantBufferView(&cbcDesc, basicHeapHandle);
+
+	return offset;
+}
+
+UINT D3DPipeline::CreateShaderResDescript(ID3D12Device* pDevice, ID3D12Resource* res)
+{
+	if (m_nextDescIndex >= m_curNumDescriptors)
+	{
+		ShowMsgBox(nullptr, "Over NumDescriptors!");
+		// -------------- recretea DescriptHeap logic  -----------------
+
+		return 0;
+	}
+
+	auto inc = pDevice->
+		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	auto basicHeapHandle = m_descHeap->GetCPUDescriptorHandleForHeapStart();
+	UINT offset = (UINT)(inc * m_nextDescIndex);
+	basicHeapHandle.ptr += offset;
+	m_nextDescIndex++;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Format = res->GetDesc().Format;
+
+	pDevice->CreateShaderResourceView(
+		res,
+		&srvDesc,
+		basicHeapHandle);
 
 	return offset;
 }
@@ -635,8 +708,8 @@ int D3DPipeline::CreateSceneView(D3DDevice* _cD3DDev)
 	auto inc = _cD3DDev->pD3D12Device->
 		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	auto basicHeapHandle = m_descHeap->GetCPUDescriptorHandleForHeapStart();
-	basicHeapHandle.ptr += (UINT)(inc * m_nextInstanceIndex);
-	m_nextInstanceIndex++;
+	basicHeapHandle.ptr += (UINT)(inc * m_nextDescIndex);
+	m_nextDescIndex++;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbcDesc = {};
 	cbcDesc.BufferLocation = m_shaderBuff->GetGPUVirtualAddress();
@@ -667,6 +740,7 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 	_cmdList->SetPipelineState(m_pipelinestate);
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_cmdList->SetGraphicsRootSignature(m_rootsignature);
+	_cmdList->SetDescriptorHeaps(1, &m_descHeap);
 
 	for (auto& pair : RenderModelTable)
 	{
@@ -681,36 +755,28 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			instance->m_mapMatrices[0] = instance->m_transform.world;
 
 			//--------------set const buff and texture buff heap-------
-			_cmdList->SetDescriptorHeaps(1, &m_descHeap);
 			_cmdList->SetGraphicsRootDescriptorTable(0,
 				m_descHeap->GetGPUDescriptorHandleForHeapStart());		//set camera info root
 
-			_cmdList->SetDescriptorHeaps(1, &instance->m_transformDescHeap);
-			_cmdList->SetGraphicsRootDescriptorTable(1,
-				instance->m_transformDescHeap->GetGPUDescriptorHandleForHeapStart()); // set transform matrices root
+			_cmdList->SetGraphicsRootDescriptorTable(1, 
+				GetDescHandle(instance->m_transformDescOffset)); // set transform matrices root
 
 			for (auto& pair : instance->m_shaderResouceTable)
 			{
 				auto& resource = pair.second;
-				_cmdList->SetDescriptorHeaps(1, &resource.descHeap);
 				_cmdList->SetGraphicsRootDescriptorTable(resource.shaderRegisterNum,
-					resource.descHeap->GetGPUDescriptorHandleForHeapStart());
+					GetDescHandle(resource.descOffset));
 			}
 
-			_cmdList->SetDescriptorHeaps(1, &model->m_materialDescHeap);
-			auto cbvsrvIncSize = d3ddevice->
-				GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * 5;
-			auto materialH = model->m_materialDescHeap->GetGPUDescriptorHandleForHeapStart();
 			unsigned int idxOffset = 0;
 
 			for (auto& m : model->m_materials)
 			{
-				_cmdList->SetGraphicsRootDescriptorTable(2, materialH);				 // set material root
+				_cmdList->SetGraphicsRootDescriptorTable(2, GetDescHandle(m.descOffset));				 // set material root
 
 				
 				_cmdList->DrawIndexedInstanced(m.indicesNum, 1, idxOffset, 0, 0);
 
-				materialH.ptr += cbvsrvIncSize;
 				idxOffset += m.indicesNum;
 			}
 		}

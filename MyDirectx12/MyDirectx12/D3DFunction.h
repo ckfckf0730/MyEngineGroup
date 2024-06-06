@@ -84,8 +84,8 @@ public:
 	ID3D12DescriptorHeap* m_descHeap = nullptr;
 	ID3D12Resource* m_shaderBuff = nullptr;
 	
-	UINT64 m_curInstanceNums;
-	UINT64 m_nextInstanceIndex;
+	UINT64 m_curNumDescriptors;
+	UINT64 m_nextDescIndex;
 
 	SceneMatrix* m_mapSceneMatrix = nullptr;
 
@@ -98,7 +98,10 @@ public:
 
 	int CreateSceneView(D3DDevice* _cD3DDev);
 	int CreateDescriptHeap(D3DDevice* _cD3DDev, UINT64 instanceNums);
-	UINT CreateDescript(D3DDevice* _cD3DDev, ID3D12Resource* res);
+	UINT CreateConstantDescript(ID3D12Device* pDevice, ID3D12Resource* res);
+	UINT CreateConstantDescript(ID3D12Device* pDevice, D3D12_GPU_VIRTUAL_ADDRESS address, UINT resSize);
+	UINT CreateShaderResDescript(ID3D12Device* pDevice, ID3D12Resource* res);
+	D3D12_GPU_DESCRIPTOR_HANDLE GetDescHandle(UINT offset);
 
 	void SetCameraTransform(DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	//void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);

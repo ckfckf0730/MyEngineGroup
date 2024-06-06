@@ -619,6 +619,7 @@ int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const 
 	pipeline->RenderModelTable[instance->m_model].insert(pair<ModelInstance*,int> (instance,1));
 
 	instance->m_bindPipeline = pipeline;
+	instance->CreateDescriptorsByPipeline(pipeline);
 
 	return 1;
 }
