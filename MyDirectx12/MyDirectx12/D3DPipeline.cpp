@@ -2,6 +2,8 @@
 #include"D3DResourceManage.h"
 using namespace DirectX;
 
+const UINT64 InitInstanceNums = 512;
+
 D3DPipeline::D3DPipeline(const char* name)
 {
 	m_name = name;
@@ -536,7 +538,47 @@ int D3DPipeline::CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC in
 		return -1;
 	}
 
+	 CreateDescriptHeap(_cD3DDev, InitInstanceNums);
+	 return CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
+}
+
+
+
+int D3DPipeline::CreateDescriptHeap(D3DDevice* _cD3DDev, UINT64 instanceNums)
+{
+	m_nextInstanceIndex = 0;
+	m_curInstanceNums = instanceNums;
+	//Create descriptor heap View
+	D3D12_DESCRIPTOR_HEAP_DESC basicHeapDesc = {};
+	basicHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	basicHeapDesc.NodeMask = 0;
+	basicHeapDesc.NumDescriptors = m_curInstanceNums;//
+	basicHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	auto result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
+		&basicHeapDesc, IID_PPV_ARGS(&m_descHeap));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"Create descriptor heap fault.");
+		return -1;
+	}
 	return 1;
+}
+
+UINT D3DPipeline::CreateDescript(D3DDevice* _cD3DDev,ID3D12Resource*  res)
+{
+	auto inc = _cD3DDev->pD3D12Device->
+		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	auto basicHeapHandle = m_descHeap->GetCPUDescriptorHandleForHeapStart();
+	UINT offset = (UINT)(inc * m_nextInstanceIndex);
+	basicHeapHandle.ptr += offset;
+	m_nextInstanceIndex++;
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbcDesc = {};
+	cbcDesc.BufferLocation = res->GetGPUVirtualAddress();
+	cbcDesc.SizeInBytes = res->GetDesc().Width;
+	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbcDesc, basicHeapHandle);
+
+	return offset;
 }
 
 int D3DPipeline::CreateSceneView(D3DDevice* _cD3DDev)
@@ -560,53 +602,45 @@ int D3DPipeline::CreateSceneView(D3DDevice* _cD3DDev)
 	//matrix.r[3].m128_f32[0] = -1.0f;
 	//matrix.r[3].m128_f32[1] = 1.0f;
 
+	int bufferSize = sizeof(SceneMatrix);
+	bufferSize = (bufferSize + 0xff) & ~0xff;
+
 	auto constBuffHeap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto constBuffDesc = CD3DX12_RESOURCE_DESC::Buffer((sizeof(SceneMatrix) + 0xff) & ~0xff);
+	auto constBuffDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 	auto result = _cD3DDev->pD3D12Device->CreateCommittedResource(
 		&constBuffHeap,
 		D3D12_HEAP_FLAG_NONE,
 		&constBuffDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&m_sceneConstBuff));
+		IID_PPV_ARGS(&m_shaderBuff));
 	if (FAILED(result))
 	{
-		ShowMsgBox(L"Error", L"Create scene const buff fault.");
+		ShowMsgBox(L"Error", L"Create shader buff fault.");
 		return -1;
 	}
 
-	result = m_sceneConstBuff->Map(0, nullptr, (void**)&m_mapSceneMatrix);
+	result = m_shaderBuff->Map(0, nullptr, (void**)&m_mapSceneMatrix);
 	if (FAILED(result))
 	{
-		ShowMsgBox(L"Error", L"Map scene const buff fault.");
+		ShowMsgBox(L"Error", L"Map shader buff fault.");
 		return -1;
 	}
-
+	
 	m_mapSceneMatrix->view = viewMat;
 	m_mapSceneMatrix->proj = projMat;
 	m_mapSceneMatrix->eye = eye;
 
-
 	//Create basic(matrix) Buff View
-	D3D12_DESCRIPTOR_HEAP_DESC basicHeapDesc = {};
-	basicHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	basicHeapDesc.NodeMask = 0;
-	basicHeapDesc.NumDescriptors = 1;//
-	basicHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	result = _cD3DDev->pD3D12Device->CreateDescriptorHeap(
-		&basicHeapDesc, IID_PPV_ARGS(&m_sceneDescHeap));
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"Error", L"Create scene const heap fault.");
-		return -1;
-	}
-
-	auto basicHeapHandle = m_sceneDescHeap->GetCPUDescriptorHandleForHeapStart();
+	auto inc = _cD3DDev->pD3D12Device->
+		GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	auto basicHeapHandle = m_descHeap->GetCPUDescriptorHandleForHeapStart();
+	basicHeapHandle.ptr += (UINT)(inc * m_nextInstanceIndex);
+	m_nextInstanceIndex++;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbcDesc = {};
-	cbcDesc.BufferLocation = m_sceneConstBuff->GetGPUVirtualAddress();
-	cbcDesc.SizeInBytes = m_sceneConstBuff->GetDesc().Width;
-
+	cbcDesc.BufferLocation = m_shaderBuff->GetGPUVirtualAddress();
+	cbcDesc.SizeInBytes = m_shaderBuff->GetDesc().Width;
 	_cD3DDev->pD3D12Device->CreateConstantBufferView(&cbcDesc, basicHeapHandle);
 
 	return 1;
@@ -647,9 +681,9 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			instance->m_mapMatrices[0] = instance->m_transform.world;
 
 			//--------------set const buff and texture buff heap-------
-			_cmdList->SetDescriptorHeaps(1, &m_sceneDescHeap);
+			_cmdList->SetDescriptorHeaps(1, &m_descHeap);
 			_cmdList->SetGraphicsRootDescriptorTable(0,
-				m_sceneDescHeap->GetGPUDescriptorHandleForHeapStart());		//set camera info root
+				m_descHeap->GetGPUDescriptorHandleForHeapStart());		//set camera info root
 
 			_cmdList->SetDescriptorHeaps(1, &instance->m_transformDescHeap);
 			_cmdList->SetGraphicsRootDescriptorTable(1,

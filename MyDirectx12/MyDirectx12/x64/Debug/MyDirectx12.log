@@ -1,2 +1,40 @@
-﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(503,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  MyDirectx12.vcxproj -> D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8004: Output 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Output 目录。
+  D3DPipeline.cpp
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: pragma 参数应为 "1"、"2"、"4"、"8" 或者 "16"
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(198,73): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(203,76): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(208,75): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(440,70): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(447,73): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(454,72): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(486,54): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(555,33): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(578,38): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(643,47): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+  PMDActor.cpp
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(82,9): warning C4086: pragma 参数应为 "1"、"2"、"4"、"8" 或者 "16"
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(11,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(12,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(55,30): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(56,40): warning C4267: “=”: 从“size_t”转换到“UINT16”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(59,33): warning C4267: “=”: 从“size_t”转换到“UINT16”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(85,6): warning C4267: “参数”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(84,6): warning C4267: “参数”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(149,24): warning C4267: “参数”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(203,15): warning C4267: “参数”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(224,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(265,38): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(296,25): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(313,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(453,52): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(481,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(568,15): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(743,55): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(844,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(911,52): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(939,20): warning C4018: “<”: 有符号/无符号不匹配
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1060,55): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1124,47): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
+  正在生成代码...
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1012): warning C4715: “BasicModel::InitMaterial”: 不是所有的控件路径都返回值
+  MyDirectx12.vcxproj -> D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll

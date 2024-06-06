@@ -200,7 +200,6 @@ int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
 	UINT numElements = _countof(inputLayout);
 	int result = pipeline->CreatePipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
 		vsCode,vsEntry,psCode,psEntry);
-	pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
 	D3DResourceManage::Instance().PipelineTable.insert(
 		pair<std::string, D3DPipeline*>(pipelineName, pipeline));
 
@@ -240,7 +239,6 @@ int __declspec(dllexport) __stdcall CreateNoBonePipeline(LPCSTR pipelineName,
 	UINT numElements = _countof(inputLayout);
 	int result = pipeline->CreatePipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
 		vsCode, vsEntry, psCode, psEntry);
-	pipeline->CreateSceneView(D3DResourceManage::Instance().pGraphicsCard);
 	D3DResourceManage::Instance().PipelineTable.insert(
 		pair<std::string, D3DPipeline*>(pipelineName, pipeline));
 

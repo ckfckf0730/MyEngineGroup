@@ -4,7 +4,7 @@
     {
       "name": "testColor",
       "descRangeType": 2,
-      "register": 3,
+      "register": 4,
       "visibility": 5,
       "dataType": "float4"
     }
@@ -38,7 +38,7 @@ Output BasicVS(
 }",
   "psCode": "#include\"BasicShaderHeader.hlsli\"
 
-cbuffer MyBuffer : register(b3)
+cbuffer MyBuffer : register(b4)
 {
     float3 testColor;
 }

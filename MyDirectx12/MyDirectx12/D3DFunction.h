@@ -81,8 +81,11 @@ public:
 
 	ID3D12PipelineState* m_pipelinestate = nullptr;
 
-	ID3D12DescriptorHeap* m_sceneDescHeap = nullptr;
-	ID3D12Resource* m_sceneConstBuff = nullptr;
+	ID3D12DescriptorHeap* m_descHeap = nullptr;
+	ID3D12Resource* m_shaderBuff = nullptr;
+	
+	UINT64 m_curInstanceNums;
+	UINT64 m_nextInstanceIndex;
 
 	SceneMatrix* m_mapSceneMatrix = nullptr;
 
@@ -94,6 +97,8 @@ public:
 		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry);
 
 	int CreateSceneView(D3DDevice* _cD3DDev);
+	int CreateDescriptHeap(D3DDevice* _cD3DDev, UINT64 instanceNums);
+	UINT CreateDescript(D3DDevice* _cD3DDev, ID3D12Resource* res);
 
 	void SetCameraTransform(DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
 	//void SetCameraProjection(float FovAngleY, float AspectRatio, float NearZ, float Far);
