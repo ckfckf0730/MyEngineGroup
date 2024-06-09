@@ -770,7 +770,12 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 
 			unsigned int idxOffset = 0;
 
-			for (auto& m : model->m_materials)
+			if (instance->m_materialControl == nullptr)
+			{
+				continue;
+			}
+
+			for (auto& m : instance->m_materialControl->m_materials)
 			{
 				_cmdList->SetGraphicsRootDescriptorTable(2, GetDescHandle(m.descOffset));				 // set material root
 

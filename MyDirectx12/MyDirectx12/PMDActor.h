@@ -7,6 +7,7 @@
 #include<unordered_map>
 
 class D3DDevice;
+class D3DPipeline;
 
 //struct PMDVertex  
 //{
@@ -64,10 +65,31 @@ struct AdditionalMaterial
 
 struct Material
 {
+public:
+
 	UINT indicesNum;
 	MaterialForHlsl material;
 	AdditionalMaterial additional;
 	UINT descOffset;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_textureResource;
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_toonResource;
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_sphResource;
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_spaResource;
+};
+
+class MaterialControl
+{
+public:
+	std::vector<Material> m_materials;
+
+	static int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
+		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialIDs);
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
+
+	void CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipeline);
 };
 
 #pragma pack(1)
@@ -239,15 +261,7 @@ public:
 	//unsigned int m_vertNum;
 	//unsigned int m_indicesNum;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertBuff;
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_idxBuff = nullptr;
-
-	std::vector<Material> m_materials;
-
-	std::vector<ID3D12Resource*> m_textureResources;
-	std::vector<ID3D12Resource*> m_toonResources;
-	std::vector<ID3D12Resource*> m_sphResources;
-	std::vector<ID3D12Resource*> m_spaResources;
 
 	std::vector<ModelInstance*> m_instances;
 
@@ -258,7 +272,7 @@ public:
 		unsigned int _indCount, unsigned short* _indices);
 
 public:
-	int InitMaterial(int indicesNum);
+	//int InitMaterial(int indicesNum);
 
 };
 
@@ -279,9 +293,9 @@ public:
 	
 	//int SetPMD(D3DDevice* _cD3DDev, const char* _FileFullName);
 	
-	int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+	/*int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-		unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[], const char* _FileFullName);
+		unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[], const char* _FileFullName);*/
 	int SetBones(D3DDevice* _cD3DDev, unsigned short boneNum,
 		unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[],
 		unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[],
@@ -291,8 +305,6 @@ public:
 	 int SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
 		unsigned int _indCount, unsigned short* _indices) override;
 };
-
-class D3DPipeline;
 
 struct ShaderResource
 {
@@ -321,6 +333,7 @@ public:
 	DirectX::XMMATRIX* m_mapMatrices = nullptr;
 
 	D3DPipeline* m_bindPipeline = nullptr;
+	MaterialControl* m_materialControl;
 
 	std::map<std::string, ShaderResource> m_shaderResouceTable;
 
@@ -331,6 +344,8 @@ public:
 	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
 
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
+
+	int BindMaterialControl(UINT matId);
 
 	~ModelInstance();
 };

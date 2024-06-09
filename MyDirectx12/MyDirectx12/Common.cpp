@@ -69,3 +69,67 @@ std::pair<std::string, std::string> SplitFileName(
 	ret.second = path.substr(idx+1, path.length() - idx - 1);
 	return ret;
 }
+
+
+std::string GetFileName(const std::string& filePath)
+{
+	const char* path = filePath.c_str();
+	const char* fileNameUnix = strrchr(path, '/');
+	const char* fileNameWindows = strrchr(path, '\\');
+
+	const char* fileName = nullptr;
+
+	if (fileNameUnix && fileNameWindows) 
+	{
+		fileName = (fileNameUnix > fileNameWindows) ? fileNameUnix : fileNameWindows;
+	}
+	else if (fileNameUnix) 
+	{
+		fileName = fileNameUnix;
+	}
+	else if (fileNameWindows) 
+	{
+		fileName = fileNameWindows;
+	}
+
+	if (fileName)
+	{
+		return std::string(fileName + 1);
+	}
+	else
+	{
+		return filePath;
+	}
+}
+
+std::string GetDirectoryName(const std::string& filePath)
+{
+	const char* path = filePath.c_str();
+	const char* lastSlashUnix = strrchr(path, '/');
+	const char* lastSlashWindows = strrchr(path, '\\');
+
+	const char* lastSlash = nullptr;
+
+	if (lastSlashUnix && lastSlashWindows) 
+	{
+		lastSlash = (lastSlashUnix > lastSlashWindows) ? lastSlashUnix : lastSlashWindows;
+	}
+	else if (lastSlashUnix) 
+	{
+		lastSlash = lastSlashUnix;
+	}
+	else if (lastSlashWindows) 
+	{
+		lastSlash = lastSlashWindows;
+	}
+
+	if (lastSlash)
+	{
+		return std::string(path, lastSlash - path);  
+	}
+	else
+	{
+		return ""; 
+	}
+}
+

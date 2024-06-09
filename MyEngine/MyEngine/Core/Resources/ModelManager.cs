@@ -38,6 +38,7 @@ namespace CkfEngine.Core
             try
             {
                 var jis = Encoding.GetEncoding("shift_jis");
+                string directory = Path.GetDirectoryName(path);
                 using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
                 using (BinaryReader reader = new BinaryReader(fs, jis))
                 {
@@ -91,12 +92,14 @@ namespace CkfEngine.Core
                         material.ambient.X = reader.ReadSingle();
                         material.ambient.Y = reader.ReadSingle();
                         material.ambient.Z = reader.ReadSingle();
-                        material.toonIdx = reader.ReadByte();
+                        var toonIdx = reader.ReadByte();
+                        material.toonPath = MaterialManager.GetToonPath(toonIdx);
                         material.edgeFlg = reader.ReadByte();
                         material.indicesNum = reader.ReadUInt32();
                         material.texFilePath = jis.GetString(reader.ReadBytes(20)).Split('\0')[0];
+                        material.texFilePath = directory + "/" + material.texFilePath;
 
-                        if(shader == null)
+                        if (shader == null)
                         {
                             material.shader = Shader.BasicBoneShader;
                         }
@@ -366,15 +369,16 @@ namespace CkfEngine.Core
 
         }
 
-        internal static bool SetPMDMaterials(string path, PMDModel pmdModel)
+        internal static bool SetMaterials(uint matId,string pipelineName, PMDModel pmdModel)
         {
-            return D3DAPICall.SetPMDMaterials(path, pmdModel.m_materialCount, pmdModel.m_materials.Select(item => item.diffuse).ToArray(),
+            return D3DAPICall.SetMaterials(matId, pipelineName, pmdModel.m_materialCount, 
+                pmdModel.m_materials.Select(item => item.diffuse).ToArray(),
                 pmdModel.m_materials.Select(item => item.alpha).ToArray(),
                 pmdModel.m_materials.Select(item => item.specularity).ToArray(),
                 pmdModel.m_materials.Select(item => item.specular).ToArray(),
                 pmdModel.m_materials.Select(item => item.ambient).ToArray(),
                 pmdModel.m_materials.Select(item => item.edgeFlg).ToArray(),
-                pmdModel.m_materials.Select(item => item.toonIdx).ToArray(),
+                pmdModel.m_materials.Select(item => item.toonPath).ToArray(),
                 pmdModel.m_materials.Select(item => item.indicesNum).ToArray(),
                 pmdModel.m_materials.Select(item => item.texFilePath).ToArray()) == 1;
         }

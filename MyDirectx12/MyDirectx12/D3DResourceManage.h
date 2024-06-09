@@ -10,6 +10,8 @@ class PMDModel;
 class D3DDevice;
 class D3DPipeline;
 class D3DAnimation;
+class Material;
+class MaterialControl;
 
 
 struct RootSignatureSetting
@@ -45,6 +47,7 @@ public:
     std::map<std::string, D3DAnimation*> AnimationTable;
     std::map<std::string, ID3D12Resource*> ResourceTable;
     std::vector<RootSignatureSetting> RootSignatureSetting;
+    std::map<UINT, MaterialControl*> MaterialTable;
 
     ID3D12Resource* WhiteTexture;
     ID3D12Resource* BlackTexture;

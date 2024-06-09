@@ -576,7 +576,7 @@ int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, 
 		BasicModel::s_modelTable.insert(
 			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
 		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount, _vertices, _indCount, _indices);
-		verRes->InitMaterial(_indCount);
+		//verRes->InitMaterial(_indCount);
 		if (result < 1)
 		{
 			return result;
@@ -626,38 +626,58 @@ int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const 
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall SetPMDMaterials(const char* _FileFullName, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+	int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID, LPCSTR pipelineName, unsigned int matCount, 
+		DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-		unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[]);
+		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[]);
 }
 
-int __declspec(dllexport) __stdcall SetPMDMaterials(const char* _FileFullName, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID, LPCSTR pipelineName,unsigned int matCount, 
+	DirectX::XMFLOAT3 diffuse[], float alpha[],
 	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-	unsigned char toonIdx[], unsigned int indicesNum[], const char* texFilePath[])
+	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[])
 {
-	if (_FileFullName == nullptr)
+	auto result = MaterialControl::SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, diffuse, alpha,
+		specularity, specular, ambient, edgeFlg, toonPath, indicesNum, texFilePath, MaterialControlID);
+
+	if (result != 1)
 	{
+		return result;
+	}
+
+	auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	if (iter == D3DResourceManage::Instance().PipelineTable.end())
+	{
+		PrintDebug("Can't find pipeline when SetMaterials: ");
+		PrintDebug(pipelineName);
 		return -1;
 	}
 
-	auto iter = BasicModel::s_modelTable.find(std::string(_FileFullName));
-	PMDModel* verRes = nullptr;
-	int result = -1;
-	if (iter == BasicModel::s_modelTable.end())
-	{
-		PrintDebug("can't find:");
-		PrintDebug(_FileFullName);
-		return -1;
-	}
-	else
-	{
-		verRes = static_cast<PMDModel*>(iter->second);
-		result = verRes->SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, diffuse, alpha,
-			specularity, specular, ambient, edgeFlg, toonIdx, indicesNum, texFilePath, _FileFullName);
-	}
-	return result;
+	auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlID];
+
+	material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard,iter->second);
+
+	return 1;
 }
 
+extern"C"
+{
+	int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlID);
+}
+int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlID)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(UID);
+	if (iter == ModelInstance::s_uidModelTable.end())
+	{
+		PrintDebug("BindMaterialControl fault, can't find uid: ");
+		PrintDebug((int)UID);
+		return -1;
+	}
+
+	iter->second->BindMaterialControl(MaterialControlID);
+
+	return 1;
+}
 
 extern"C"
 {

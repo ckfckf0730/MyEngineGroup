@@ -18,3 +18,5 @@ std::wstring GetWideStringFromString(const char* str);
 std::string GetExtension(const std::string& path);
 std::pair<std::string, std::string> SplitFileName(
 	const std::string& path, const char splitter = '*');
+std::string GetFileName(const std::string& filePath);
+std::string GetDirectoryName(const std::string& filePath);

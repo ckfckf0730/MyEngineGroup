@@ -297,6 +297,8 @@ namespace CkfEngine.Core
             D3DAPICall.DeleteModelInstance(OwnerEntity.Uid);
         }
 
+        internal static uint testMatId = 0;
+
         private void SetPMDModel()
         {
             if (m_isLoaded)
@@ -308,7 +310,7 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetPMDVertices(m_file.FullPath, m_model))
                 {
-                    if (ModelManager.SetPMDMaterials(m_file.FullPath, m_model))
+                    if (ModelManager.SetMaterials(testMatId++, "TestShader", m_model))
                     {
                         if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
                         {
@@ -322,6 +324,7 @@ namespace CkfEngine.Core
 
                                 D3DAPICall.BindPipeline(OwnerEntity.Uid, "TestShader");
                                 //D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
+                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, testMatId - 1);
                                 m_isLoaded = true;
 
 
@@ -461,7 +464,7 @@ namespace CkfEngine.Core
 
         protected override void OnDestroyed()
         {
-            var boneRenderer = OwnerEntity.CreateComponent<ModelBoneRenderer>();
+            var boneRenderer = OwnerEntity.GetComponent<ModelBoneRenderer>();
             if (boneRenderer != null)
             {
                 boneRenderer.File.OnChenged -= BoneRendererChanged;
@@ -479,7 +482,7 @@ namespace CkfEngine.Core
             }
 
             VMDAnimation vmdAnime;
-            var boneRenderer = OwnerEntity.CreateComponent<ModelBoneRenderer>();
+            var boneRenderer = OwnerEntity.GetComponent<ModelBoneRenderer>();
             boneRenderer.File.OnChenged += BoneRendererChanged;
 
             if (ModelManager.LoadVMDFile(m_file.FullPath, out vmdAnime) &&
