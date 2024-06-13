@@ -686,7 +686,6 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, Di
 	auto& matTable = D3DResourceManage::Instance().MaterialTable;
 	auto d3ddevice = _cD3DDev->pD3D12Device;
 
-
 	MaterialControl* matControl = new MaterialControl();
 	matTable.insert(std::pair<UINT, MaterialControl*>( MaterialControlID, matControl));
 
@@ -697,7 +696,10 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, Di
 		Material& matrial = matControl->m_materials[matControl->m_materials.size() - 1];
 
 		std::string toonFilePath = toonPath[i];
-		matrial.m_toonResource = LoadTextureFromFile(toonFilePath, d3ddevice);
+		if (toonFilePath != "")
+		{
+			matrial.m_toonResource = LoadTextureFromFile(toonFilePath, d3ddevice);
+		}
 
 		matrial.indicesNum = indicesNum[i];
 		matrial.material.diffuse = diffuse[i];
@@ -716,6 +718,7 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, Di
 		std::string directoryName = GetDirectoryName(texFilePath[i]);
 		std::string sphFileName = "";
 		std::string spaFileName = "";
+
 		if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
 		{
 			auto namepair = SplitFileName(texFileName);
@@ -775,6 +778,7 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, Di
 			matrial.m_spaResource = LoadTextureFromFile(spaFilePath, d3ddevice);
 		}
 	}
+
 
 	//-----------material buff---------------------
 	auto materialBuffSize = sizeof(MaterialForHlsl);

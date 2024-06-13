@@ -339,6 +339,20 @@ namespace CkfEngine.Core
                     model.m_indexCount = reader.ReadUInt32();
                     var byteArr = reader.ReadBytes((int)model.m_indexCount * sizeof(ushort));
                     model.m_indices = new ushort[model.m_indexCount];
+
+                    //defualt material
+                    StandardMaterial mat = new StandardMaterial();
+                    mat.diffuse = new Vector3(1, 1, 1);
+                    mat.alpha = 1;
+                    mat.indicesNum = model.m_vertextCount;
+                    mat.shader = Shader.BasicNoBoneShader;
+                    mat.toonPath = "";
+                    mat.texFilePath = "";
+                    mat.specularity = 0.3f;
+                    mat.specular = new Vector3(0.3f,0.3f,0.3f);
+                    mat.ambient= new Vector3(0.3f, 0.3f, 0.3f);
+                    model.m_materials = new List<StandardMaterial>();
+                    model.m_materials.Add(mat);
                     for (int i = 0; i < model.m_indexCount; i++)
                     {
                         model.m_indices[i] = (BitConverter.ToUInt16(byteArr, i * 2));
@@ -369,19 +383,7 @@ namespace CkfEngine.Core
 
         }
 
-        internal static bool SetMaterials(uint matId,string pipelineName, PMDModel pmdModel)
-        {
-            return D3DAPICall.SetMaterials(matId, pipelineName, pmdModel.m_materialCount, 
-                pmdModel.m_materials.Select(item => item.diffuse).ToArray(),
-                pmdModel.m_materials.Select(item => item.alpha).ToArray(),
-                pmdModel.m_materials.Select(item => item.specularity).ToArray(),
-                pmdModel.m_materials.Select(item => item.specular).ToArray(),
-                pmdModel.m_materials.Select(item => item.ambient).ToArray(),
-                pmdModel.m_materials.Select(item => item.edgeFlg).ToArray(),
-                pmdModel.m_materials.Select(item => item.toonPath).ToArray(),
-                pmdModel.m_materials.Select(item => item.indicesNum).ToArray(),
-                pmdModel.m_materials.Select(item => item.texFilePath).ToArray()) == 1;
-        }
+       
 
         internal static bool SetPMDBoneIk(string path, PMDModel pmdModel)
         {

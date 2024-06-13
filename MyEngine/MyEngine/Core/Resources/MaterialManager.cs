@@ -10,6 +10,8 @@ namespace CkfEngine.Core
 {
     internal static class MaterialManager
     {
+        internal static uint materialId = 0;
+
         public static void GetPMDTexturePaths(List<StandardMaterial> matList)
         {
             //GetToonPath(matList[0].toonIdx);
@@ -29,6 +31,20 @@ namespace CkfEngine.Core
             return toonFilePath;
         }
 
+        internal static bool SetMaterials(string pipelineName, Model model, out uint matId)
+        {
+            matId = materialId++;
+            return D3DAPICall.SetMaterials(matId, pipelineName,(uint) model.m_materials.Count,
+                model.m_materials.Select(item => item.diffuse).ToArray(),
+                model.m_materials.Select(item => item.alpha).ToArray(),
+                model.m_materials.Select(item => item.specularity).ToArray(),
+                model.m_materials.Select(item => item.specular).ToArray(),
+                model.m_materials.Select(item => item.ambient).ToArray(),
+                model.m_materials.Select(item => item.edgeFlg).ToArray(),
+                model.m_materials.Select(item => item.toonPath).ToArray(),
+                model.m_materials.Select(item => item.indicesNum).ToArray(),
+                model.m_materials.Select(item => item.texFilePath).ToArray()) == 1;
+        }
     }
 
     internal class StandardMaterial : MaterialBase

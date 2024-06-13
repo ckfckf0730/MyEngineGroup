@@ -752,6 +752,7 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 		for (auto& pair2 : pair.second)
 		{
 			auto  instance = pair2.first;
+
 			instance->m_mapMatrices[0] = instance->m_transform.world;
 
 			//--------------set const buff and texture buff heap-------
@@ -778,7 +779,6 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			for (auto& m : instance->m_materialControl->m_materials)
 			{
 				_cmdList->SetGraphicsRootDescriptorTable(2, GetDescHandle(m.descOffset));				 // set material root
-
 				
 				_cmdList->DrawIndexedInstanced(m.indicesNum, 1, idxOffset, 0, 0);
 

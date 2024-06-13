@@ -273,6 +273,7 @@ namespace CkfEngine.Core
         private PMDModel m_model;
         private bool m_isLoaded;
         internal PMDModelInstance m_pmdModelInstance;
+        uint m_materialId;
 
         protected override void OnCreated()
         {
@@ -297,8 +298,6 @@ namespace CkfEngine.Core
             D3DAPICall.DeleteModelInstance(OwnerEntity.Uid);
         }
 
-        internal static uint testMatId = 0;
-
         private void SetPMDModel()
         {
             if (m_isLoaded)
@@ -310,7 +309,7 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetPMDVertices(m_file.FullPath, m_model))
                 {
-                    if (ModelManager.SetMaterials(testMatId++, "TestShader", m_model))
+                    if (MaterialManager.SetMaterials( "TestShader", m_model, out m_materialId))
                     {
                         if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
                         {
@@ -324,7 +323,7 @@ namespace CkfEngine.Core
 
                                 D3DAPICall.BindPipeline(OwnerEntity.Uid, "TestShader");
                                 //D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
-                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, testMatId - 1);
+                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, m_materialId);
                                 m_isLoaded = true;
 
 
@@ -368,6 +367,7 @@ namespace CkfEngine.Core
 
         private Model m_model;
         internal ModelInstance m_modelInstance;
+        uint m_materialId;
 
         protected override void OnCreated()
         {
@@ -408,14 +408,16 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetVDVertices(m_file.FullPath, m_model))
                 {
-
-                    if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
+                    if (MaterialManager.SetMaterials(Shader.BasicNoBoneShader.m_name, m_model, out m_materialId))
                     {
-                        m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
-                        D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicNoBoneShader.m_name);
-                        m_isLoaded = true;
+                        if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
+                        {
+                            m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
+                            D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicNoBoneShader.m_name);
+                            D3DAPICall.BindMaterialControl(OwnerEntity.Uid, m_materialId);
+                            m_isLoaded = true;
+                        }
                     }
-
                 }
             }
 
