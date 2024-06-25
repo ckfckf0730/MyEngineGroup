@@ -113,7 +113,8 @@ namespace CkfEngine.Editor
                     if (!Directory.Exists(fulName))
                     {
                         Directory.CreateDirectory(fulName);
-                        UpdateFIleIcons();
+                        m_tree.SelectedNode.Nodes.Add(folderName);
+
                         break;
                     }
 
@@ -148,7 +149,9 @@ namespace CkfEngine.Editor
                 string newPath = oldPath.Remove(oldPath.Length - foldNameLen) + e.Label;
                 Directory.Move(oldPath, newPath);
 
-                UpdateNodeUI(selectNode.Parent);
+                selectNode.Text = e.Label;
+
+                e.CancelEdit = true;
             }
         }
 
