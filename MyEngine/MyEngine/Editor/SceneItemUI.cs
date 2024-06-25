@@ -49,6 +49,11 @@ namespace CkfEngine.Editor
         private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
             TreeNode selectNode = m_itemTree.SelectedNode;
+            if(string.IsNullOrEmpty( e.Label))
+            {
+                MessageBox.Show("Error! Enter AfterLabelEdit!");
+            }
+
             if (selectNode.Tag is ulong)
             {
                 ulong uid = (ulong)selectNode.Tag;

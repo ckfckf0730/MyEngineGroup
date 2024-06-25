@@ -33,6 +33,8 @@ namespace CkfEngine.Editor
             //-----------direction tree-------------
             m_tree = new TreeView();
             m_tree.ShowPlusMinus = true;
+            m_tree.LabelEdit = true;
+            m_tree.AfterLabelEdit += AfterLabelEdit;
             m_root = new TreeNode();
             m_root.Text = "Assets";
             m_tree.Nodes.Add(m_root);
@@ -74,6 +76,7 @@ namespace CkfEngine.Editor
             //create menu
             ToolStripDropDownButton menuItem1 = new ToolStripDropDownButton("Create");
             ToolStripMenuItem subMenuItem1 = new ToolStripMenuItem("Scene");
+            ToolStripMenuItem subMenuItem2 = new ToolStripMenuItem("Folder");
             subMenuItem1.Click += (sender, e) =>
             {
                 string path = ProjectManager.Instance.CurProject.Path +  GetRelativePath(m_tree.SelectedNode) + "/";
@@ -95,15 +98,58 @@ namespace CkfEngine.Editor
                     
                 }
             };
+            subMenuItem2.Click += (sender, e) =>
+            {
+                string path = ProjectManager.Instance.CurProject.Path + GetRelativePath(m_tree.SelectedNode) + "/";
+                for (int i = 0; i < 10000; i++)
+                {
+                    string folderName = "NewFolder";
+                    if (i > 0)
+                    {
+                        folderName += "_" + i.ToString();
+                    }
+
+                    string fulName = path + folderName;
+                    if (!Directory.Exists(fulName))
+                    {
+                        Directory.CreateDirectory(fulName);
+                        UpdateFIleIcons();
+                        break;
+                    }
+
+                }
+            };
             ToolStripDropDownMenu subMenu = new ToolStripDropDownMenu();
             subMenu.Items.Add(subMenuItem1);
+            subMenu.Items.Add(subMenuItem2);
             menuItem1.DropDown = subMenu;
             m_contextMenuStrip.Items.Add(menuItem1);
 
-            //ToolStripMenuItem menuItem2 = new ToolStripMenuItem("");
-            ////menuItem2.Click += OnClicked;
-            //m_contextMenuStrip.Items.Add(menuItem2);
+            // rename  menu 
+            ToolStripMenuItem menuItem2 = new ToolStripMenuItem("Rename");
+            menuItem2.Click += (sender, e) =>
+            {
+                m_tree.SelectedNode.BeginEdit();
+            };
+            m_contextMenuStrip.Items.Add(menuItem2);
+        }
 
+        private void AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            if (e.CancelEdit) 
+            {
+                Console.WriteLine("Label edit cancelled.");
+            }   
+            else if (e.Label != null) 
+            {
+                TreeNode selectNode = m_tree.SelectedNode;
+                int foldNameLen = selectNode.Text.Length;
+                string oldPath = ProjectManager.Instance.CurProject.Path + GetRelativePath(m_tree.SelectedNode);
+                string newPath = oldPath.Remove(oldPath.Length - foldNameLen) + e.Label;
+                Directory.Move(oldPath, newPath);
+
+                UpdateNodeUI(selectNode.Parent);
+            }
         }
 
         private void NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -210,7 +256,7 @@ namespace CkfEngine.Editor
 
         private void UpdateNodeUI(TreeNode node)
         {
-            var dirs = Directory.GetDirectories(GetRelativePath(node));
+            var dirs = Directory.GetDirectories(ProjectManager.Instance.CurProject.Path + GetRelativePath(node));
             foreach (var dir in dirs)
             {
                 node.Nodes.Add(new TreeNode(GetFinalDirName(dir)));
