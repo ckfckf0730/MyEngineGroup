@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -34,10 +36,13 @@ namespace CkfEngine.Core
 
         public static void CreateShader(string file)
         {
-            var json = File.ReadAllText(file);
-            ShaderBuilder shaderBuilder = JsonConvert.DeserializeObject<ShaderBuilder>(json);
-            Shader.CreateShaderByBuilder(shaderBuilder);
+            var text = File.ReadAllText(file);
+            ShaderBuilder shaderBuilder = JsonConvert.DeserializeObject<ShaderBuilder>(text);
 
+            //ShaderBuilder shaderBuilder = ShaderBuilder.Deserialize(text);
+
+
+            Shader.CreateShaderByBuilder(shaderBuilder);
         }
 
     }
@@ -148,6 +153,11 @@ namespace CkfEngine.Core
         public string dataType;
     }
 
+    internal static class RootParameterType
+    {
+        internal static string Color = "float4";
+    }
+
     public enum D3D12_DESCRIPTOR_RANGE_TYPE
     {
         D3D12_DESCRIPTOR_RANGE_TYPE_SRV = 0,
@@ -178,6 +188,31 @@ namespace CkfEngine.Core
         public string vsEntrance;
         public string psEntrance;
         public bool isBoneModel;
+
+        public string Serialize()
+        {
+            string text = "";
+
+
+            return text;
+        }
+
+        public static ShaderBuilder Deserialize(string text)
+        {
+            ShaderBuilder builder = new ShaderBuilder();
+
+            var strings = CommonFuction.GetCurlyBracketsContents(text);
+            string pattern = "\"([^\"]*)\"";
+            Match match = Regex.Match(strings[0], pattern);
+            builder.name = match.Groups[1].Value;
+
+            strings = CommonFuction.GetCurlyBracketsContents(strings[1]);
+
+            
+
+
+            return builder;
+        }
     }
 
 }
