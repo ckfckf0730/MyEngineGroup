@@ -51,7 +51,7 @@ namespace CkfEngine.Editor
             TreeNode selectNode = m_itemTree.SelectedNode;
             if(string.IsNullOrEmpty( e.Label))
             {
-                MessageBox.Show("Error! Enter AfterLabelEdit!");
+                return;
             }
 
             if (selectNode.Tag is ulong)

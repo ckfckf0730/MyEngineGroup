@@ -159,6 +159,33 @@ namespace CkfEngine.Core
             return t;
         }
 
+        public void DeleteComponent<T>() where T : Component, new()
+        {
+            Type type = typeof(T);
+            if (m_components.TryGetValue(type, out Component component))
+            {
+                m_components.Remove(type);
+                component.Release();
+            }
+            else
+            {
+                Console.WriteLine(Name + " can't find component: " + type.Name);
+            }
+        }
+
+        public void DeleteComponent(Type type)
+        {
+            if (m_components.TryGetValue(type, out Component component))
+            {
+                m_components.Remove(type);
+                component.Release();
+            }
+            else
+            {
+                Console.WriteLine(Name + " can't find component: " + type.Name);
+            }
+        }
+
         public Component CreateComponent(Type type)
         {
             if (m_components.TryGetValue(type, out Component component))

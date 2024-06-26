@@ -19,6 +19,11 @@ namespace CkfEngine.Editor
         private static EditorUI instance;
 
         private Form1 m_windowForm;
+        internal Form1 MainForm
+        {
+            get { return m_windowForm; }
+        }
+
         public void Init(Form1 form1)
         {
             m_windowForm = form1;

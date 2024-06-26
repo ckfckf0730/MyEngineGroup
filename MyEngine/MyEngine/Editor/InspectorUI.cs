@@ -162,6 +162,20 @@ namespace CkfEngine.Editor
                 Panel.Height = m_panelHeight;
                 Panel.Width = Panel.Parent.Width;
                 //(m_panel.Parent as SplitContainer).SplitterDistance = m_panelHeight;
+
+                Button deleteButton = new Button();
+                m_panel.Controls.Add(deleteButton);
+                deleteButton.Text = "Delete";
+                deleteButton.Click += Delete;
+                deleteButton.Location = new Point(Panel.Width - 30, 10);
+
+            }
+
+            private void Delete(object sender, EventArgs e)
+            {
+                m_component.OwnerEntity.DeleteComponent(m_component.GetType());
+                m_component = null;
+                Hide();
             }
 
             public void Hide()
@@ -441,7 +455,8 @@ namespace CkfEngine.Editor
         {
             if (m_form == null || m_form.IsDisposed) // Check if the form is null or disposed
             {
-                m_form = new FormAddComponent(); 
+                m_form = new FormAddComponent();
+                m_form.Owner = EditorUI.Instance.MainForm;
                 CreateButtons();
             }
             m_form.Show();
