@@ -167,7 +167,7 @@ namespace CkfEngine.Editor
                 m_panel.Controls.Add(deleteButton);
                 deleteButton.Text = "Delete";
                 deleteButton.Click += Delete;
-                deleteButton.Location = new Point(Panel.Width - 30, 10);
+                deleteButton.Location = new Point(Panel.Width - 70, 10);
 
             }
 

@@ -284,7 +284,7 @@ extern"C"
 }
 
 void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT64 uid,
-	LPCSTR name, uint16_t datasize, UINT shaderRegisterNum)
+	LPCSTR name, uint16_t datasize, UINT rootParameterIndex)
 {
 	auto iter = ModelInstance::s_uidModelTable.find(uid);
 	if (iter == ModelInstance::s_uidModelTable.end())
@@ -295,7 +295,7 @@ void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT64 uid,
 	}
 	auto pInstance = iter->second;
 	pInstance->CreateCustomizedResource(D3DResourceManage::Instance().pGraphicsCard,
-		name, datasize, shaderRegisterNum);
+		name, datasize, rootParameterIndex);
 }
 
 extern"C"

@@ -315,7 +315,8 @@ struct ShaderResource
 	ID3D12Resource* resource;
 	char* mapData;
 
-	UINT shaderRegisterNum;
+	//UINT shaderRegisterNum;
+	UINT RootParameterIndex;
 };
 
 
@@ -340,7 +341,7 @@ public:
 
 	virtual int CreateTransformView(D3DDevice* _cD3DDev);
 
-	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT shaderRegisterNum);
+	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT rootParameterIndex);
 	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
 
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);

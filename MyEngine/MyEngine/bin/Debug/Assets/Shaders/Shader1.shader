@@ -4,7 +4,14 @@
     {
       "name": "testColor",
       "descRangeType": 2,
-      "register": 4,
+      "register": 6,
+      "visibility": 5,
+      "dataType": "float4"
+    },
+     {
+      "name": "testColor2",
+      "descRangeType": 2,
+      "register": 7,
       "visibility": 5,
       "dataType": "float4"
     }
@@ -38,9 +45,14 @@ Output BasicVS(
 }",
   "psCode": "#include\"BasicShaderHeader.hlsli\"
 
-cbuffer MyBuffer : register(b4)
+cbuffer MyBuffer : register(b6)
 {
     float3 testColor;
+}
+
+cbuffer MyBuffer : register(b7)
+{
+    float3 testColor2;
 }
 
 float4 BasicPS(Output input) : SV_TARGET
@@ -57,7 +69,7 @@ float4 BasicPS(Output input) : SV_TARGET
 	float2 sphereMapUV = input.vnormal.xy;
 	sphereMapUV = (sphereMapUV + float2(1, -1)) * float2(0.5, -0.5);
 
-	float4 texColor = tex.Sample(smp,input.uv) + float4(testColor, 0);
+	float4 texColor = tex.Sample(smp,input.uv) + float4(testColor, 0) + float4(testColor2, 0);
 
 	return max(toonDif
 		* diffuse

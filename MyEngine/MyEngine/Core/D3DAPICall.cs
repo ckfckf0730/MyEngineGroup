@@ -109,7 +109,7 @@ namespace CkfEngine.Core
             D3D12_DESCRIPTOR_RANGE_TYPE type, int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern void CreateCustomizedResource(UInt64 uid, string name, UInt16 datasize, UInt32 shaderRegisterNum);
+        public static extern void CreateCustomizedResource(UInt64 uid, string name, UInt16 datasize, UInt32 rootParameterIndex);
 
         [DllImport("MyDirectx12.dll")]
         public static extern void SetCustomizedResourceValue(UInt64 uid, string name, byte[] data);

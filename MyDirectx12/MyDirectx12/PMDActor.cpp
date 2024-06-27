@@ -618,12 +618,13 @@ int ModelInstance::BindMaterialControl(UINT matId)
 
 
 int ModelInstance::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,
-	UINT shaderRegisterNum)
+	UINT rootParameterIndex)
 {
 	m_shaderResouceTable.insert(std::pair<std::string, ShaderResource>(name, ShaderResource{}));
 	auto& res = m_shaderResouceTable[name];
-	res.shaderRegisterNum = shaderRegisterNum;
+	//res.shaderRegisterNum = shaderRegisterNum;
 	res.datasize = datasize;
+	res.RootParameterIndex = rootParameterIndex;
 
 	// Ensure buffer size is a multiple of 256
 	unsigned long long buffSize = (res.datasize + 0xff) & ~0xff;

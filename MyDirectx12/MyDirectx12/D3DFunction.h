@@ -91,8 +91,8 @@ public:
 
 	
 
-	int SetPipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
-		LPCWSTR vsShader, LPCWSTR psShader);
+	/*int SetPipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
+		LPCWSTR vsShader, LPCWSTR psShader);*/
 	int CreatePipeline(D3DDevice* _cD3DDev, D3D12_INPUT_ELEMENT_DESC inputLayout[], UINT numElements,
 		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry);
 
