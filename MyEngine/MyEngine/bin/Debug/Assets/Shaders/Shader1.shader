@@ -6,14 +6,16 @@
       "descRangeType": 2,
       "register": 6,
       "visibility": 5,
-      "dataType": "float4"
+      "dataType": "COLOR",
+      "defaultValue": "<1, 0, 0, 0>"
     },
      {
       "name": "testColor2",
       "descRangeType": 2,
       "register": 7,
       "visibility": 5,
-      "dataType": "float4"
+      "dataType": "COLOR",
+      "defaultValue": "<0, 1, 0, 0>"
     }
   ],
   "vsCode": "#include\"BasicShaderHeader.hlsli\"

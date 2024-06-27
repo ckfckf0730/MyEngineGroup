@@ -28,6 +28,7 @@ namespace CkfEngine
             InitializeComponent();
 
             d3dCall = new D3DAPICall();
+            InitCore();
 
             //----------main editor scene window-----------
             InitMainSceneWindow();
@@ -58,6 +59,7 @@ namespace CkfEngine
 
         static void Test()
         {
+            //ShaderManager.CreateShaderFile("Assets/Shaders/TestShaderOut.shader");
             ShaderManager.CreateShader("Assets/Shaders/Shader1.shader");
         }
 
@@ -116,6 +118,10 @@ namespace CkfEngine
             //----------------------------
         }
 
+        private void InitCore()
+        {
+            ShaderDataTypeManager.Init();
+        }
 
 
         private void Tick(object sender, EventArgs e)

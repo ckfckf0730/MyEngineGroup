@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.Serialization.Formatters;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,12 +20,13 @@ namespace CkfEngine.Core
             ShaderBuilder shaderBuilder = new ShaderBuilder();
             RootParameter rootParameter = new RootParameter();
             rootParameter.name = "data1";
-            rootParameter.dataType = "float4";
+            rootParameter.dataType = "COLOR";
             rootParameter.descRangeType = D3D12_DESCRIPTOR_RANGE_TYPE.D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
             rootParameter.register = 3;
             rootParameter.visibility = D3D12_SHADER_VISIBILITY.D3D12_SHADER_VISIBILITY_PIXEL;
+            rootParameter.defaultValue = (new Vector3(0,0,1)).ToString();
             shaderBuilder.Properties.Add(rootParameter);
-            shaderBuilder.name = "TestShader";
+            shaderBuilder.name = "TestShaderOut";
             shaderBuilder.vsCode = "vscode test .....";
             shaderBuilder.psCode = "vscode test .....";
             shaderBuilder.isBoneModel = true;
@@ -78,8 +80,8 @@ namespace CkfEngine.Core
             var shader = new Shader(builder.name);
             foreach(var property in builder.Properties)
             {
-                shader.AddRootParameter(property.name, 
-                    property.descRangeType, property.register, property.visibility, property.dataType);
+                shader.AddRootParameter(property.name,  property.descRangeType, 
+                    property.register, property.visibility, property.dataType,property.defaultValue);
             }
             shader.CreatePipeline(builder.vsCode, builder.psCode,
                 builder.vsEntrance, builder.psEntrance, builder.isBoneModel);
@@ -131,7 +133,7 @@ namespace CkfEngine.Core
         /// Should Add all Root Parameter before CreatePipeline.
         /// </summary>
         public void AddRootParameter(string name, D3D12_DESCRIPTOR_RANGE_TYPE rangeType, 
-            int register, D3D12_SHADER_VISIBILITY visibility, string dataType)
+            int register, D3D12_SHADER_VISIBILITY visibility, string dataType, string defaultValue)
         {
             rootParameters.Add(new RootParameter()
             {
@@ -139,7 +141,8 @@ namespace CkfEngine.Core
                 descRangeType = rangeType,
                 register = register,
                 visibility = visibility,
-                dataType = dataType
+                dataType = dataType,
+                defaultValue = defaultValue
             });
         }
     }
@@ -151,6 +154,7 @@ namespace CkfEngine.Core
         public int register;
         public D3D12_SHADER_VISIBILITY visibility;
         public string dataType;
+        public string defaultValue;
     }
 
     internal static class RootParameterType

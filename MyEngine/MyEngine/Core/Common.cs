@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -9,23 +10,35 @@ namespace CkfEngine.Core
 {
     internal static class CommonFuction
     {
-        public static byte[] StructToByteArray<T>(T obj) where T : struct
+        public static byte[] StructToByteArray<T>(T value)
         {
-            int size = Marshal.SizeOf(obj);
-            byte[] arr = new byte[size];
-            IntPtr ptr = Marshal.AllocHGlobal(size);
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value), "Value cannot be null");
+            }
 
+            Type type = value.GetType();
+
+            if (!type.IsValueType)
+            {
+                throw new ArgumentException("Value must be a value type", nameof(value));
+            }
+
+            int size = Marshal.SizeOf(value);
+            byte[] byteArray = new byte[size];
+
+            IntPtr ptr = Marshal.AllocHGlobal(size);
             try
             {
-                Marshal.StructureToPtr(obj, ptr, true);
-                Marshal.Copy(ptr, arr, 0, size);
+                Marshal.StructureToPtr(value, ptr, true);
+                Marshal.Copy(ptr, byteArray, 0, size);
             }
             finally
             {
                 Marshal.FreeHGlobal(ptr);
             }
 
-            return arr;
+            return byteArray;
         }
 
         public static string[] GetCurlyBracketsContents(string text)
