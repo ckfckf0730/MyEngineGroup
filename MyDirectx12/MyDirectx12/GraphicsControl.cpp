@@ -626,18 +626,18 @@ int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const 
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID, LPCSTR pipelineName, unsigned int matCount, 
-		DirectX::XMFLOAT3 diffuse[], float alpha[],
+	int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID, unsigned int matCount, 
+		const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[]);
 }
 
-int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID, LPCSTR pipelineName,unsigned int matCount, 
-	DirectX::XMFLOAT3 diffuse[], float alpha[],
+int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID,unsigned int matCount, 
+	const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
 	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[])
 {
-	auto result = MaterialControl::SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, diffuse, alpha,
+	auto result = MaterialControl::SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, shaderName, diffuse, alpha,
 		specularity, specular, ambient, edgeFlg, toonPath, indicesNum, texFilePath, MaterialControlID);
 
 	if (result != 1)
@@ -645,18 +645,22 @@ int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID, LPCSTR 
 		return result;
 	}
 
-	auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
-	if (iter == D3DResourceManage::Instance().PipelineTable.end())
+	for (int i = 0; i < matCount; i++)
 	{
-		PrintDebug("Can't find pipeline when SetMaterials: ");
-		PrintDebug(pipelineName);
-		return -1;
+		auto pipelineName = shaderName[i];
+
+		auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+		if (iter == D3DResourceManage::Instance().PipelineTable.end())
+		{
+			PrintDebug("Can't find pipeline when SetMaterials: ");
+			PrintDebug(pipelineName);
+			continue;
+		}
+
+		auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlID];
+
+		material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard, iter->second);
 	}
-
-	auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlID];
-
-	material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard,iter->second);
-
 	return 1;
 }
 

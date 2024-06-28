@@ -1,6 +1,6 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8004: Output 目录未以斜杠结尾。  此生成实例将添加斜杠，因为必须有这个斜杠才能正确计算 Output 目录。
   D3DPipeline.cpp
-D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(105,9): warning C4086: pragma 参数应为 "1"、"2"、"4"、"8" 或者 "16"
+D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(108,9): warning C4086: pragma 参数应为 "1"、"2"、"4"、"8" 或者 "16"
 D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DResourceManage.h(13,15): warning C4099: “Material”: 类型名称以前使用“struct”现在使用的是“class”
 D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(66,8): message : 参见“Material”的声明
 D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(440,70): warning C4267: “=”: 从“size_t”转换到“UINT”，可能丢失数据
@@ -10,5 +10,4 @@ D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(491,54): warni
 D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(561,33): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
 D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(599,38): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
 D:\Projects\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(721,47): warning C4244: “=”: 从“UINT64”转换到“UINT”，可能丢失数据
-    正在?建? ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.lib 和?象 ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.exp
   MyDirectx12.vcxproj -> D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll

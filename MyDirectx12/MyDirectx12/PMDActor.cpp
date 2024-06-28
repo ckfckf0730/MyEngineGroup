@@ -680,7 +680,8 @@ ModelInstance::~ModelInstance()
 	m_shaderResouceTable.clear();
 }
 
-int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[],
+	DirectX::XMFLOAT3 diffuse[], float alpha[],
 	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialControlID)
 {
@@ -690,6 +691,7 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, Di
 	MaterialControl* matControl = new MaterialControl();
 	matTable.insert(std::pair<UINT, MaterialControl*>( MaterialControlID, matControl));
 
+	UINT indexOff = 0;
 	for (int i = 0; i < matCount; i++)
 	{
 		matControl->m_materials.push_back(Material{});
@@ -702,7 +704,10 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, Di
 			matrial.m_toonResource = LoadTextureFromFile(toonFilePath, d3ddevice);
 		}
 
+		matrial.pipeLineName = shaderName[i];
 		matrial.indicesNum = indicesNum[i];
+		matrial.startIndex = indexOff;
+		indexOff += matrial.indicesNum;
 		matrial.material.diffuse = diffuse[i];
 		matrial.material.alpha = alpha[i];
 		matrial.material.specular = specular[i];

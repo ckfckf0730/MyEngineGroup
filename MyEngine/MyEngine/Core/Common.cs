@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -85,6 +87,18 @@ namespace CkfEngine.Core
             }
 
             throw new Exception("Can't find right curly bracket!");
+        }
+
+
+        public static List<T> DeepCopy<T>(List<T> list)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(ms, list);
+                ms.Position = 0;
+                return (List<T>)formatter.Deserialize(ms);
+            }
         }
     }
 }

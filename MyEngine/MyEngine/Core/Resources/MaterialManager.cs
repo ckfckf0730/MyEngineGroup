@@ -31,19 +31,52 @@ namespace CkfEngine.Core
             return toonFilePath;
         }
 
-        internal static bool SetMaterials(string pipelineName, Model model, out uint matId)
+        internal static bool SetMaterials( List<StandardMaterial> materials)
         {
-            matId = materialId++;
-            return D3DAPICall.SetMaterials(matId, pipelineName,(uint) model.m_materials.Count,
-                model.m_materials.Select(item => item.diffuse).ToArray(),
-                model.m_materials.Select(item => item.alpha).ToArray(),
-                model.m_materials.Select(item => item.specularity).ToArray(),
-                model.m_materials.Select(item => item.specular).ToArray(),
-                model.m_materials.Select(item => item.ambient).ToArray(),
-                model.m_materials.Select(item => item.edgeFlg).ToArray(),
-                model.m_materials.Select(item => item.toonPath).ToArray(),
-                model.m_materials.Select(item => item.indicesNum).ToArray(),
-                model.m_materials.Select(item => item.texFilePath).ToArray()) == 1;
+            List <StandardMaterial> setList = new List < StandardMaterial >();
+            foreach(var item in materials)
+            {
+                if (PrepareSet(item))
+                {
+                    setList.Add(item);
+                }
+            }
+            
+            return D3DAPICall.SetMaterials(
+                setList.Select(item => item.materialId).ToArray(),
+                (uint)setList.Count,
+                setList.Select(item => item.shader.m_name).ToArray(),
+                setList.Select(item => item.diffuse).ToArray(),
+                setList.Select(item => item.alpha).ToArray(),
+                setList.Select(item => item.specularity).ToArray(),
+                setList.Select(item => item.specular).ToArray(),
+                setList.Select(item => item.ambient).ToArray(),
+                setList.Select(item => item.edgeFlg).ToArray(),
+                setList.Select(item => item.toonPath).ToArray(),
+                setList.Select(item => item.indicesNum).ToArray(),
+                setList.Select(item => item.texFilePath).ToArray()) == 1;
+        }
+
+        private static bool PrepareSet(StandardMaterial material)
+        {
+            if(material.isSetted)
+            {
+                return false;
+            }
+            material.materialId = materialId++;
+            material.isSetted = true;
+
+            return true;
+        }
+
+        internal static List<StandardMaterial> InstantiateMaterials(List<StandardMaterial> materials)
+        {
+            var list = CommonFuction.DeepCopy(materials);
+            foreach(var item in list)
+            {
+                item.isShared = false;
+            }
+            return list;
         }
     }
 
@@ -63,7 +96,9 @@ namespace CkfEngine.Core
     internal class MaterialBase
     {
         public Shader shader;
+        public uint materialId;
 
+        public bool isSetted = false;
         public bool isShared = true;
     }
 

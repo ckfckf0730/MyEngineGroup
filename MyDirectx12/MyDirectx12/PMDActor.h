@@ -67,7 +67,9 @@ struct Material
 {
 public:
 
+	std::string pipeLineName;
 	UINT indicesNum;
+	UINT startIndex;
 	MaterialForHlsl material;
 	AdditionalMaterial additional;
 	UINT descOffset;
@@ -83,7 +85,8 @@ class MaterialControl
 public:
 	std::vector<Material> m_materials;
 
-	static int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, DirectX::XMFLOAT3 diffuse[], float alpha[],
+	static int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[], 
+		DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialIDs);
 

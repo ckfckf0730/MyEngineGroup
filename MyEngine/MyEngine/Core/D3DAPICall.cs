@@ -77,8 +77,8 @@ namespace CkfEngine.Core
         uint _indCount, ushort[] _indices);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int SetMaterials(uint MaterialControlID, string pipelineName, 
-            uint matCount, Vector3[] diffuse, float[] alpha,
+        public static extern int SetMaterials(uint MaterialControlID, 
+            uint matCount, string[] shaderNames , Vector3[] diffuse, float[] alpha,
         float[] specularity, Vector3[] specular, Vector3[] ambient, byte[] edgeFlg,
         string[] toonPath, uint[] indicesNum, string[] texFilePath);
 

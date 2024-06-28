@@ -274,6 +274,8 @@ namespace CkfEngine.Core
         private bool m_isLoaded;
         internal PMDModelInstance m_pmdModelInstance;
         uint m_materialId;
+        private List<StandardMaterial> m_materials = null;
+
 
         protected override void OnCreated()
         {
@@ -309,7 +311,18 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetPMDVertices(m_file.FullPath, m_model))
                 {
-                    if (MaterialManager.SetMaterials( "TestShader", m_model, out m_materialId))
+                    List<StandardMaterial> materials;
+                    if(m_materials == null)
+                    {
+                        materials = m_model.m_materials;
+                    }
+                    else
+                    {
+                        materials = m_materials;
+                    }
+
+
+                    if (MaterialManager.SetMaterials(materials))
                     {
                         if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
                         {
@@ -378,6 +391,7 @@ namespace CkfEngine.Core
         private Model m_model;
         internal ModelInstance m_modelInstance;
         uint m_materialId;
+        private List<StandardMaterial> m_materials;
 
         protected override void OnCreated()
         {
@@ -418,7 +432,17 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetVDVertices(m_file.FullPath, m_model))
                 {
-                    if (MaterialManager.SetMaterials(Shader.BasicNoBoneShader.m_name, m_model, out m_materialId))
+                    List<StandardMaterial> materials;
+                    if (m_materials == null)
+                    {
+                        materials = m_model.m_materials;
+                    }
+                    else
+                    {
+                        materials = m_materials;
+                    }
+
+                    if (MaterialManager.SetMaterials(Shader.BasicNoBoneShader.m_name, materials, out m_materialId))
                     {
                         if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
                         {
@@ -495,6 +519,12 @@ namespace CkfEngine.Core
 
             VMDAnimation vmdAnime;
             var boneRenderer = OwnerEntity.GetComponent<ModelBoneRenderer>();
+            if(boneRenderer == null)
+            {
+                Console.WriteLine("Set Animaton fault, can't find bone renderer.");
+                return;
+            }
+
             boneRenderer.File.OnChenged += BoneRendererChanged;
 
             if (ModelManager.LoadVMDFile(m_file.FullPath, out vmdAnime) &&
