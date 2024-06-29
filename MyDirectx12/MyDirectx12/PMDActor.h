@@ -83,12 +83,12 @@ public:
 class MaterialControl
 {
 public:
-	std::vector<Material> m_materials;
+	Material m_material;
 
 	static int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[], 
 		DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialIDs);
+		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialIDs[]);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
 
@@ -337,7 +337,7 @@ public:
 	DirectX::XMMATRIX* m_mapMatrices = nullptr;
 
 	D3DPipeline* m_bindPipeline = nullptr;
-	MaterialControl* m_materialControl;
+	std::vector<MaterialControl*> m_materialControls;
 
 	std::map<std::string, ShaderResource> m_shaderResouceTable;
 
@@ -349,7 +349,7 @@ public:
 
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
 
-	int BindMaterialControl(UINT matId);
+	int BindMaterialControl(UINT matIds[], UINT count);
 
 	~ModelInstance();
 };

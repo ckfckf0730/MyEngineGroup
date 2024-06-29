@@ -626,19 +626,19 @@ int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const 
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID, unsigned int matCount, 
+	int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlIDs[], unsigned int matCount,
 		const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[]);
 }
 
-int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID,unsigned int matCount, 
+int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlIDs[], unsigned int matCount,
 	const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
 	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[])
 {
 	auto result = MaterialControl::SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, shaderName, diffuse, alpha,
-		specularity, specular, ambient, edgeFlg, toonPath, indicesNum, texFilePath, MaterialControlID);
+		specularity, specular, ambient, edgeFlg, toonPath, indicesNum, texFilePath, MaterialControlIDs);
 
 	if (result != 1)
 	{
@@ -657,7 +657,7 @@ int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID,unsigned
 			continue;
 		}
 
-		auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlID];
+		auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlIDs[i]];
 
 		material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard, iter->second);
 	}
@@ -666,9 +666,9 @@ int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlID,unsigned
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlID);
+	int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlIDs[],UINT materialCount);
 }
-int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlID)
+int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlIDs[], UINT materialCount)
 {
 	auto iter = ModelInstance::s_uidModelTable.find(UID);
 	if (iter == ModelInstance::s_uidModelTable.end())
@@ -678,7 +678,7 @@ int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT Materia
 		return -1;
 	}
 
-	iter->second->BindMaterialControl(MaterialControlID);
+	iter->second->BindMaterialControl(MaterialControlIDs, materialCount);
 
 	return 1;
 }

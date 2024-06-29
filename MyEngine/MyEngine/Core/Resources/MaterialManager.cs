@@ -31,7 +31,7 @@ namespace CkfEngine.Core
             return toonFilePath;
         }
 
-        internal static bool SetMaterials( List<StandardMaterial> materials)
+        internal static bool SetMaterials( List<StandardMaterial> materials, out uint[] IDs)
         {
             List <StandardMaterial> setList = new List < StandardMaterial >();
             foreach(var item in materials)
@@ -41,9 +41,10 @@ namespace CkfEngine.Core
                     setList.Add(item);
                 }
             }
-            
+
+            IDs = setList.Select(item => item.materialId).ToArray();
             return D3DAPICall.SetMaterials(
-                setList.Select(item => item.materialId).ToArray(),
+               IDs,
                 (uint)setList.Count,
                 setList.Select(item => item.shader.m_name).ToArray(),
                 setList.Select(item => item.diffuse).ToArray(),

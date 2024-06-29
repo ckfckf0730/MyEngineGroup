@@ -66,7 +66,7 @@ class BasicModel;
 
 class D3DPipeline
 {
-private:
+public:
 	std::string m_name;
 
 

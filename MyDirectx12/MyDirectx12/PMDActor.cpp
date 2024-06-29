@@ -602,17 +602,20 @@ void ModelInstance::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
 	}
 }
 
-int ModelInstance::BindMaterialControl(UINT matId)
+int ModelInstance::BindMaterialControl(UINT matIds[], UINT count)
 {
-	auto iter = D3DResourceManage::Instance().MaterialTable.find(matId);
-	if (iter == D3DResourceManage::Instance().MaterialTable.end())
+	for (int i = 0; i < count; i++)
 	{
-		PrintDebug("Bind Material Control fault, can't find matID: ");
-		PrintDebug((int)matId);
-		return -1;
-	}
+		auto iter = D3DResourceManage::Instance().MaterialTable.find(matIds[i]);
+		if (iter == D3DResourceManage::Instance().MaterialTable.end())
+		{
+			PrintDebug("Bind Material Control fault, can't find matID: ");
+			PrintDebug((int)matIds[i]);
+			return -1;
+		}
 
-	m_materialControl = iter->second;
+		m_materialControls.push_back(iter->second);
+	}
 	return 1;
 }
 
@@ -683,20 +686,18 @@ ModelInstance::~ModelInstance()
 int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[],
 	DirectX::XMFLOAT3 diffuse[], float alpha[],
 	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialControlID)
+	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialControlIDs[])
 {
 	auto& matTable = D3DResourceManage::Instance().MaterialTable;
 	auto d3ddevice = _cD3DDev->pD3D12Device;
 
-	MaterialControl* matControl = new MaterialControl();
-	matTable.insert(std::pair<UINT, MaterialControl*>( MaterialControlID, matControl));
-
 	UINT indexOff = 0;
 	for (int i = 0; i < matCount; i++)
 	{
-		matControl->m_materials.push_back(Material{});
+		MaterialControl* matControl = new MaterialControl();
+		matTable.insert(std::pair<UINT, MaterialControl*>(MaterialControlIDs[i], matControl));
 
-		Material& matrial = matControl->m_materials[matControl->m_materials.size() - 1];
+		Material& matrial = matControl->m_material;
 
 		std::string toonFilePath = toonPath[i];
 		if (toonFilePath != "")
@@ -717,102 +718,100 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, co
 		if (strlen(texFilePath[i]) == 0)
 		{
 			matrial.m_textureResource = nullptr;
-			continue;
-		}
-
-		std::string texFileName =  GetFileName(texFilePath[i]);
-		std::string directoryName = GetDirectoryName(texFilePath[i]);
-		std::string sphFileName = "";
-		std::string spaFileName = "";
-
-		if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
-		{
-			auto namepair = SplitFileName(texFileName);
-			auto extension = GetExtension(namepair.first);
-			if (extension == "sph")
-			{
-				texFileName = namepair.second;
-				sphFileName = namepair.first;
-			}
-			else if (extension == "spa")
-			{
-				texFileName = namepair.second;
-				spaFileName = namepair.first;
-			}
-			else
-			{
-				texFileName = namepair.first;
-				extension = GetExtension(namepair.second);
-				if (extension == "sph")
-				{
-					sphFileName = namepair.second;
-				}
-				else if (extension == "spa")
-				{
-					spaFileName = namepair.second;
-				}
-			}
 		}
 		else
 		{
-			auto extension = GetExtension(texFileName);
-			if (extension == "sph")
+			std::string texFileName = GetFileName(texFilePath[i]);
+			std::string directoryName = GetDirectoryName(texFilePath[i]);
+			std::string sphFileName = "";
+			std::string spaFileName = "";
+
+			if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
 			{
-				sphFileName = texFileName;
-				texFileName = "";
+				auto namepair = SplitFileName(texFileName);
+				auto extension = GetExtension(namepair.first);
+				if (extension == "sph")
+				{
+					texFileName = namepair.second;
+					sphFileName = namepair.first;
+				}
+				else if (extension == "spa")
+				{
+					texFileName = namepair.second;
+					spaFileName = namepair.first;
+				}
+				else
+				{
+					texFileName = namepair.first;
+					extension = GetExtension(namepair.second);
+					if (extension == "sph")
+					{
+						sphFileName = namepair.second;
+					}
+					else if (extension == "spa")
+					{
+						spaFileName = namepair.second;
+					}
+				}
 			}
-			else if (extension == "spa")
+			else
 			{
-				spaFileName = texFileName;
-				texFileName = "";
+				auto extension = GetExtension(texFileName);
+				if (extension == "sph")
+				{
+					sphFileName = texFileName;
+					texFileName = "";
+				}
+				else if (extension == "spa")
+				{
+					spaFileName = texFileName;
+					texFileName = "";
+				}
+			}
+
+			if (texFileName != "")
+			{
+				auto texFilePathFull = directoryName + '/' + texFileName;
+				matrial.m_textureResource = LoadTextureFromFile(texFilePathFull, d3ddevice);
+			}
+			if (sphFileName != "")
+			{
+				auto sphFilePath = directoryName + '/' + sphFileName;
+				matrial.m_sphResource = LoadTextureFromFile(sphFilePath, d3ddevice);
+			}
+			if (spaFileName != "")
+			{
+				auto spaFilePath = directoryName + '/' + spaFileName;
+				matrial.m_spaResource = LoadTextureFromFile(spaFilePath, d3ddevice);
 			}
 		}
 
-		if (texFileName != "")
+		//-----------material buff---------------------
+		auto materialBuffSize = sizeof(MaterialForHlsl);
+		materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
+
+		auto materialResDesc = CD3DX12_RESOURCE_DESC::Buffer(materialBuffSize);
+		auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+		auto result = d3ddevice->CreateCommittedResource(
+			&heapTypeUpload,
+			D3D12_HEAP_FLAG_NONE,
+			&materialResDesc,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(matControl->m_materialBuff.ReleaseAndGetAddressOf()));
+		if (FAILED(result))
 		{
-			auto texFilePathFull = directoryName + '/' + texFileName;
-			matrial.m_textureResource = LoadTextureFromFile(texFilePathFull, d3ddevice);
+			ShowMsgBox(L"error", L"Create material Resource fault.");
+			return -1;
 		}
-		if (sphFileName != "")
-		{
-			auto sphFilePath = directoryName + '/' +sphFileName;
-			matrial.m_sphResource = LoadTextureFromFile(sphFilePath, d3ddevice);
-		}
-		if (spaFileName != "")
-		{
-			auto spaFilePath = directoryName + '/' + spaFileName;
-			matrial.m_spaResource = LoadTextureFromFile(spaFilePath, d3ddevice);
-		}
+
+		char* mapMaterial = nullptr;
+		result = matControl->m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
+
+		*((MaterialForHlsl*)mapMaterial) = matrial.material;
+
+		matControl->m_materialBuff->Unmap(0, nullptr);
 	}
-
-
-	//-----------material buff---------------------
-	auto materialBuffSize = sizeof(MaterialForHlsl);
-	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
-
-	auto materialResDesc = CD3DX12_RESOURCE_DESC::Buffer(materialBuffSize * matCount);
-	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto result = d3ddevice->CreateCommittedResource(
-		&heapTypeUpload,
-		D3D12_HEAP_FLAG_NONE,
-		&materialResDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(matControl->m_materialBuff.ReleaseAndGetAddressOf()));
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"error", L"Create material Resource fault.");
-		return -1;
-	}
-
-	char* mapMaterial = nullptr;
-	result = matControl->m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
-	for (auto& m : matControl->m_materials)
-	{
-		*((MaterialForHlsl*)mapMaterial) = m.material;
-		mapMaterial += materialBuffSize;
-	}
-	matControl->m_materialBuff->Unmap(0, nullptr);
 
 	return 1;
 }
@@ -858,18 +857,20 @@ void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipelin
 	auto materialBuffSize = sizeof(MaterialForHlsl);
 	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
 
-	UINT matCount = m_materials.size();
-	for (int i = 0; i < matCount; i++)
-	{
-		m_materials[i].descOffset = pipeline->CreateConstantDescript(
+
+
+	UINT matCount = 1;//m_materials.size();
+	/*for (int i = 0; i < matCount; i++)
+	{*/
+		m_material.descOffset = pipeline->CreateConstantDescript(
 			d3ddevice, adress, sizeInBytes);
 		adress += materialBuffSize;
 
 		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		if (m_materials[i].m_textureResource != nullptr)
+		if (m_material.m_textureResource != nullptr)
 		{
-			srvDesc.Format = m_materials[i].m_textureResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_materials[i].m_textureResource.Get());
+			srvDesc.Format = m_material.m_textureResource->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_textureResource.Get());
 		}
 		else
 		{
@@ -877,10 +878,10 @@ void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipelin
 			pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
 		}
 
-		if (m_materials[i].m_sphResource != nullptr)
+		if (m_material.m_sphResource != nullptr)
 		{
-			srvDesc.Format = m_materials[i].m_sphResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_materials[i].m_sphResource.Get());
+			srvDesc.Format = m_material.m_sphResource->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_sphResource.Get());
 		}
 		else
 		{
@@ -888,10 +889,10 @@ void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipelin
 			pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
 		}
 
-		if (m_materials[i].m_spaResource != nullptr)
+		if (m_material.m_spaResource != nullptr)
 		{
-			srvDesc.Format = m_materials[i].m_spaResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_materials[i].m_spaResource.Get());
+			srvDesc.Format = m_material.m_spaResource->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_spaResource.Get());
 		}
 		else
 		{
@@ -899,17 +900,17 @@ void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipelin
 			pipeline->CreateShaderResDescript(d3ddevice, blackTex);
 		}
 
-		if (m_materials[i].m_toonResource != nullptr)
+		if (m_material.m_toonResource != nullptr)
 		{
-			srvDesc.Format = m_materials[i].m_toonResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_materials[i].m_toonResource.Get());
+			srvDesc.Format = m_material.m_toonResource->GetDesc().Format;
+			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_toonResource.Get());
 		}
 		else
 		{
 			srvDesc.Format = gradTex->GetDesc().Format;
 			pipeline->CreateShaderResDescript(d3ddevice, gradTex);
 		}
-	}
+	//}
 }
 
 //int MaterialControl::InitMaterial(int indicesNum)

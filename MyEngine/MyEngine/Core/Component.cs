@@ -273,7 +273,7 @@ namespace CkfEngine.Core
         private PMDModel m_model;
         private bool m_isLoaded;
         internal PMDModelInstance m_pmdModelInstance;
-        uint m_materialId;
+        //uint m_materialId;
         private List<StandardMaterial> m_materials = null;
 
 
@@ -320,9 +320,12 @@ namespace CkfEngine.Core
                     {
                         materials = m_materials;
                     }
+                    foreach(var material in materials)
+                    {
+                        material.shader.m_name = "TestShader";
+                    }
 
-
-                    if (MaterialManager.SetMaterials(materials))
+                    if (MaterialManager.SetMaterials(materials, out var IDs))
                     {
                         if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
                         {
@@ -346,7 +349,7 @@ namespace CkfEngine.Core
 
                                 D3DAPICall.BindPipeline(OwnerEntity.Uid, "TestShader");
                                 //D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
-                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, m_materialId);
+                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs);
                                 m_isLoaded = true;
 
 
@@ -390,7 +393,7 @@ namespace CkfEngine.Core
 
         private Model m_model;
         internal ModelInstance m_modelInstance;
-        uint m_materialId;
+        //uint m_materialId;
         private List<StandardMaterial> m_materials;
 
         protected override void OnCreated()
@@ -442,13 +445,13 @@ namespace CkfEngine.Core
                         materials = m_materials;
                     }
 
-                    if (MaterialManager.SetMaterials(Shader.BasicNoBoneShader.m_name, materials, out m_materialId))
+                    if (MaterialManager.SetMaterials( materials, out var IDs))
                     {
                         if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
                         {
                             m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
                             D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicNoBoneShader.m_name);
-                            D3DAPICall.BindMaterialControl(OwnerEntity.Uid, m_materialId);
+                            D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs);
                             m_isLoaded = true;
                         }
                     }
