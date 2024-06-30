@@ -68,8 +68,8 @@ struct Material
 public:
 
 	std::string pipeLineName;
-	UINT indicesNum;
-	UINT startIndex;
+	//UINT indicesNum;
+	//UINT startIndex;
 	MaterialForHlsl material;
 	AdditionalMaterial additional;
 	UINT descOffset;
@@ -88,7 +88,7 @@ public:
 	static int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[], 
 		DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialIDs[]);
+		const char* toonPath[], const char* texFilePath[], UINT MaterialIDs[]);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
 
@@ -261,6 +261,11 @@ public:
 	D3D12_INDEX_BUFFER_VIEW m_ibView = {};
 	//ID3D12DescriptorHeap* m_materialDescHeap = nullptr;
 	UINT m_firstDescOffset;
+
+	UINT m_materialCount;
+	std::vector<UINT> m_matStartIndexList;
+	std::vector<UINT> m_matIndexCountList;
+
 	//unsigned int m_vertNum;
 	//unsigned int m_indicesNum;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertBuff;

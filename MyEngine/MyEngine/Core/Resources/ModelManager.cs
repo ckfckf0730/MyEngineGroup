@@ -74,6 +74,7 @@ namespace CkfEngine.Core
 
                     //--------------------Material--------------------
                     pmdModel.m_materialCount = reader.ReadUInt32();
+                    pmdModel.m_materialIndicesCount = new uint[pmdModel.m_materialCount];
 
                     pmdModel.m_materials = new List<StandardMaterial>();
 
@@ -95,7 +96,7 @@ namespace CkfEngine.Core
                         var toonIdx = reader.ReadByte();
                         material.toonPath = MaterialManager.GetToonPath(toonIdx);
                         material.edgeFlg = reader.ReadByte();
-                        material.indicesNum = reader.ReadUInt32();
+                        pmdModel.m_materialIndicesCount[i] = reader.ReadUInt32();
                         material.texFilePath = jis.GetString(reader.ReadBytes(20)).Split('\0')[0];
                         material.texFilePath = directory + "/" + material.texFilePath;
 
@@ -339,12 +340,14 @@ namespace CkfEngine.Core
                     model.m_indexCount = reader.ReadUInt32();
                     var byteArr = reader.ReadBytes((int)model.m_indexCount * sizeof(ushort));
                     model.m_indices = new ushort[model.m_indexCount];
+                    model.m_materialCount = 1;
+                    model.m_materialIndicesCount = new uint[1];
 
                     //defualt material
                     StandardMaterial mat = new StandardMaterial();
                     mat.diffuse = new Vector3(1, 1, 1);
                     mat.alpha = 1;
-                    mat.indicesNum = model.m_vertextCount;
+                    model.m_materialIndicesCount[0] = model.m_vertextCount;
                     mat.shader = Shader.BasicNoBoneShader;
                     mat.toonPath = "";
                     mat.texFilePath = "";
@@ -372,14 +375,16 @@ namespace CkfEngine.Core
         internal static bool SetPMDVertices(string path, PMDModel pmdModel)
         {
             return D3DAPICall.SetPMDVertices(path, pmdModel.m_vertextCount,
-                pmdModel.m_vertices.ToArray(), pmdModel.m_indexCount, pmdModel.m_indices) == 1;
+                pmdModel.m_vertices.ToArray(), pmdModel.m_indexCount, pmdModel.m_indices,
+                pmdModel.m_materialCount, pmdModel.m_materialIndicesCount) == 1;
             
         }
 
         internal static bool SetVDVertices(string path, Model model)
         {
             return D3DAPICall.SetBasicVertices(path, model.m_vertextCount,
-                model.m_vertices.ToArray(), model.m_indexCount, model.m_indices) == 1;
+                model.m_vertices.ToArray(), model.m_indexCount, model.m_indices,
+                model.m_materialCount, model.m_materialIndicesCount) == 1;
 
         }
 
@@ -514,6 +519,7 @@ namespace CkfEngine.Core
 
         internal byte[] m_vertices;
         internal ushort[] m_indices;
+        internal uint[] m_materialIndicesCount;
 
         internal List<StandardMaterial> m_materials;
 

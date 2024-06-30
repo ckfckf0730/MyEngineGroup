@@ -604,6 +604,14 @@ void ModelInstance::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
 
 int ModelInstance::BindMaterialControl(UINT matIds[], UINT count)
 {
+	if (count != m_materialControls.size())
+	{
+		ShowMsgBox(nullptr, "BindMaterialControl Error, the material count wrong!");
+		ShowMsgBox(nullptr, count);
+		ShowMsgBox(nullptr, m_materialControls.size());
+		return 1;
+	}
+
 	for (int i = 0; i < count; i++)
 	{
 		auto iter = D3DResourceManage::Instance().MaterialTable.find(matIds[i]);
@@ -614,7 +622,8 @@ int ModelInstance::BindMaterialControl(UINT matIds[], UINT count)
 			return -1;
 		}
 
-		m_materialControls.push_back(iter->second);
+		
+		m_materialControls[i] = iter->second;
 	}
 	return 1;
 }
@@ -686,12 +695,11 @@ ModelInstance::~ModelInstance()
 int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[],
 	DirectX::XMFLOAT3 diffuse[], float alpha[],
 	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[], UINT MaterialControlIDs[])
+	const char* toonPath[], const char* texFilePath[], UINT MaterialControlIDs[])
 {
 	auto& matTable = D3DResourceManage::Instance().MaterialTable;
 	auto d3ddevice = _cD3DDev->pD3D12Device;
 
-	UINT indexOff = 0;
 	for (int i = 0; i < matCount; i++)
 	{
 		MaterialControl* matControl = new MaterialControl();
@@ -706,9 +714,6 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, co
 		}
 
 		matrial.pipeLineName = shaderName[i];
-		matrial.indicesNum = indicesNum[i];
-		matrial.startIndex = indexOff;
-		indexOff += matrial.indicesNum;
 		matrial.material.diffuse = diffuse[i];
 		matrial.material.alpha = alpha[i];
 		matrial.material.specular = specular[i];

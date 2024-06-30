@@ -349,12 +349,8 @@ namespace CkfEngine.Core
 
                                 D3DAPICall.BindPipeline(OwnerEntity.Uid, "TestShader");
                                 //D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
-                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs);
+                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs, m_model.m_materialCount);
                                 m_isLoaded = true;
-
-
-
-                                
                             }
                         }
                     }
@@ -451,7 +447,7 @@ namespace CkfEngine.Core
                         {
                             m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
                             D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicNoBoneShader.m_name);
-                            D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs);
+                            D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs, m_model.m_materialCount);
                             m_isLoaded = true;
                         }
                     }

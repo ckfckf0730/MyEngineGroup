@@ -517,11 +517,11 @@ void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid,float* 
 extern"C"
 {
 	int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
-		unsigned int _indCount, unsigned short* _indices);
+		unsigned int _indCount, unsigned short* _indices, unsigned int materialCount, unsigned int* matIndCount);
 }
 
 int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
-	unsigned int _indCount, unsigned short* _indices)
+	unsigned int _indCount, unsigned short* _indices, unsigned int materialCount, unsigned int* matIndCount)
 {
 	if (_FileFullName == nullptr)
 	{
@@ -535,9 +535,19 @@ int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, un
 	{
 		//------------create model from file------------------------
 		verRes = new PMDModel();
+		verRes->m_materialCount = materialCount;
+		UINT indexOff = 0;
+		for (int i = 0; i < materialCount; i++)
+		{
+			verRes->m_matStartIndexList.push_back(indexOff);
+			verRes->m_matIndexCountList.push_back(matIndCount[i]);
+			indexOff += matIndCount[i];
+		}
+
 		BasicModel::s_modelTable.insert(
 			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
-		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount, _vertices, _indCount, _indices);
+		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount, 
+			_vertices, _indCount, _indices);
 		if (result < 1)
 		{
 			PrintDebug("SetVertices fault");
@@ -555,11 +565,11 @@ int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, un
 extern"C"
 {
 	int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
-		unsigned int _indCount, unsigned short* _indices);
+		unsigned int _indCount, unsigned short* _indices, unsigned int materialCount, unsigned int* matIndCount);
 }
 
 int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, unsigned int _vertCount, unsigned char* _vertices,
-	unsigned int _indCount, unsigned short* _indices)
+	unsigned int _indCount, unsigned short* _indices, unsigned int materialCount, unsigned int* matIndCount)
 {
 	if (_FileFullName == nullptr)
 	{
@@ -573,6 +583,15 @@ int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, 
 	{
 		//------------create model from file------------------------
 		verRes = new BasicModel();
+		verRes->m_materialCount = materialCount;
+		UINT indexOff = 0;
+		for (int i = 0; i < materialCount; i++)
+		{
+			verRes->m_matStartIndexList.push_back(indexOff);
+			verRes->m_matIndexCountList.push_back(matIndCount[i]);
+			indexOff += matIndCount[i];
+		}
+
 		BasicModel::s_modelTable.insert(
 			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
 		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount, _vertices, _indCount, _indices);
@@ -629,16 +648,16 @@ extern"C"
 	int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlIDs[], unsigned int matCount,
 		const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-		const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[]);
+		const char* toonPath[], const char* texFilePath[]);
 }
 
 int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlIDs[], unsigned int matCount,
 	const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
 	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-	const char* toonPath[], unsigned int indicesNum[], const char* texFilePath[])
+	const char* toonPath[], const char* texFilePath[])
 {
 	auto result = MaterialControl::SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, shaderName, diffuse, alpha,
-		specularity, specular, ambient, edgeFlg, toonPath, indicesNum, texFilePath, MaterialControlIDs);
+		specularity, specular, ambient, edgeFlg, toonPath, texFilePath, MaterialControlIDs);
 
 	if (result != 1)
 	{
@@ -790,6 +809,7 @@ int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid,
 	//------------create instance------------
 	PMDModelInstance* instance = new PMDModelInstance();
 	instance->m_model = verRes;
+	instance->m_materialControls.resize(verRes->m_materialCount);
 	//instance->BindAnimation(verRes->m_animation);
 	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard, boneSize);
 
@@ -831,7 +851,7 @@ int __declspec(dllexport) __stdcall InstantiateBasicModel(unsigned long long _ui
 	//------------create instance------------
 	ModelInstance* instance = new ModelInstance();
 	instance->m_model = verRes;
-	//instance->BindAnimation(verRes->m_animation);
+	instance->m_materialControls.resize(verRes->m_materialCount);
 	instance->CreateTransformView(D3DResourceManage::Instance().pGraphicsCard);
 
 	verRes->m_instances.push_back(instance);

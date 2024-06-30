@@ -774,11 +774,20 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 					GetDescHandle(resource.descOffset));
 			}
 
-			for (auto& m : instance->m_materialControls)
+			if (model->m_materialCount != instance->m_materialControls.size())
 			{
+				PrintDebug("model->m_materialCount != instance->m_materialControls.size()");
+				PrintDebug((int)model->m_materialCount);
+				PrintDebug((int)instance->m_materialControls.size());
+				continue;
+			}
+			for (int i =0 ;i < model->m_materialCount;i++)
+			{
+				auto m = instance->m_materialControls[i];
+
 				if (m->m_material.pipeLineName == m_name)
 				{
-					PrintDebug("m.pipeLineName == m_name");
+					//PrintDebug("m.pipeLineName == m_name");
 				}
 				else
 				{
@@ -791,7 +800,8 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 
 				_cmdList->SetGraphicsRootDescriptorTable(2, GetDescHandle(m->m_material.descOffset));				 // set material root
 				
-				_cmdList->DrawIndexedInstanced(m->m_material.indicesNum, 1, m->m_material.startIndex, 0, 0);
+				_cmdList->DrawIndexedInstanced(model->m_matIndexCountList[i], 
+					1, model->m_matStartIndexList[i], 0, 0);
 			}
 		}
 	}

@@ -54,7 +54,6 @@ namespace CkfEngine.Core
                 setList.Select(item => item.ambient).ToArray(),
                 setList.Select(item => item.edgeFlg).ToArray(),
                 setList.Select(item => item.toonPath).ToArray(),
-                setList.Select(item => item.indicesNum).ToArray(),
                 setList.Select(item => item.texFilePath).ToArray()) == 1;
         }
 
@@ -90,7 +89,7 @@ namespace CkfEngine.Core
         public Vector3 ambient;
         public string toonPath;
         public byte edgeFlg;
-        public uint indicesNum;
+        //public uint indicesNum;
         public string texFilePath;  //20bytes
     }
 
