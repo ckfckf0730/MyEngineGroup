@@ -330,15 +330,13 @@ namespace CkfEngine.Core
                         //set materials' root param
                         for(int i =0;i < materials.Count; i++)
                         {
-                            uint firstNum = 3;  //0,1,2 are used for  camera,transform, basic material.
-                            foreach (var rootParameter in materials[i].shader.rootParameters)
+                            MaterialManager.CreateCustomizedResource(materials[i]);
+
+                            if(i %2 == 0)
                             {
-                                D3DAPICall.CreateCustomizedResource(materials[i].materialId, rootParameter.name, 12, firstNum);
-                                var data = ShaderDataTypeManager.GetBytesByString(rootParameter.dataType, rootParameter.defaultValue);
-                                D3DAPICall.SetCustomizedResourceValue(materials[i].materialId, rootParameter.name, data);
-                                firstNum++;
+                                MaterialManager.SetCustomizedResourceValue(materials[i], "testColor", new Vector4(0, 0, 1, 0));
+                                MaterialManager.SetCustomizedResourceValue(materials[i], "testColor2", new Vector4(0, 0, 0, 0));
                             }
-                            D3DAPICall.CreateCustomizedDescriptors(materials[i].materialId, materials[i].shader.m_name);
                         }
 
                         if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))

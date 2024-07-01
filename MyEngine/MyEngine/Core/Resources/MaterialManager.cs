@@ -17,6 +17,26 @@ namespace CkfEngine.Core
             //GetToonPath(matList[0].toonIdx);
         }
 
+        public static void CreateCustomizedResource(StandardMaterial material)
+        {
+            uint firstNum = 3;  //0,1,2 are used for  camera,transform, basic material.
+            foreach (var rootParameter in material.shader.rootParameters)
+            {
+                D3DAPICall.CreateCustomizedResource(material.materialId, rootParameter.name, 12, firstNum);
+                var data = ShaderDataTypeManager.GetBytesByString(rootParameter.dataType, rootParameter.defaultValue);
+                D3DAPICall.SetCustomizedResourceValue(material.materialId, rootParameter.name, data);
+                firstNum++;
+            }
+            D3DAPICall.CreateCustomizedDescriptors(material.materialId, material.shader.m_name);
+        }
+
+        public static void SetCustomizedResourceValue(StandardMaterial material, string paramName , object value)
+        {
+            var name = material.shader.rootParameters.Find( item => item.name == paramName ).name;
+            var data = CommonFuction.StructToByteArray(value);
+            D3DAPICall.SetCustomizedResourceValue(material.materialId, name, data);
+        }
+
         public static string GetToonPath(byte toonIdx)
         {
             string toonFilePath = "Assets/toon/";
