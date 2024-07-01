@@ -80,19 +80,38 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_spaResource;
 };
 
+struct ShaderResource
+{
+	uint16_t datasize;
+
+	//ID3D12DescriptorHeap* descHeap;
+	UINT descOffset;
+	ID3D12Resource* resource;
+	char* mapData;
+
+	//UINT shaderRegisterNum;
+	UINT RootParameterIndex;
+};
+
 class MaterialControl
 {
 public:
 	Material m_material;
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
+	std::map<std::string, ShaderResource> m_shaderResourceTable;
 
 	static int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[], 
 		DirectX::XMFLOAT3 diffuse[], float alpha[],
 		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
 		const char* toonPath[], const char* texFilePath[], UINT MaterialIDs[]);
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
+	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT rootParameterIndex);
+	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
+	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
 
 	void CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipeline);
+
+	~MaterialControl();
 };
 
 #pragma pack(1)
@@ -314,20 +333,6 @@ public:
 		unsigned int _indCount, unsigned short* _indices) override;
 };
 
-struct ShaderResource
-{
-	uint16_t datasize;
-
-	//ID3D12DescriptorHeap* descHeap;
-	UINT descOffset;
-	ID3D12Resource* resource;
-	char* mapData;
-
-	//UINT shaderRegisterNum;
-	UINT RootParameterIndex;
-};
-
-
 class ModelInstance
 {
 public:
@@ -343,16 +348,12 @@ public:
 
 	D3DPipeline* m_bindPipeline = nullptr;
 	std::vector<MaterialControl*> m_materialControls;
-
-	std::map<std::string, ShaderResource> m_shaderResouceTable;
-
+	//std::map<std::string, ShaderResource> m_shaderResouceTable;
 
 	virtual int CreateTransformView(D3DDevice* _cD3DDev);
-
-	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT rootParameterIndex);
-	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
-
+	//int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT rootParameterIndex);
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
+	//void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
 
 	int BindMaterialControl(UINT matIds[], UINT count);
 

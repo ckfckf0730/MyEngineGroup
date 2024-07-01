@@ -592,14 +592,14 @@ void ModelInstance::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
 		d3ddevice, m_transformConstBuff);
 
 
-	//CustomizedResource
-	for (auto& iter : m_shaderResouceTable)
-	{
-		auto& res = iter.second;
-		
-		res.descOffset = pipeline->CreateConstantDescript(
-			d3ddevice, res.resource);
-	}
+	////CustomizedResource
+	//for (auto& iter : m_shaderResouceTable)
+	//{
+	//	auto& res = iter.second;
+	//	
+	//	res.descOffset = pipeline->CreateConstantDescript(
+	//		d3ddevice, res.resource);
+	//}
 }
 
 int ModelInstance::BindMaterialControl(UINT matIds[], UINT count)
@@ -629,67 +629,67 @@ int ModelInstance::BindMaterialControl(UINT matIds[], UINT count)
 }
 
 
-int ModelInstance::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,
-	UINT rootParameterIndex)
-{
-	m_shaderResouceTable.insert(std::pair<std::string, ShaderResource>(name, ShaderResource{}));
-	auto& res = m_shaderResouceTable[name];
-	//res.shaderRegisterNum = shaderRegisterNum;
-	res.datasize = datasize;
-	res.RootParameterIndex = rootParameterIndex;
-
-	// Ensure buffer size is a multiple of 256
-	unsigned long long buffSize = (res.datasize + 0xff) & ~0xff;
-
-	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(buffSize);
-
-	auto result = _cD3DDev->pD3D12Device->CreateCommittedResource(
-		&heapProp,
-		D3D12_HEAP_FLAG_NONE,
-		&resDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&res.resource));
-	if (FAILED(result))
-	{
-		PrintDebug("Create Customized const buff fault.");
-		return -1;
-	}
-
-	result = res.resource->Map(0, nullptr, (void**)&res.mapData);
-	if (FAILED(result))
-	{
-		ShowMsgBox(L"Error", L"Map Customized const buff fault.");
-		return -1;
-	}
-
-	memset(res.mapData, 0, buffSize);
-
-	return 1;
-}
-
-void ModelInstance::SetCustomizedResourceValue(LPCSTR name, unsigned char* data)
-{
-	auto iter = m_shaderResouceTable.find(name);
-	if (iter != m_shaderResouceTable.end())
-	{
-		std::memcpy(iter->second.mapData, data, iter->second.datasize);
-		PrintDebug("Set Customized Resource Value success!");
-	}
-}
+//int ModelInstance::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,
+//	UINT rootParameterIndex)
+//{
+//	m_shaderResouceTable.insert(std::pair<std::string, ShaderResource>(name, ShaderResource{}));
+//	auto& res = m_shaderResouceTable[name];
+//	//res.shaderRegisterNum = shaderRegisterNum;
+//	res.datasize = datasize;
+//	res.RootParameterIndex = rootParameterIndex;
+//
+//	// Ensure buffer size is a multiple of 256
+//	unsigned long long buffSize = (res.datasize + 0xff) & ~0xff;
+//
+//	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+//	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(buffSize);
+//
+//	auto result = _cD3DDev->pD3D12Device->CreateCommittedResource(
+//		&heapProp,
+//		D3D12_HEAP_FLAG_NONE,
+//		&resDesc,
+//		D3D12_RESOURCE_STATE_GENERIC_READ,
+//		nullptr,
+//		IID_PPV_ARGS(&res.resource));
+//	if (FAILED(result))
+//	{
+//		PrintDebug("Create Customized const buff fault.");
+//		return -1;
+//	}
+//
+//	result = res.resource->Map(0, nullptr, (void**)&res.mapData);
+//	if (FAILED(result))
+//	{
+//		ShowMsgBox(L"Error", L"Map Customized const buff fault.");
+//		return -1;
+//	}
+//
+//	memset(res.mapData, 0, buffSize);
+//
+//	return 1;
+//}
+//
+//void ModelInstance::SetCustomizedResourceValue(LPCSTR name, unsigned char* data)
+//{
+//	auto iter = m_shaderResouceTable.find(name);
+//	if (iter != m_shaderResouceTable.end())
+//	{
+//		std::memcpy(iter->second.mapData, data, iter->second.datasize);
+//		PrintDebug("Set Customized Resource Value success!");
+//	}
+//}
 
 ModelInstance::~ModelInstance()
 {
 	//m_transformDescHeap->Release();
 	m_transformConstBuff->Release();
 
-	for (auto& iter : m_shaderResouceTable)
-	{
-		auto& res = iter.second;
-		res.resource->Release();
-	}
-	m_shaderResouceTable.clear();
+	//for (auto& iter : m_shaderResouceTable)
+	//{
+	//	auto& res = iter.second;
+	//	res.resource->Release();
+	//}
+	//m_shaderResouceTable.clear();
 }
 
 int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[],
@@ -821,6 +821,70 @@ int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, co
 	return 1;
 }
 
+int MaterialControl::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,
+	UINT rootParameterIndex)
+{
+	m_shaderResourceTable.insert(std::pair<std::string, ShaderResource>(name, ShaderResource{}));
+	auto& res = m_shaderResourceTable[name];
+	//res.shaderRegisterNum = shaderRegisterNum;
+	res.datasize = datasize;
+	res.RootParameterIndex = rootParameterIndex;
+
+	// Ensure buffer size is a multiple of 256
+	unsigned long long buffSize = (res.datasize + 0xff) & ~0xff;
+
+	auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto resDesc = CD3DX12_RESOURCE_DESC::Buffer(buffSize);
+
+	auto result = _cD3DDev->pD3D12Device->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAG_NONE,
+		&resDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&res.resource));
+	if (FAILED(result))
+	{
+		PrintDebug("Create Customized const buff fault.");
+		return -1;
+	}
+
+	result = res.resource->Map(0, nullptr, (void**)&res.mapData);
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"Error", L"Map Customized const buff fault.");
+		return -1;
+	}
+
+	memset(res.mapData, 0, buffSize);
+
+	return 1;
+}
+
+void MaterialControl::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
+{
+	ID3D12Device* d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+
+	//CustomizedResource
+	for (auto& iter : m_shaderResourceTable)
+	{
+		auto& res = iter.second;
+
+		res.descOffset = pipeline->CreateConstantDescript(
+			d3ddevice, res.resource);
+	}
+}
+
+void MaterialControl::SetCustomizedResourceValue(LPCSTR name, unsigned char* data)
+{
+	auto iter = m_shaderResourceTable.find(name);
+	if (iter != m_shaderResourceTable.end())
+	{
+		std::memcpy(iter->second.mapData, data, iter->second.datasize);
+		PrintDebug("Set Customized Resource Value success!");
+	}
+}
+
 void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipeline)
 {
 	auto d3ddevice = _cD3DDev->pD3D12Device;
@@ -916,6 +980,16 @@ void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipelin
 			pipeline->CreateShaderResDescript(d3ddevice, gradTex);
 		}
 	//}
+}
+
+MaterialControl::~MaterialControl()
+{
+	for (auto& iter : m_shaderResourceTable)
+	{
+		auto& res = iter.second;
+		res.resource->Release();
+	}
+	m_shaderResourceTable.clear();
 }
 
 //int MaterialControl::InitMaterial(int indicesNum)

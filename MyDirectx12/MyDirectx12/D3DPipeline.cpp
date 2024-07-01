@@ -747,6 +747,7 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 	_cmdList->SetGraphicsRootSignature(m_rootsignature);
 	_cmdList->SetDescriptorHeaps(1, &m_descHeap);
 
+	// the cost: set pipeline > set veterx, index buffer > set root param
 	for (auto& pair : RenderModelTable)
 	{
 		auto model = pair.first;
@@ -766,13 +767,6 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 
 			_cmdList->SetGraphicsRootDescriptorTable(1, 
 				GetDescHandle(instance->m_transformDescOffset)); // set transform matrices root
-
-			for (auto& pair : instance->m_shaderResouceTable)
-			{
-				auto& resource = pair.second;
-				_cmdList->SetGraphicsRootDescriptorTable(resource.RootParameterIndex,
-					GetDescHandle(resource.descOffset));
-			}
 
 			if (model->m_materialCount != instance->m_materialControls.size())
 			{
@@ -796,6 +790,13 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 					str += m_name;
 					PrintDebug(str.c_str());
 					return;
+				}
+
+				for (auto& shaderResource : m->m_shaderResourceTable)
+				{
+					auto& resource = shaderResource.second;
+					_cmdList->SetGraphicsRootDescriptorTable(resource.RootParameterIndex,
+						GetDescHandle(resource.descOffset));
 				}
 
 				_cmdList->SetGraphicsRootDescriptorTable(2, GetDescHandle(m->m_material.descOffset));				 // set material root

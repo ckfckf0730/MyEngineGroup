@@ -78,11 +78,15 @@ namespace CkfEngine.Core
         internal static void CreateShaderByBuilder(ShaderBuilder builder)
         {
             var shader = new Shader(builder.name);
-            foreach(var property in builder.Properties)
+            if(builder.Properties != null)
             {
-                shader.AddRootParameter(property.name,  property.descRangeType, 
-                    property.register, property.visibility, property.dataType,property.defaultValue);
+                foreach (var property in builder.Properties)
+                {
+                    shader.AddRootParameter(property.name, property.descRangeType,
+                        property.register, property.visibility, property.dataType, property.defaultValue);
+                }
             }
+           
             shader.CreatePipeline(builder.vsCode, builder.psCode,
                 builder.vsEntrance, builder.psEntrance, builder.isBoneModel);
 

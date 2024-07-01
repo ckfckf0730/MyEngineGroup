@@ -277,47 +277,6 @@ void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,
 	D3DResourceManage::Instance().RootSignatureSetting.push_back(RootSignatureSetting{ name, desc  , visibility });
 }
 
-extern"C"
-{
-	void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT64 uid, 
-		LPCSTR name, uint16_t datasize, UINT shaderRegisterNum);
-}
-
-void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT64 uid,
-	LPCSTR name, uint16_t datasize, UINT rootParameterIndex)
-{
-	auto iter = ModelInstance::s_uidModelTable.find(uid);
-	if (iter == ModelInstance::s_uidModelTable.end())
-	{
-		PrintDebug("CreateCustomizedResource fault, can't find: ");
-		PrintDebug((int)uid);
-		return;
-	}
-	auto pInstance = iter->second;
-	pInstance->CreateCustomizedResource(D3DResourceManage::Instance().pGraphicsCard,
-		name, datasize, rootParameterIndex);
-}
-
-extern"C"
-{
-	void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT64 uid,
-		LPCSTR name, unsigned char* data);
-}
-
-void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT64 uid,
-	LPCSTR name, unsigned char* data)
-{
-	auto iter = ModelInstance::s_uidModelTable.find(uid);
-	if (iter == ModelInstance::s_uidModelTable.end())
-	{
-		PrintDebug("UpdatePMDBoneMatrices fault, can't find: ");
-		PrintDebug((int)uid);
-		return;
-	}
-	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
-	pInstance->SetCustomizedResourceValue(name, data);
-}
-
 //extern"C"
 //{
 //	int __declspec(dllexport) __stdcall SetPmdStandardPipeline();
@@ -680,6 +639,78 @@ int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlIDs[], unsi
 
 		material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard, iter->second);
 	}
+	return 1;
+}
+
+extern"C"
+{
+	void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT materialId,
+		LPCSTR name, uint16_t datasize, UINT shaderRegisterNum);
+}
+
+void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT materialId,
+	LPCSTR name, uint16_t datasize, UINT rootParameterIndex)
+{
+	auto iter = D3DResourceManage::Instance().MaterialTable.find(materialId);
+	if (iter == D3DResourceManage::Instance().MaterialTable.end())
+	{
+		PrintDebug("CreateCustomizedResource fault, can't find : ");
+		PrintDebug((int)materialId);
+		return;
+	}
+	auto materialControl = iter->second;
+	materialControl->CreateCustomizedResource(D3DResourceManage::Instance().pGraphicsCard,
+		name, datasize, rootParameterIndex);
+}
+
+extern"C"
+{
+	void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT materialId,
+		LPCSTR name, unsigned char* data);
+}
+
+void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT materialId,
+	LPCSTR name, unsigned char* data)
+{
+	auto iter = D3DResourceManage::Instance().MaterialTable.find(materialId);
+	if (iter == D3DResourceManage::Instance().MaterialTable.end())
+	{
+		PrintDebug("SetCustomizedResourceValue fault, can't find: ");
+		PrintDebug((int)materialId);
+		return;
+	}
+	auto materialControl = iter->second;
+	materialControl->SetCustomizedResourceValue(name, data);
+}
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID, const char* pipelineName);
+}
+
+int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID, const char* pipelineName)
+{
+	auto iter = D3DResourceManage::Instance().MaterialTable.find(materialID);
+	if (iter == D3DResourceManage::Instance().MaterialTable.end())
+	{
+		PrintDebug("CreateCustomizedDescriptors fault, can't find materialID: ");
+		PrintDebug((int)materialID);
+		return -1;
+	}
+
+	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
+	{
+		PrintDebug("BindPipeline fault, can't find pipeline: ");
+		PrintDebug(pipelineName);
+		return -1;
+	}
+
+	auto materialControl = iter->second;
+	auto pipeline = iter2->second;
+
+	materialControl->CreateDescriptorsByPipeline(pipeline);
+
 	return 1;
 }
 

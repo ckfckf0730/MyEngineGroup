@@ -322,30 +322,30 @@ namespace CkfEngine.Core
                     }
                     foreach(var material in materials)
                     {
-                        material.shader.m_name = "TestShader";
+                        material.shader = Shader.ShaderTable["TestShader"];
                     }
 
                     if (MaterialManager.SetMaterials(materials, out var IDs))
                     {
+                        //set materials' root param
+                        for(int i =0;i < materials.Count; i++)
+                        {
+                            uint firstNum = 3;  //0,1,2 are used for  camera,transform, basic material.
+                            foreach (var rootParameter in materials[i].shader.rootParameters)
+                            {
+                                D3DAPICall.CreateCustomizedResource(materials[i].materialId, rootParameter.name, 12, firstNum);
+                                var data = ShaderDataTypeManager.GetBytesByString(rootParameter.dataType, rootParameter.defaultValue);
+                                D3DAPICall.SetCustomizedResourceValue(materials[i].materialId, rootParameter.name, data);
+                                firstNum++;
+                            }
+                            D3DAPICall.CreateCustomizedDescriptors(materials[i].materialId, materials[i].shader.m_name);
+                        }
+
                         if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
                         {
                             if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
                             {
                                 m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
-
-                                Shader shader;
-                                Shader.ShaderTable.TryGetValue("TestShader", out shader);
-                                uint firstNum = 3;
-                                if(shader != null)
-                                {
-                                    foreach(var rootParameter in shader.rootParameters)
-                                    {
-                                        D3DAPICall.CreateCustomizedResource(OwnerEntity.Uid, rootParameter.name, 12, firstNum);
-                                        firstNum++;
-                                        var data = ShaderDataTypeManager.GetBytesByString(rootParameter.dataType, rootParameter.defaultValue);
-                                        D3DAPICall.SetCustomizedResourceValue(OwnerEntity.Uid, rootParameter.name, data);
-                                    }
-                                }
 
                                 D3DAPICall.BindPipeline(OwnerEntity.Uid, "TestShader");
                                 //D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
