@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +29,18 @@ namespace CkfEngine.Core
                 firstNum++;
             }
             D3DAPICall.CreateCustomizedDescriptors(material.materialId, material.shader.m_name);
+        }
+
+        public static object GetCustomizedResourceValue(StandardMaterial material, string paramName,Type type)
+        {
+            IntPtr dataPtr;
+            UInt16 size;
+
+            D3DAPICall.GetCustomizedResourceValue(material.materialId, paramName,out dataPtr, out size);
+            byte[] data = new byte[size];
+            Marshal.Copy(dataPtr, data, 0, (int)size);
+
+            return CommonFuction.ByteArrayToObject(data, type);
         }
 
         public static void SetCustomizedResourceValue(StandardMaterial material, string paramName , object value)

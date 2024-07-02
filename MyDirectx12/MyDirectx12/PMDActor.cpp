@@ -885,6 +885,16 @@ void MaterialControl::SetCustomizedResourceValue(LPCSTR name, unsigned char* dat
 	}
 }
 
+unsigned char* MaterialControl::GetCustomizedResourceValue(LPCSTR name , UINT16* size)
+{
+	auto iter = m_shaderResourceTable.find(name);
+	if (iter != m_shaderResourceTable.end())
+	{
+		*size = iter->second.datasize;
+		return iter->second.mapData;
+	}
+}
+
 void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipeline)
 {
 	auto d3ddevice = _cD3DDev->pD3D12Device;

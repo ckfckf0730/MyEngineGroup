@@ -422,19 +422,7 @@ namespace CkfEngine.Core
         }
 
 
-        private static T ByteArrayToStructure<T>(byte[] bytes) where T : struct
-        {
-            // Alloc memory
-            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            try
-            {
-                return (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-            }
-            finally
-            {
-                handle.Free();
-            }
-        }
+
 
     }
 

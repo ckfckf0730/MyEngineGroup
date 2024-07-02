@@ -25,7 +25,7 @@ namespace CkfEngine.Editor
 
         private void OnEntitySelect(Entity entity)
         {
-            if(CurrentEntity != entity)
+            if (CurrentEntity != entity)
             {
                 CurrentEntity = entity;
                 UpdatePanel();
@@ -36,19 +36,19 @@ namespace CkfEngine.Editor
         {
             HideAllPanel();
 
-            if(CurrentEntity != null) 
+            if (CurrentEntity != null)
             {
                 foreach (var item in CurrentEntity.Components)
                 {
                     UpdateOnePanel(item);
                 }
             }
-            
+
         }
 
         private void HideAllPanel()
         {
-            foreach(var item in m_componentPanelTable.Values)
+            foreach (var item in m_componentPanelTable.Values)
             {
                 item.Hide();
             }
@@ -57,7 +57,7 @@ namespace CkfEngine.Editor
         private void UpdateOnePanel(Component component)
         {
             var type = component.GetType();
-            if (m_componentPanelTable.TryGetValue(type.Name,out var value))
+            if (m_componentPanelTable.TryGetValue(type.Name, out var value))
             {
                 value.UpdateData(component);
                 return;
@@ -91,7 +91,7 @@ namespace CkfEngine.Editor
         private void ResetButton()
         {
             m_bindControl.Controls.Remove(m_button);
-            m_bindControl.Controls.Add(m_button);    
+            m_bindControl.Controls.Add(m_button);
         }
 
         private Control AddPanel()
@@ -103,7 +103,7 @@ namespace CkfEngine.Editor
 
             //newPanel.Dock = DockStyle.Fill;
 
- 
+
             ResetButton();
             return newPanel;
         }
@@ -139,23 +139,38 @@ namespace CkfEngine.Editor
                 Label label = new Label();
                 m_panel.Controls.Add(label);
                 label.Text = type.Name;
-                label.Location = new Point((m_panel.Width - label.Width) /2, 0);
+                label.Location = new Point((m_panel.Width - label.Width) / 2, 0);
 
                 int top = 30;
                 foreach (FieldInfo field in m_fieldInfos)
                 {
-                    var attribute = field.GetCustomAttribute<MyAttributeShowInspector>();
-                    if (!field.IsPublic && attribute == null)
+                    var attributNew = field.GetCustomAttribute<MyAttributeNewWindowInspector>();
+                    if (attributNew != null)
                     {
-                        continue;
+                        MaterialUI windowUI = new MaterialUI();
+                        windowUI.CurComponent = component;
+                        windowUI.Init(field, m_panel, ref top);
+
+                        windowUI.UpdateData();
+                        m_fieldList.Add(windowUI);
                     }
-                    FieldUI fieldUI = new FieldUI();
-                    fieldUI.CurComponent = component;
-                    fieldUI.Init(field, m_panel, ref top);
-                    
-                    fieldUI.UpdateData();
-                    m_fieldList.Add(fieldUI);
-                    //}
+                    else
+                    {
+                        var attribute = field.GetCustomAttribute<MyAttributeShowInspector>();
+                        if (!field.IsPublic && attribute == null)
+                        {
+                            continue;
+                        }
+
+                        FieldUI fieldUI = new FieldUI();
+                        fieldUI.CurComponent = component;
+                        fieldUI.Init(field, m_panel, ref top);
+
+                        fieldUI.UpdateData();
+                        m_fieldList.Add(fieldUI);
+                    }
+
+
                 }
                 m_panelHeight = top + 20;
 
@@ -204,12 +219,12 @@ namespace CkfEngine.Editor
 
             private class FieldUI
             {
-                private Component m_curComponent;
+                protected Component m_curComponent;
                 public Component CurComponent { set { m_curComponent = value; } }
-                private FieldInfo m_info;
+                protected FieldInfo m_info;
                 private TextBox[] m_texts;
 
-                public void Init(FieldInfo info,Control panel, ref int locationY)
+                public virtual void Init(FieldInfo info, Control panel, ref int locationY)
                 {
                     int offY = 25;
                     m_info = info;
@@ -238,7 +253,7 @@ namespace CkfEngine.Editor
                         case "FileLoad":
                             m_texts = new TextBox[1];
                             m_texts[0] = new TextBox();
-                            m_texts[0].Size = new Size(250,m_texts[0].Size.Height);
+                            m_texts[0].Size = new Size(250, m_texts[0].Size.Height);
                             Button button = new Button();
                             button.Text = "Select File";
                             panel.Controls.Add(button);
@@ -247,11 +262,11 @@ namespace CkfEngine.Editor
 
                             var customAttribute = (MyAttributeLoadFileType)Attribute.GetCustomAttribute(info, typeof(MyAttributeLoadFileType));
                             var loadTypeStr = customAttribute?.Description;
-                            button.Click += (sender, e) => 
+                            button.Click += (sender, e) =>
                             {
                                 OpenFileDialog openFileDialog = new OpenFileDialog();
                                 openFileDialog.Title = "Select a File";
-                                openFileDialog.Filter = loadTypeStr + " Files (*." + loadTypeStr + ")|*."+ loadTypeStr;
+                                openFileDialog.Filter = loadTypeStr + " Files (*." + loadTypeStr + ")|*." + loadTypeStr;
                                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                                 {
                                     if (File.Exists(openFileDialog.FileName))
@@ -261,15 +276,15 @@ namespace CkfEngine.Editor
                                         curLoad.FullPath = openFileDialog.FileName;
                                     }
 
-                                    
+
                                 }
                             };
 
-                            
+
                             break;
                     }
-                   
-                    if(m_texts != null)
+
+                    if (m_texts != null)
                     {
                         int xCoord = 0;
                         foreach (var texbox in m_texts)
@@ -281,11 +296,11 @@ namespace CkfEngine.Editor
                         }
                         locationY += offY;
                     }
-                    
+
                 }
 
 
-                public void UpdateData()
+                public virtual void UpdateData()
                 {
                     switch (m_info.FieldType.Name)
                     {
@@ -330,16 +345,149 @@ namespace CkfEngine.Editor
                             m_info.SetValue(m_curComponent, value);
                             break;
                         case "Vector3":
-                            float x,y,z;
-                            float.TryParse(m_texts[0].Text,out x);
+                            float x, y, z;
+                            float.TryParse(m_texts[0].Text, out x);
                             float.TryParse(m_texts[1].Text, out y);
                             float.TryParse(m_texts[2].Text, out z);
-                            m_info.SetValue(m_curComponent, new Vector3(x,y,z));
+                            m_info.SetValue(m_curComponent, new Vector3(x, y, z));
                             (m_curComponent as Transform)?.EffectiveTransform();
                             break;
                         case "FileLoad":
                             break;
                     }
+                }
+            }
+
+            private class MaterialUI : FieldUI
+            {
+                private Button m_showButton;
+                private Form m_matrialWindow;
+
+
+                List<Control> m_mateialInfoControls;
+
+                public override void Init(FieldInfo info, Control panel, ref int locationY)
+                {
+                    m_info = info;
+                    m_mateialInfoControls = new List<Control>();
+
+                    //--- init Materials button ---
+                    int offY = 25;
+
+                    Label label = new Label();
+                    panel.Controls.Add(label);
+                    label.Text = info.Name;
+                    label.Location = new Point(0, locationY);
+                    locationY += offY;
+
+                    m_showButton = new Button();
+                    m_showButton.Text = "Materials";
+                    panel.Controls.Add(m_showButton);
+                    m_showButton.Location = new Point(0, locationY);
+
+                    m_showButton.Click += ShowOnClicked;
+
+                    locationY += offY;
+
+                    ////--- init material window ---
+                    //CreateMaterialWindow();
+                    //m_matrialWindow.Hide();
+                }
+
+                private void ShowOnClicked(object sender, EventArgs e)
+                {
+                    if (m_matrialWindow == null || m_matrialWindow.IsDisposed) // Check if the form is null or disposed
+                    {
+                        CreateMaterialWindow();
+                    }
+                    m_matrialWindow.Show();
+                }
+
+                private void CreateMaterialWindow()
+                {
+                    m_matrialWindow = new Form();
+                    m_matrialWindow.Owner = EditorUI.Instance.MainForm;
+
+                    m_matrialWindow.Width = 800;
+                    m_matrialWindow.Height = 600;
+
+
+                    List<StandardMaterial> list = (m_info.GetValue(m_curComponent)) as List<StandardMaterial>;
+
+                    int offY = 0;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        Button button1 = new Button();
+                        Button button2 = new Button();
+                        m_matrialWindow.Controls.Add(button1);
+                        m_matrialWindow.Controls.Add(button2);
+                        button1.Text = "Change";
+                        button1.Location = new Point(0, offY);
+
+                        button2.Text = list[i].materialId.ToString();
+                        button2.Location = new Point(50, offY);
+                        button2.Click += MaterialOnClicked;
+                        button2.Tag = i;
+
+                        offY += 20;
+                    }
+                }
+
+                private void ClearMateialInfo()
+                {
+                    foreach(var item in m_mateialInfoControls)
+                    {
+                        m_matrialWindow.Controls.Remove(item);
+                    }
+                    m_mateialInfoControls.Clear();
+
+                }
+
+                private void MaterialOnClicked(object sender, EventArgs e)
+                {
+                    ClearMateialInfo();
+
+                    List<StandardMaterial> list = (m_info.GetValue(m_curComponent)) as List<StandardMaterial>;
+                    Button button = sender as Button;
+
+                    StandardMaterial mat = list[(int)button.Tag];
+
+                    int startX = 300;
+                    if (mat?.shader != null)
+                    {
+                        int offY = 0;
+                        foreach (var rootParam in mat.shader.rootParameters)
+                        {
+                            Label label = new Label();
+                            m_matrialWindow.Controls.Add(label);
+                            m_mateialInfoControls.Add(label);
+                            label.Text = rootParam.name;
+                            label.Location = new Point(startX, offY);
+                            var type = ShaderDataTypeManager.GetTypeByString(rootParam.dataType);
+                            var data = MaterialManager.GetCustomizedResourceValue(mat, rootParam.name, type.type);
+                            var fields = data.GetType().GetFields();
+                            //var test2 = typeof(float).GetFields();
+                            for (int i=0; i < type.arrLen; i++)
+                            {
+                                TextBox textBox = new TextBox();
+                                m_matrialWindow.Controls.Add(textBox);
+                                m_mateialInfoControls.Add(textBox);
+                                textBox.Location = new Point(startX + i * 100, offY + 25);
+                                textBox.Width = 80;
+
+                                textBox.Text = fields[i].GetValue(data).ToString();
+
+                            }
+
+                            offY += 60;
+                        }
+                    }
+                }
+
+
+                public override void UpdateData()
+                {
+
                 }
             }
         }
@@ -348,13 +496,13 @@ namespace CkfEngine.Editor
     internal class CkfAddComponentUI
     {
         private FormAddComponent m_form;
-        private Dictionary<string,Type> m_componentTypeTable;
+        private Dictionary<string, Type> m_componentTypeTable;
 
         public void Init(Button addButton)
         {
             SelectUI.EventChangeSelect += (entity) =>
             {
-                if(entity != null)
+                if (entity != null)
                 {
                     addButton.Show();
                 }
@@ -363,7 +511,7 @@ namespace CkfEngine.Editor
                     addButton.Hide();
                 }
             };
-            if(SelectUI.CurEntity == null)
+            if (SelectUI.CurEntity == null)
             {
                 addButton.Hide();
             }
@@ -373,7 +521,7 @@ namespace CkfEngine.Editor
             }
 
 
-            m_componentTypeTable = new Dictionary<string,Type>();
+            m_componentTypeTable = new Dictionary<string, Type>();
             //m_form = new FormAddComponent();
             addButton.Click += Open;
 
@@ -381,7 +529,7 @@ namespace CkfEngine.Editor
             ScriptCompilate.CompileAllScript();
         }
 
-        private void UpdataComponentUI(Dictionary<string,Type> scriptTable)
+        private void UpdataComponentUI(Dictionary<string, Type> scriptTable)
         {
             Type baseType = typeof(Component);
             Assembly assembly = Assembly.GetExecutingAssembly(); // Or specify the assembly where your classes are defined
@@ -412,7 +560,7 @@ namespace CkfEngine.Editor
         private void CreateButtons()
         {
             Button templateButton = m_form.Controls[0] as Button;
-            
+
 
             // Print the derived class names
             int locationX = templateButton.Location.X;
@@ -442,7 +590,7 @@ namespace CkfEngine.Editor
             m_componentTypeTable.TryGetValue(
                 (sender as Button).Name, out type);
             var componet = SelectUI.CurEntity.GetComponent(type);
-            if(componet == null)
+            if (componet == null)
             {
                 SelectUI.CurEntity.CreateComponent(type);
                 EditorUI.Instance.CkfInspectorItem.UpdatePanel();
@@ -470,6 +618,6 @@ namespace CkfEngine.Editor
 
 
 
-    
-    
+
+
 }

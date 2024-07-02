@@ -87,7 +87,7 @@ struct ShaderResource
 	//ID3D12DescriptorHeap* descHeap;
 	UINT descOffset;
 	ID3D12Resource* resource;
-	char* mapData;
+	unsigned char* mapData;
 
 	//UINT shaderRegisterNum;
 	UINT RootParameterIndex;
@@ -108,6 +108,7 @@ public:
 	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT rootParameterIndex);
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
 	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
+	unsigned char* GetCustomizedResourceValue(LPCSTR name, UINT16* size);
 
 	void CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipeline);
 

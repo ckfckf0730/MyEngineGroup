@@ -9,23 +9,16 @@ using System.Threading.Tasks;
 namespace CkfEngine.Core
 {
 
-
-
     internal static class ShaderDataTypeManager
     {
-        private struct ShaderDataType
-        {
-            public string name;
-            public Type type;
-            public uint arrLen;
-            public float limitedMin;
-            public float limitedMax;
-
-            public Func<string, ValueType> StringToValue;
-        }
-
 
         private static Dictionary<string, ShaderDataType> Table;
+
+        internal static ShaderDataType GetTypeByString(string typeName)
+        {
+            Table.TryGetValue(typeName, out var type);
+            return type;
+        }
 
         internal static void Init()
         {
@@ -77,5 +70,17 @@ namespace CkfEngine.Core
 
             return CommonFuction.StructToByteArray(value);
         }
+    }
+
+
+    internal struct ShaderDataType
+    {
+        public string name;
+        public Type type;
+        public uint arrLen;
+        public float limitedMin;
+        public float limitedMax;
+
+        public Func<string, ValueType> StringToValue;
     }
 }

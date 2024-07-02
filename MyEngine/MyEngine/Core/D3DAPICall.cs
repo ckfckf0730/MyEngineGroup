@@ -115,6 +115,9 @@ namespace CkfEngine.Core
         public static extern void SetCustomizedResourceValue(uint materialId, string name, byte[] data);
 
         [DllImport("MyDirectx12.dll")]
+        public static extern void GetCustomizedResourceValue(uint materialId, string name, out IntPtr data, out UInt16 size);
+
+        [DllImport("MyDirectx12.dll")]
         public static extern int CreateCustomizedDescriptors(uint materialID, string pipelineName);
 
         [DllImport("MyDirectx12.dll")]

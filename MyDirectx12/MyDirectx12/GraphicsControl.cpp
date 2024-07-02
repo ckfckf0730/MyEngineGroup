@@ -685,6 +685,26 @@ void __declspec(dllexport) __stdcall SetCustomizedResourceValue(UINT materialId,
 
 extern"C"
 {
+	void __declspec(dllexport) __stdcall GetCustomizedResourceValue(
+		UINT materialId, LPCSTR name, unsigned char** data, UINT16* size);
+}
+
+void __declspec(dllexport) __stdcall GetCustomizedResourceValue(
+	UINT materialId, LPCSTR name , unsigned char** data, UINT16* size)
+{
+	auto iter = D3DResourceManage::Instance().MaterialTable.find(materialId);
+	if (iter == D3DResourceManage::Instance().MaterialTable.end())
+	{
+		PrintDebug("SetCustomizedResourceValue fault, can't find: ");
+		PrintDebug((int)materialId);
+		return;
+	}
+	auto materialControl = iter->second;
+	*data = materialControl->GetCustomizedResourceValue(name, size);
+}
+
+extern"C"
+{
 	int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID, const char* pipelineName);
 }
 

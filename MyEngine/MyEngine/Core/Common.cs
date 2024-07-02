@@ -43,6 +43,34 @@ namespace CkfEngine.Core
             return byteArray;
         }
 
+        public static T ByteArrayToStructure<T>(byte[] bytes) where T : struct
+        {
+            // Alloc memory
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            try
+            {
+                return (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+
+        public static object ByteArrayToObject(byte[] bytes, Type type)
+        {
+            // Alloc memory
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            try
+            {
+                return Marshal.PtrToStructure(handle.AddrOfPinnedObject(), type);
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+
         public static string[] GetCurlyBracketsContents(string text)
         {
             string lastText = text;

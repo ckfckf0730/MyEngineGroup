@@ -274,8 +274,8 @@ namespace CkfEngine.Core
         private bool m_isLoaded;
         internal PMDModelInstance m_pmdModelInstance;
         //uint m_materialId;
+        [MyAttributeNewWindowInspector]
         private List<StandardMaterial> m_materials = null;
-
 
         protected override void OnCreated()
         {
@@ -311,31 +311,27 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetPMDVertices(m_file.FullPath, m_model))
                 {
-                    List<StandardMaterial> materials;
                     if(m_materials == null)
                     {
-                        materials = m_model.m_materials;
+                        m_materials = m_model.m_materials;
                     }
-                    else
-                    {
-                        materials = m_materials;
-                    }
-                    foreach(var material in materials)
+
+                    foreach(var material in m_materials)
                     {
                         material.shader = Shader.ShaderTable["TestShader"];
                     }
 
-                    if (MaterialManager.SetMaterials(materials, out var IDs))
+                    if (MaterialManager.SetMaterials(m_materials, out var IDs))
                     {
                         //set materials' root param
-                        for(int i =0;i < materials.Count; i++)
+                        for(int i =0;i < m_materials.Count; i++)
                         {
-                            MaterialManager.CreateCustomizedResource(materials[i]);
+                            MaterialManager.CreateCustomizedResource(m_materials[i]);
 
                             if(i %2 == 0)
                             {
-                                MaterialManager.SetCustomizedResourceValue(materials[i], "testColor", new Vector4(0, 0, 1, 0));
-                                MaterialManager.SetCustomizedResourceValue(materials[i], "testColor2", new Vector4(0, 0, 0, 0));
+                                MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor", new Vector4(0, 0, 1, 0));
+                                MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor2", new Vector4(0, 0, 0, 0));
                             }
                         }
 
@@ -569,6 +565,15 @@ namespace CkfEngine.Core
     sealed class MyAttributeShowInspector : Attribute
     {
         public MyAttributeShowInspector()
+        {
+
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = true)]
+    sealed class MyAttributeNewWindowInspector : Attribute
+    {
+        public MyAttributeNewWindowInspector()
         {
 
         }
