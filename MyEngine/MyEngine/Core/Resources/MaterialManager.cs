@@ -64,7 +64,7 @@ namespace CkfEngine.Core
             return toonFilePath;
         }
 
-        internal static bool SetMaterials( List<StandardMaterial> materials, out uint[] IDs)
+        internal static bool CreateMaterials( List<StandardMaterial> materials, out uint[] IDs)
         {
             List <StandardMaterial> setList = new List < StandardMaterial >();
             foreach(var item in materials)
@@ -88,6 +88,21 @@ namespace CkfEngine.Core
                 setList.Select(item => item.edgeFlg).ToArray(),
                 setList.Select(item => item.toonPath).ToArray(),
                 setList.Select(item => item.texFilePath).ToArray()) == 1;
+        }
+
+        internal static void SetInstanceMaterials(ulong UID, StandardMaterial[] matrials, uint count)
+        {
+            for (uint i =0; i< count; i++)
+            {
+                //D3DAPICall.BindPipeline(UID, mat.shader.m_name);
+                D3DAPICall.BindMaterialControl(UID, matrials[i].materialId, i);
+            }
+
+        }
+
+        internal static void SetInstanceMaterial(ulong UID, StandardMaterial matrial, uint index)
+        {
+            D3DAPICall.BindMaterialControl(UID, matrial.materialId, index);
         }
 
         private static bool PrepareSet(StandardMaterial material)

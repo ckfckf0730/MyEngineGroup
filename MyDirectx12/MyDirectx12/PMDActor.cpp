@@ -588,9 +588,11 @@ void ModelInstance::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
 {
 	ID3D12Device* d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
 	//basic Transform 
-	m_transformDescOffset = pipeline->CreateConstantDescript(
+	m_pipelineRecordList.push_back(ModelInstance::PipelineRecord{});
+	auto& record = m_pipelineRecordList[m_pipelineRecordList.size() - 1];
+	record.transformDescOffset = pipeline->CreateConstantDescript(
 		d3ddevice, m_transformConstBuff);
-
+	record.pipeline = pipeline;
 
 	////CustomizedResource
 	//for (auto& iter : m_shaderResouceTable)
@@ -602,31 +604,84 @@ void ModelInstance::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
 	//}
 }
 
-int ModelInstance::BindMaterialControl(UINT matIds[], UINT count)
+bool BindPipelineToInstance(ModelInstance* pInstanse, const char* pipelineName)
 {
-	if (count != m_materialControls.size())
+	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
 	{
-		ShowMsgBox(nullptr, "BindMaterialControl Error, the material count wrong!");
-		ShowMsgBox(nullptr, count);
+		PrintDebug("BindPipeline fault, can't find pipeline: ");
+		PrintDebug(pipelineName);
+		return false;
+	}
+	auto& pipeline = iter2->second;
+
+	auto& map = pipeline->RenderModelTable[pInstanse->m_model];
+	auto iter = map.find(pInstanse);
+	if (iter == map.end())
+	{
+		map.insert(std::pair<ModelInstance*, int>(pInstanse, 1));
+		pInstanse->CreateDescriptorsByPipeline(pipeline);
+	}
+	else
+	{
+		iter->second++;
+	}
+
+
+
+	return true;
+}
+
+//int ModelInstance::BindMaterialControls(UINT matIds[], UINT count)
+//{
+//	if (count != m_materialControls.size())
+//	{
+//		ShowMsgBox(nullptr, "BindMaterialControl Error, the material count wrong!");
+//		ShowMsgBox(nullptr, count);
+//		ShowMsgBox(nullptr, m_materialControls.size());
+//		return 1;
+//	}
+//
+//	for (int i = 0; i < count; i++)
+//	{
+//		auto iter = D3DResourceManage::Instance().MaterialTable.find(matIds[i]);
+//		if (iter == D3DResourceManage::Instance().MaterialTable.end())
+//		{
+//			PrintDebug("Bind Material Control fault, can't find matID: ");
+//			PrintDebug((int)matIds[i]);
+//			return -1;
+//		}
+//
+//		
+//		m_materialControls[i] = iter->second;
+//	}
+//	return 1;
+//}
+
+int ModelInstance::BindMaterialControl(UINT matId, UINT index)
+{
+	if (index >= m_materialControls.size())
+	{
+		ShowMsgBox(nullptr, "BindMaterialControl Error, the material index is over size!");
+		ShowMsgBox(nullptr, index);
 		ShowMsgBox(nullptr, m_materialControls.size());
 		return 1;
 	}
 
-	for (int i = 0; i < count; i++)
-	{
-		auto iter = D3DResourceManage::Instance().MaterialTable.find(matIds[i]);
-		if (iter == D3DResourceManage::Instance().MaterialTable.end())
-		{
-			PrintDebug("Bind Material Control fault, can't find matID: ");
-			PrintDebug((int)matIds[i]);
-			return -1;
-		}
 
-		
-		m_materialControls[i] = iter->second;
+	auto iter = D3DResourceManage::Instance().MaterialTable.find(matId);
+	if (iter == D3DResourceManage::Instance().MaterialTable.end())
+	{
+		PrintDebug("Bind Material Control fault, can't find matID: ");
+		PrintDebug((int)matId);
+		return -1;
 	}
-	return 1;
+
+	m_materialControls[index] = iter->second;
+
+	return BindPipelineToInstance(this, iter->second->m_material.pipeLineName.c_str());
 }
+
 
 
 //int ModelInstance::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,

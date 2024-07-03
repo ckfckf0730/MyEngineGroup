@@ -311,43 +311,45 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetPMDVertices(m_file.FullPath, m_model))
                 {
-                    if(m_materials == null)
+                    if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
                     {
-                        m_materials = m_model.m_materials;
-                    }
-
-                    foreach(var material in m_materials)
-                    {
-                        material.shader = Shader.ShaderTable["TestShader"];
-                    }
-
-                    if (MaterialManager.SetMaterials(m_materials, out var IDs))
-                    {
-                        //set materials' root param
-                        for(int i =0;i < m_materials.Count; i++)
+                        if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
                         {
-                            MaterialManager.CreateCustomizedResource(m_materials[i]);
+                            m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
 
-                            if(i %2 == 0)
-                            {
-                                MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor", new Vector4(0, 0, 1, 0));
-                                MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor2", new Vector4(0, 0, 0, 0));
-                            }
-                        }
 
-                        if (ModelManager.SetPMDBoneIk(m_file.FullPath, m_model))
-                        {
-                            if (ModelManager.InstantiatePMDModel(OwnerEntity.Uid, m_file.FullPath, m_model.m_boneCount))
-                            {
-                                m_pmdModelInstance = new PMDModelInstance(m_model, OwnerEntity.Uid);
-
-                                D3DAPICall.BindPipeline(OwnerEntity.Uid, "TestShader");
-                                //D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicBoneShader.m_name);
-                                D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs, m_model.m_materialCount);
-                                m_isLoaded = true;
-                            }
+                            m_isLoaded = true;
                         }
                     }
+
+
+
+                }
+            }
+
+            if(m_isLoaded)
+            {
+                if (m_materials == null)
+                {
+                    m_materials = m_model.m_materials;
+                }
+
+
+                if (MaterialManager.CreateMaterials(m_materials, out var IDs))
+                {
+                    //set materials' root param
+                    for (int i = 0; i < m_materials.Count; i++)
+                    {
+                        MaterialManager.CreateCustomizedResource(m_materials[i]);
+
+                        //if (i % 2 == 0)
+                        //{
+                        //    MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor", new Vector4(0, 0, 1, 0));
+                        //    MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor2", new Vector4(0, 0, 0, 0));
+                        //}
+                    }
+
+                    MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray(), (uint)m_materials.Count);
                 }
             }
 
@@ -425,29 +427,31 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetVDVertices(m_file.FullPath, m_model))
                 {
-                    List<StandardMaterial> materials;
-                    if (m_materials == null)
+                    
+
+                    if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
                     {
-                        materials = m_model.m_materials;
-                    }
-                    else
-                    {
-                        materials = m_materials;
+                        m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
+                        m_isLoaded = true;
                     }
 
-                    if (MaterialManager.SetMaterials( materials, out var IDs))
-                    {
-                        if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
-                        {
-                            m_modelInstance = new ModelInstance(m_model, OwnerEntity.Uid);
-                            D3DAPICall.BindPipeline(OwnerEntity.Uid, Shader.BasicNoBoneShader.m_name);
-                            D3DAPICall.BindMaterialControl(OwnerEntity.Uid, IDs, m_model.m_materialCount);
-                            m_isLoaded = true;
-                        }
-                    }
+                    
                 }
             }
 
+            if(m_isLoaded)
+            {
+                if (m_materials == null)
+                {
+                    m_materials = m_model.m_materials;
+                }
+
+                if (MaterialManager.CreateMaterials(m_materials, out var IDs))
+                {
+                    MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray(), (uint)m_materials.Count);
+                }
+            }
+          
 
             OwnerEntity.Transform.EffectiveTransform();
         }

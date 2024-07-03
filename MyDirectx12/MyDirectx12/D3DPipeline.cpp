@@ -765,8 +765,14 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			_cmdList->SetGraphicsRootDescriptorTable(0,
 				m_descHeap->GetGPUDescriptorHandleForHeapStart());		//set camera info root
 
-			_cmdList->SetGraphicsRootDescriptorTable(1, 
-				GetDescHandle(instance->m_transformDescOffset)); // set transform matrices root
+			for (auto& record : instance->m_pipelineRecordList)
+			{
+				if (record.pipeline == this)
+				{
+					_cmdList->SetGraphicsRootDescriptorTable(1,
+						GetDescHandle(record.transformDescOffset)); // set transform matrices root
+				}
+			}
 
 			if (model->m_materialCount != instance->m_materialControls.size())
 			{

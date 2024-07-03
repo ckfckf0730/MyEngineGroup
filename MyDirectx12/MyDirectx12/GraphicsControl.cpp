@@ -68,10 +68,16 @@ int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 	{
 		auto instance = (*iter).second;
 
-		if (instance->m_bindPipeline != nullptr)
+		for (int i = 0; i < instance->m_materialControls.size(); i++)
 		{
-			instance->m_bindPipeline->RenderModelTable[instance->m_model].erase(instance);
-			PrintDebug("Remove BindPipeline Success");
+			auto pipeline = D3DResourceManage::Instance().PipelineTable[instance->m_materialControls[i]->m_material.pipeLineName];
+			pipeline->RenderModelTable[instance->m_model][instance]--;
+
+			if (pipeline->RenderModelTable[instance->m_model][instance] <= 0)
+			{
+				pipeline->RenderModelTable[instance->m_model].erase(instance);
+				PrintDebug("Remove BindPipeline Success");
+			}
 		}
 
 		auto& list = instance->m_model->m_instances;
@@ -568,39 +574,39 @@ int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, 
 	return result;
 }
 
-extern"C"
-{
-	int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const char* pipelineName);
-}
-
-int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const char* pipelineName)
-{
-	auto iter = ModelInstance::s_uidModelTable.find(_uid);
-	if (iter == ModelInstance::s_uidModelTable.end())
-	{
-		PrintDebug("BindPipeline fault, can't find uid: ");
-		PrintDebug((int)_uid);
-		return -1;
-	}
-
-	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
-	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
-	{
-		PrintDebug("BindPipeline fault, can't find pipeline: ");
-		PrintDebug(pipelineName);
-		return -1;
-	}
-
-	auto instance = iter->second;
-	auto pipeline = iter2->second;
-
-	pipeline->RenderModelTable[instance->m_model].insert(pair<ModelInstance*,int> (instance,1));
-
-	instance->m_bindPipeline = pipeline;
-	instance->CreateDescriptorsByPipeline(pipeline);
-
-	return 1;
-}
+//extern"C"
+//{
+//	int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const char* pipelineName);
+//}
+//
+//int __declspec(dllexport) __stdcall BindPipeline(unsigned long long _uid, const char* pipelineName)
+//{
+//	auto iter = ModelInstance::s_uidModelTable.find(_uid);
+//	if (iter == ModelInstance::s_uidModelTable.end())
+//	{
+//		PrintDebug("BindPipeline fault, can't find uid: ");
+//		PrintDebug((int)_uid);
+//		return -1;
+//	}
+//
+//	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+//	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
+//	{
+//		PrintDebug("BindPipeline fault, can't find pipeline: ");
+//		PrintDebug(pipelineName);
+//		return -1;
+//	}
+//
+//	auto instance = iter->second;
+//	auto pipeline = iter2->second;
+//
+//	pipeline->RenderModelTable[instance->m_model].insert(pair<ModelInstance*,int> (instance,1));
+//
+//	//instance->m_bindPipeline = pipeline;
+//	instance->CreateDescriptorsByPipeline(pipeline);
+//
+//	return 1;
+//}
 
 extern"C"
 {
@@ -736,9 +742,9 @@ int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID,
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlIDs[],UINT materialCount);
+	int __declspec(dllexport) __stdcall BindMaterialControls(UINT64 UID, UINT MaterialControlIDs[],UINT materialCount);
 }
-int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlIDs[], UINT materialCount)
+int __declspec(dllexport) __stdcall BindMaterialControls(UINT64 UID, UINT MaterialControlIDs[], UINT materialCount)
 {
 	auto iter = ModelInstance::s_uidModelTable.find(UID);
 	if (iter == ModelInstance::s_uidModelTable.end())
@@ -748,7 +754,30 @@ int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT Materia
 		return -1;
 	}
 
-	iter->second->BindMaterialControl(MaterialControlIDs, materialCount);
+	for (int i = 0; i < materialCount; i++)
+	{
+		iter->second->BindMaterialControl(MaterialControlIDs[i], i);
+	}
+
+
+	return 1;
+}
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlID, UINT index);
+}
+int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT MaterialControlID, UINT index)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(UID);
+	if (iter == ModelInstance::s_uidModelTable.end())
+	{
+		PrintDebug("BindMaterialControl fault, can't find uid: ");
+		PrintDebug((int)UID);
+		return -1;
+	}
+
+	iter->second->BindMaterialControl(MaterialControlID, index);
 
 	return 1;
 }

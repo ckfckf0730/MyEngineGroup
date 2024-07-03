@@ -334,20 +334,33 @@ public:
 		unsigned int _indCount, unsigned short* _indices) override;
 };
 
+
+
 class ModelInstance
 {
+private: 
+	struct PipelineRecord
+	{
+	public:
+		
+		UINT transformDescOffset;
+		D3DPipeline* pipeline;
+	};
+
 public:
 	BasicModel* m_model;
 
 	static std::map <unsigned long long, ModelInstance*> s_uidModelTable;     //key is uid
 
 	//ID3D12DescriptorHeap* m_transformDescHeap = nullptr;
-	UINT m_transformDescOffset;
+
+	std::vector<PipelineRecord> m_pipelineRecordList;
+
 	ID3D12Resource* m_transformConstBuff = nullptr;
 	Transform m_transform;
 	DirectX::XMMATRIX* m_mapMatrices = nullptr;
 
-	D3DPipeline* m_bindPipeline = nullptr;
+	//D3DPipeline* m_bindPipeline = nullptr;
 	std::vector<MaterialControl*> m_materialControls;
 	//std::map<std::string, ShaderResource> m_shaderResouceTable;
 
@@ -356,7 +369,8 @@ public:
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
 	//void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
 
-	int BindMaterialControl(UINT matIds[], UINT count);
+	//int BindMaterialControls(UINT matIds[], UINT count);
+	int BindMaterialControl(UINT matId, UINT index);
 
 	~ModelInstance();
 };

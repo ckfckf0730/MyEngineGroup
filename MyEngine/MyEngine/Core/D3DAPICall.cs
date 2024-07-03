@@ -98,8 +98,8 @@ namespace CkfEngine.Core
         [DllImport("MyDirectx12.dll")]
         public static extern int InstantiateBasicModel(ulong _uid, string _FileFullName);
 
-        [DllImport("MyDirectx12.dll")]
-        public static extern int BindPipeline(ulong _uid, string pipeline);
+        //[DllImport("MyDirectx12.dll")]
+        //public static extern int BindPipeline(ulong _uid, string pipeline);
 
         [DllImport("MyDirectx12.dll")]
         public static extern void ClearRootSignatureSetting();
@@ -121,7 +121,10 @@ namespace CkfEngine.Core
         public static extern int CreateCustomizedDescriptors(uint materialID, string pipelineName);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int BindMaterialControl(UInt64 UID, uint[] MaterialControlIDs, uint materialCount);
+        public static extern int BindMaterialControls(UInt64 UID, uint[] MaterialControlIDs, uint materialCount);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int BindMaterialControl(UInt64 UID, uint MaterialControlID, uint index);
 
         #endregion
 

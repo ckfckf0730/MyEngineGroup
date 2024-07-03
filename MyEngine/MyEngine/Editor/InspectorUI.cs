@@ -474,9 +474,26 @@ namespace CkfEngine.Editor
                                 m_mateialInfoControls.Add(textBox);
                                 textBox.Location = new Point(startX + i * 100, offY + 25);
                                 textBox.Width = 80;
+                                textBox.Tag = button.Tag;
 
                                 textBox.Text = fields[i].GetValue(data).ToString();
 
+                                int index = i;
+                                textBox.TextChanged += (sender2, e2) =>
+                                {
+                                    try
+                                    {
+                                        float value = float.Parse((sender2 as TextBox).Text);
+                                        fields[index].SetValue(data, value);
+
+                                        MaterialManager.SetCustomizedResourceValue(mat, rootParam.name, data);
+                                    }
+                                    catch(Exception excption)
+                                    {
+
+                                    }
+   
+                                };
                             }
 
                             offY += 60;
