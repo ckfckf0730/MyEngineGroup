@@ -300,10 +300,10 @@ int PMDModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned
 
 
 
-int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum, 
-	unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[], 
-	unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[], 
-	uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[], 
+int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum,
+	unsigned short ikNum, const char* boneName[], unsigned short parentNo[], unsigned short nextNo[],
+	unsigned char type[], unsigned short ikBoneNo[], DirectX::XMFLOAT3 pos[],
+	uint16_t boneIdx[], uint16_t targetIdx[], uint16_t iterations[], float limit[],
 	uint8_t chainLen[], uint16_t** nodeIdxes)
 {
 	//------------------bone data & aniamtion-----------------------
@@ -381,7 +381,7 @@ int PMDModel::SetBones(D3DDevice* _cD3DDev, unsigned short boneNum,
 
 int PMDModel::SetBone()
 {
-	
+
 	m_boneNameArr.resize(m_pmdBones.size());
 	m_boneNodeAddressArr.resize(m_pmdBones.size());
 
@@ -389,7 +389,7 @@ int PMDModel::SetBone()
 	{
 		m_rootNodeStr = m_pmdBones[0].boneName;
 	}
-	
+
 	m_kneeIdxes.clear();
 	for (int i = 0; i < m_pmdBones.size(); i++)
 	{
@@ -479,7 +479,7 @@ void PMDModelInstance::UpdateBoneMatrices(DirectX::XMMATRIX* boneMatrices, int s
 {
 	std::copy(boneMatrices, boneMatrices + size, m_mapMatrices + 1);
 }
-	
+
 int BasicModel::SetVertices(D3DDevice* _cD3DDev, unsigned int _vertCount, unsigned char* _vertices,
 	unsigned int _indCount, unsigned short* _indices)
 {
@@ -604,14 +604,14 @@ void ModelInstance::CreateDescriptorsByPipeline(D3DPipeline* pipeline)
 	//}
 }
 
-bool BindPipelineToInstance(ModelInstance* pInstanse, const char* pipelineName)
+int BindPipelineToInstance(ModelInstance* pInstanse, const char* pipelineName)
 {
 	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
 	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
 	{
 		PrintDebug("BindPipeline fault, can't find pipeline: ");
 		PrintDebug(pipelineName);
-		return false;
+		return -1;
 	}
 	auto& pipeline = iter2->second;
 
@@ -629,7 +629,40 @@ bool BindPipelineToInstance(ModelInstance* pInstanse, const char* pipelineName)
 
 
 
-	return true;
+	return 1;
+}
+
+void RemovePipelineBind(ModelInstance* pInstanse, const char* pipelineName)
+{
+	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
+	{
+		PrintDebug("RemovePipelineBind fault, can't find pipeline: ");
+		PrintDebug(pipelineName);
+		return;
+	}
+	auto& pipeline = iter2->second;
+
+	auto& map = pipeline->RenderModelTable[pInstanse->m_model];
+	auto iter = map.find(pInstanse);
+	if (iter == map.end())
+	{
+		PrintDebug("RemovePipelineBind fault, pipeline not record it: ");
+		PrintDebug(pipelineName);
+	}
+	else
+	{
+		iter->second--;
+
+		if (iter->second <= 0)
+		{
+			map.erase(pInstanse);
+
+			// release Descriptors logic
+		}
+
+
+	}
 }
 
 //int ModelInstance::BindMaterialControls(UINT matIds[], UINT count)
@@ -665,7 +698,7 @@ int ModelInstance::BindMaterialControl(UINT matId, UINT index)
 		ShowMsgBox(nullptr, "BindMaterialControl Error, the material index is over size!");
 		ShowMsgBox(nullptr, index);
 		ShowMsgBox(nullptr, m_materialControls.size());
-		return 1;
+		return -1;
 	}
 
 
@@ -675,6 +708,12 @@ int ModelInstance::BindMaterialControl(UINT matId, UINT index)
 		PrintDebug("Bind Material Control fault, can't find matID: ");
 		PrintDebug((int)matId);
 		return -1;
+	}
+
+	if (m_materialControls[index] != nullptr)
+	{
+		RemovePipelineBind(this, iter->second->m_material.pipeLineName.c_str());
+		m_materialControls[index] = nullptr;
 	}
 
 	m_materialControls[index] = iter->second;
@@ -940,7 +979,7 @@ void MaterialControl::SetCustomizedResourceValue(LPCSTR name, unsigned char* dat
 	}
 }
 
-unsigned char* MaterialControl::GetCustomizedResourceValue(LPCSTR name , UINT16* size)
+unsigned char* MaterialControl::GetCustomizedResourceValue(LPCSTR name, UINT16* size)
 {
 	auto iter = m_shaderResourceTable.find(name);
 	if (iter != m_shaderResourceTable.end())
@@ -996,54 +1035,54 @@ void MaterialControl::CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipelin
 	UINT matCount = 1;//m_materials.size();
 	/*for (int i = 0; i < matCount; i++)
 	{*/
-		m_material.descOffset = pipeline->CreateConstantDescript(
-			d3ddevice, adress, sizeInBytes);
-		adress += materialBuffSize;
+	m_material.descOffset = pipeline->CreateConstantDescript(
+		d3ddevice, adress, sizeInBytes);
+	adress += materialBuffSize;
 
-		srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		if (m_material.m_textureResource != nullptr)
-		{
-			srvDesc.Format = m_material.m_textureResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_textureResource.Get());
-		}
-		else
-		{
-			srvDesc.Format = whiteTex->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
-		}
+	srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	if (m_material.m_textureResource != nullptr)
+	{
+		srvDesc.Format = m_material.m_textureResource->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, m_material.m_textureResource.Get());
+	}
+	else
+	{
+		srvDesc.Format = whiteTex->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
+	}
 
-		if (m_material.m_sphResource != nullptr)
-		{
-			srvDesc.Format = m_material.m_sphResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_sphResource.Get());
-		}
-		else
-		{
-			srvDesc.Format = whiteTex->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
-		}
+	if (m_material.m_sphResource != nullptr)
+	{
+		srvDesc.Format = m_material.m_sphResource->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, m_material.m_sphResource.Get());
+	}
+	else
+	{
+		srvDesc.Format = whiteTex->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, whiteTex);
+	}
 
-		if (m_material.m_spaResource != nullptr)
-		{
-			srvDesc.Format = m_material.m_spaResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_spaResource.Get());
-		}
-		else
-		{
-			srvDesc.Format = blackTex->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, blackTex);
-		}
+	if (m_material.m_spaResource != nullptr)
+	{
+		srvDesc.Format = m_material.m_spaResource->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, m_material.m_spaResource.Get());
+	}
+	else
+	{
+		srvDesc.Format = blackTex->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, blackTex);
+	}
 
-		if (m_material.m_toonResource != nullptr)
-		{
-			srvDesc.Format = m_material.m_toonResource->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, m_material.m_toonResource.Get());
-		}
-		else
-		{
-			srvDesc.Format = gradTex->GetDesc().Format;
-			pipeline->CreateShaderResDescript(d3ddevice, gradTex);
-		}
+	if (m_material.m_toonResource != nullptr)
+	{
+		srvDesc.Format = m_material.m_toonResource->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, m_material.m_toonResource.Get());
+	}
+	else
+	{
+		srvDesc.Format = gradTex->GetDesc().Format;
+		pipeline->CreateShaderResDescript(d3ddevice, gradTex);
+	}
 	//}
 }
 

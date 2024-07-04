@@ -785,17 +785,25 @@ void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddev
 			{
 				auto m = instance->m_materialControls[i];
 
-				if (m->m_material.pipeLineName == m_name)
+				if (m == nullptr)
 				{
-					//PrintDebug("m.pipeLineName == m_name");
+					continue;
+				}
+
+				if (m->m_material.pipeLineName != m_name)
+				{
+					continue;
+					/*std::string str = m->m_material.pipeLineName;
+					str += " != ";
+					str += m_name;
+					PrintDebug(str.c_str());*/
 				}
 				else
 				{
-					std::string str = m->m_material.pipeLineName;
-					str += " != ";
-					str += m_name;
-					PrintDebug(str.c_str());
-					return;
+					/*std::string str = m->m_material.pipeLineName;
+					str += " == ";
+					str += m_name;*/
+					//PrintDebug(str.c_str());
 				}
 
 				for (auto& shaderResource : m->m_shaderResourceTable)

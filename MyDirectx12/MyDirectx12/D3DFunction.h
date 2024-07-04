@@ -52,6 +52,7 @@ public:
 	int Draw(D3DDevice* _cD3DDev);
 
 	void SetViewPort(UINT width, UINT height);
+	void SetInitialRenderState(ID3D12GraphicsCommandList* cmdList);
 	void Clear();
 	void Barrier(ID3D12Resource* resource,
 		D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);

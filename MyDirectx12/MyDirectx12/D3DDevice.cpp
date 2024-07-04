@@ -52,7 +52,6 @@ int D3DDevice::InitializeDXGIDevice()
 		}
 	}
 
-	//Direct3D�f�o�C�X�̏�����
 	D3D_FEATURE_LEVEL featureLevel;
 	for (auto l : levels)
 	{

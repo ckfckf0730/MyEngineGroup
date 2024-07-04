@@ -321,26 +321,29 @@ namespace CkfEngine.Core
                             m_isLoaded = true;
                         }
                     }
-
-
-
                 }
             }
 
-            if(m_isLoaded)
+            if (m_isLoaded)
             {
                 if (m_materials == null)
                 {
                     m_materials = m_model.m_materials;
                 }
 
+                //foreach (var material in m_materials)
+                //{
+                //    material.shader = Shader.ShaderTable["TestShader"];
+                //}
 
                 if (MaterialManager.CreateMaterials(m_materials, out var IDs))
                 {
-                    //set materials' root param
-                    for (int i = 0; i < m_materials.Count; i++)
+
+                    MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray());
+
+                    //test
+                    for (int i = 0; i < m_materials.Count(); i++)
                     {
-                        MaterialManager.CreateCustomizedResource(m_materials[i]);
 
                         //if (i % 2 == 0)
                         //{
@@ -349,7 +352,18 @@ namespace CkfEngine.Core
                         //}
                     }
 
-                    MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray(), (uint)m_materials.Count);
+                    var copyMats = MaterialManager.InstantiateMaterials(m_materials);
+                    for (int i = 0; i < copyMats.Count; i++)
+                    {
+                        copyMats[i].shader = Shader.ShaderTable["TestShader"];
+                    }
+
+
+                    MaterialManager.CreateMaterials(copyMats, out IDs);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        MaterialManager.SetInstanceMaterial(OwnerEntity.Uid, copyMats[i], (uint)i);
+                    }
                 }
             }
 
@@ -427,7 +441,7 @@ namespace CkfEngine.Core
             {
                 if (ModelManager.SetVDVertices(m_file.FullPath, m_model))
                 {
-                    
+
 
                     if (ModelManager.InstantiateVDModel(OwnerEntity.Uid, m_file.FullPath))
                     {
@@ -435,11 +449,11 @@ namespace CkfEngine.Core
                         m_isLoaded = true;
                     }
 
-                    
+
                 }
             }
 
-            if(m_isLoaded)
+            if (m_isLoaded)
             {
                 if (m_materials == null)
                 {
@@ -448,10 +462,10 @@ namespace CkfEngine.Core
 
                 if (MaterialManager.CreateMaterials(m_materials, out var IDs))
                 {
-                    MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray(), (uint)m_materials.Count);
+                    MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray());
                 }
             }
-          
+
 
             OwnerEntity.Transform.EffectiveTransform();
         }
@@ -516,7 +530,7 @@ namespace CkfEngine.Core
 
             VMDAnimation vmdAnime;
             var boneRenderer = OwnerEntity.GetComponent<ModelBoneRenderer>();
-            if(boneRenderer == null)
+            if (boneRenderer == null)
             {
                 Console.WriteLine("Set Animaton fault, can't find bone renderer.");
                 return;

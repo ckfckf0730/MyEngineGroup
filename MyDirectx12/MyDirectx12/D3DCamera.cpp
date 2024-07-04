@@ -1,10 +1,13 @@
 ﻿#include"D3DFunction.h"
 #include"D3DResourceManage.h"
 #include"D3DMulPassRender.h"
+#include <comdef.h>
+#include <iostream>
+#include <fstream>
 
 using namespace DirectX;
 
-int D3DCamera::CreateSwapChain(HWND hwnd,UINT width , UINT height)
+int D3DCamera::CreateSwapChain(HWND hwnd, UINT width, UINT height)
 {
 	auto dxgiFactory = D3DResourceManage::Instance().pGraphicsCard->pDxgiFactory;
 	HRESULT result = S_OK;
@@ -146,6 +149,22 @@ void  D3DCamera::SetViewPort(UINT width, UINT height)
 	m_scissorrect.bottom = m_scissorrect.top + height;
 }
 
+void D3DCamera::SetInitialRenderState(ID3D12GraphicsCommandList* cmdList)
+{
+	auto device = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+	auto dsvh = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
+
+	//-------------render to normal BackBuffer-------------
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvH;
+	auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
+	rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvH.ptr += bbIdx * device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
+
+	cmdList->RSSetViewports(1, &m_viewport);
+	cmdList->RSSetScissorRects(1, &m_scissorrect);
+}
+
 void D3DCamera::Clear()
 {
 	auto device = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
@@ -183,7 +202,7 @@ void D3DCamera::Clear()
 	cmdList->RSSetScissorRects(1, &m_scissorrect);
 }
 
-void D3DCamera::Barrier(ID3D12Resource* resource, 
+void D3DCamera::Barrier(ID3D12Resource* resource,
 	D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 {
 	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
@@ -207,9 +226,9 @@ void D3DCamera::Flip()
 	graphicsCard->pCmdQueue->ExecuteCommandLists(1, cmdlists);
 
 	graphicsCard->WaitForCommandQueue();
-	
+
 	graphicsCard->pCmdAllocator->Reset();
-	
+
 	//cmdList->Reset(graphicsCard->pCmdAllocator, nullptr);
 
 	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin();
@@ -221,9 +240,48 @@ void D3DCamera::Flip()
 
 	//flip
 	auto result = m_swapchain->Present(1, 0);
-	assert(SUCCEEDED(result));
-}
+	if (FAILED(result))
+	{
+		_com_error err(result);
+		//ShowMsgBox(nullptr, err.ErrorMessage());
 
+		/*static int a = 0;
+		if (result == DXGI_ERROR_DEVICE_REMOVED || result == DXGI_ERROR_DEVICE_RESET)
+		{
+			if (a == 0)
+			{
+				a = 1;
+			}
+			else
+			{
+				return;
+			}
+
+			HRESULT deviceRemovedReason = graphicsCard->pD3D12Device->GetDeviceRemovedReason();
+			wchar_t  errorMessage[256];
+			FormatMessageW(
+				FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				deviceRemovedReason,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				errorMessage,
+				sizeof(errorMessage),
+				NULL
+			);
+			
+			ShowMsgBox(nullptr, errorMessage);
+			std::ofstream file;
+			file.open("abc.text", std::ios::out | std::ios::app);
+			if (file.is_open())
+			{
+				file << errorMessage << std::endl;
+				file.close();
+			}
+		}*/
+
+		assert(SUCCEEDED(result));
+	}
+}
 
 int D3DCamera::Draw(D3DDevice* _cD3DDev)
 {
@@ -233,31 +291,20 @@ int D3DCamera::Draw(D3DDevice* _cD3DDev)
 	Clear();
 
 	//-------------render each pipeline------------------
-	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin(); 
-		iter != D3DResourceManage::Instance().PipelineTable.end(); iter++) 
+	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin();
+		iter != D3DResourceManage::Instance().PipelineTable.end(); iter++)
 	{
 		auto pipeline = iter->second;
+		//SetInitialRenderState(cmdList);
 		pipeline->Draw(cmdList, d3ddevice);
+		//cmdList->Close();
+
+	/*	ID3D12CommandList* cmdlists[] = { cmdList };
+		_cD3DDev->pCmdQueue->ExecuteCommandLists(1, cmdlists);
+		_cD3DDev->WaitForCommandQueue();
+
+		cmdList->Reset(_cD3DDev->pCmdAllocator, nullptr);*/
 	}
-
-	//mulpass render test
-	//if (m_mulPassRender != nullptr)
-	//{
-	//	Barrier(m_mulPassRender->m_peraResource.Get(),
-	//		D3D12_RESOURCE_STATE_RENDER_TARGET,
-	//		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-	//	auto bbIdx = m_swapchain->GetCurrentBackBufferIndex();
-	//	Barrier(m_backBuffers[bbIdx],
-	//		D3D12_RESOURCE_STATE_PRESENT,
-	//		D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-	//	auto rtvH = m_rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	//	rtvH.ptr += bbIdx * d3ddevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	//	auto dsvh = m_dsvHeap->GetCPUDescriptorHandleForHeapStart();
-	//	cmdList->OMSetRenderTargets(1, &rtvH, false, &dsvh);
-	//	m_mulPassRender->Draw();
-	//}
 
 	Flip();
 

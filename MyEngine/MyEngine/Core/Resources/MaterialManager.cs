@@ -90,19 +90,25 @@ namespace CkfEngine.Core
                 setList.Select(item => item.texFilePath).ToArray()) == 1;
         }
 
-        internal static void SetInstanceMaterials(ulong UID, StandardMaterial[] matrials, uint count)
+        internal static void SetInstanceMaterials(ulong UID, StandardMaterial[] matrials)
         {
-            for (uint i =0; i< count; i++)
+            for (uint i =0; i < matrials.Count(); i++)
             {
                 //D3DAPICall.BindPipeline(UID, mat.shader.m_name);
                 D3DAPICall.BindMaterialControl(UID, matrials[i].materialId, i);
             }
 
+            //set materials' root param
+            for (int i = 0; i < matrials.Count(); i++)
+            {
+                MaterialManager.CreateCustomizedResource(matrials[i]);
+            }
         }
 
         internal static void SetInstanceMaterial(ulong UID, StandardMaterial matrial, uint index)
         {
             D3DAPICall.BindMaterialControl(UID, matrial.materialId, index);
+            MaterialManager.CreateCustomizedResource(matrial);
         }
 
         private static bool PrepareSet(StandardMaterial material)
@@ -119,15 +125,19 @@ namespace CkfEngine.Core
 
         internal static List<StandardMaterial> InstantiateMaterials(List<StandardMaterial> materials)
         {
-            var list = CommonFuction.DeepCopy(materials);
-            foreach(var item in list)
+            var list = new List<StandardMaterial> ();
+
+            foreach(var item in materials)
             {
-                item.isShared = false;
+                list.Add(item.Clone());
+                list[list.Count - 1].isShared = false;
+                list[list.Count - 1].isSetted = false;
             }
             return list;
         }
     }
 
+    [Serializable]
     internal class StandardMaterial : MaterialBase
     {
         public Vector3 diffuse;
@@ -139,8 +149,14 @@ namespace CkfEngine.Core
         public byte edgeFlg;
         //public uint indicesNum;
         public string texFilePath;  //20bytes
+
+        public StandardMaterial Clone()
+        {
+            return (StandardMaterial)this.MemberwiseClone();
+        }
     }
 
+    [Serializable]
     internal class MaterialBase
     {
         public Shader shader;
