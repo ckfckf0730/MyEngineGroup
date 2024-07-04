@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
@@ -336,21 +337,10 @@ namespace CkfEngine.Core
                 //    material.shader = Shader.ShaderTable["TestShader"];
                 //}
 
-                if (MaterialManager.CreateMaterials(m_materials, out var IDs))
+                if (MaterialManager.RegisterMaterials(m_materials))
                 {
 
                     MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray());
-
-                    //test
-                    for (int i = 0; i < m_materials.Count(); i++)
-                    {
-
-                        //if (i % 2 == 0)
-                        //{
-                        //    MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor", new Vector4(0, 0, 1, 0));
-                        //    MaterialManager.SetCustomizedResourceValue(m_materials[i], "testColor2", new Vector4(0, 0, 0, 0));
-                        //}
-                    }
 
                     var copyMats = MaterialManager.InstantiateMaterials(m_materials);
                     for (int i = 0; i < copyMats.Count; i++)
@@ -359,7 +349,7 @@ namespace CkfEngine.Core
                     }
 
 
-                    MaterialManager.CreateMaterials(copyMats, out IDs);
+                    MaterialManager.RegisterMaterials(copyMats);
                     for (int i = 0; i < 3; i++)
                     {
                         MaterialManager.SetInstanceMaterial(OwnerEntity.Uid, copyMats[i], (uint)i);
@@ -381,7 +371,22 @@ namespace CkfEngine.Core
             m_file.FullPath = path;
         }
 
+        public void SetMaterial(StandardMaterial mat, int index)
+        {
+            if(m_materials == null)
+            {
+                return;
+            }
 
+            if(index >= m_materials.Count)
+            {
+                Console.WriteLine(this.Name + " SetMaterial Error, the index Overflow.");
+                return;
+            }
+
+            m_materials[index] = mat;
+            MaterialManager.SetInstanceMaterial(OwnerEntity.Uid, mat, (uint)index);
+        }
     }
 
     [Serializable]
@@ -460,7 +465,7 @@ namespace CkfEngine.Core
                     m_materials = m_model.m_materials;
                 }
 
-                if (MaterialManager.CreateMaterials(m_materials, out var IDs))
+                if (MaterialManager.RegisterMaterials(m_materials))
                 {
                     MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray());
                 }

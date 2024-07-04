@@ -81,6 +81,7 @@ namespace CkfEngine.Core
                     for (int i = 0; i < pmdModel.m_materialCount; i++)
                     {
                         StandardMaterial material = new StandardMaterial();
+                        material.name = Path.GetFileName(path) + "_" + i.ToString();
 
                         material.diffuse.X = reader.ReadSingle();
                         material.diffuse.Y = reader.ReadSingle();

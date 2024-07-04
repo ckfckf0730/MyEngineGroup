@@ -50,7 +50,7 @@ namespace CkfEngine.Core
     }
 
 
-    internal class Shader
+    public class Shader
     {
         internal static Shader BasicBoneShader;
         internal static Shader BasicNoBoneShader;

@@ -424,10 +424,11 @@ namespace CkfEngine.Editor
                         button1.Text = "Change";
                         button1.Location = new Point(0, offY);
 
-                        button2.Text = list[i].materialId.ToString();
+                        button2.Text = list[i].name;
                         button2.Location = new Point(50, offY);
                         button2.Click += MaterialOnClicked;
                         button2.Tag = i;
+                        button2.Width = 200;
 
                         offY += 20;
                     }

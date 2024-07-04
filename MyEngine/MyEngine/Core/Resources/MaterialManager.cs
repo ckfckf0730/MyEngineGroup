@@ -64,7 +64,12 @@ namespace CkfEngine.Core
             return toonFilePath;
         }
 
-        internal static bool CreateMaterials( List<StandardMaterial> materials, out uint[] IDs)
+        /// <summary>
+        /// Register Materials in d3d dll
+        /// </summary>
+        /// <param name="materials"></param>
+        /// <returns></returns>
+        internal static bool RegisterMaterials( List<StandardMaterial> materials)
         {
             List <StandardMaterial> setList = new List < StandardMaterial >();
             foreach(var item in materials)
@@ -75,9 +80,8 @@ namespace CkfEngine.Core
                 }
             }
 
-            IDs = setList.Select(item => item.materialId).ToArray();
             return D3DAPICall.SetMaterials(
-               IDs,
+               setList.Select(item => item.materialId).ToArray(),
                 (uint)setList.Count,
                 setList.Select(item => item.shader.m_name).ToArray(),
                 setList.Select(item => item.diffuse).ToArray(),
@@ -135,10 +139,28 @@ namespace CkfEngine.Core
             }
             return list;
         }
+
+        internal static StandardMaterial InstantiateMaterial(StandardMaterial material)
+        {
+            var newMat = material.Clone();
+            newMat.isShared = false;
+            newMat.isSetted = false;
+            return newMat;
+        }
+
+        public static void ChangeMaterialShader(StandardMaterial material,Shader shader, ulong  uid, uint index)
+        {
+            //the logic of check old material release
+            //.........................
+
+            material.shader = shader; 
+            MaterialManager.RegisterMaterials(new List<StandardMaterial>() { material });
+            MaterialManager.SetInstanceMaterial(uid, material, index);
+        }
     }
 
     [Serializable]
-    internal class StandardMaterial : MaterialBase
+    public class StandardMaterial : MaterialBase
     {
         public Vector3 diffuse;
         public float alpha;
@@ -157,10 +179,11 @@ namespace CkfEngine.Core
     }
 
     [Serializable]
-    internal class MaterialBase
+    public class MaterialBase
     {
         public Shader shader;
         public uint materialId;
+        public string name;
 
         public bool isSetted = false;
         public bool isShared = true;
