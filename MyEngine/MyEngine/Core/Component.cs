@@ -352,7 +352,7 @@ namespace CkfEngine.Core
                     MaterialManager.RegisterMaterials(copyMats);
                     for (int i = 0; i < 3; i++)
                     {
-                        MaterialManager.SetInstanceMaterial(OwnerEntity.Uid, copyMats[i], (uint)i);
+                        ChangeMaterial(copyMats[i], i);
                     }
                 }
             }
@@ -371,10 +371,11 @@ namespace CkfEngine.Core
             m_file.FullPath = path;
         }
 
-        public void SetMaterial(StandardMaterial mat, int index)
+        public void ChangeMaterial(StandardMaterial mat, int index)
         {
             if(m_materials == null)
             {
+                Console.WriteLine(this.Name + " SetMaterial Error, the m_materials is null.");
                 return;
             }
 
@@ -382,6 +383,11 @@ namespace CkfEngine.Core
             {
                 Console.WriteLine(this.Name + " SetMaterial Error, the index Overflow.");
                 return;
+            }
+
+            if(m_materials[index].isSetted)
+            {
+                MaterialManager.UnsetInstanceMaterial(OwnerEntity.Uid, m_materials[index], (uint)index);
             }
 
             m_materials[index] = mat;

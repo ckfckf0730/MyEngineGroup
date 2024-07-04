@@ -13,12 +13,12 @@ namespace CkfEngine.Core
     {
         internal static uint materialId = 0;
 
-        public static void GetPMDTexturePaths(List<StandardMaterial> matList)
+        internal static void GetPMDTexturePaths(List<StandardMaterial> matList)
         {
             //GetToonPath(matList[0].toonIdx);
         }
 
-        public static void CreateCustomizedResource(StandardMaterial material)
+        internal static void CreateCustomizedResource(StandardMaterial material)
         {
             uint firstNum = 3;  //0,1,2 are used for  camera,transform, basic material.
             foreach (var rootParameter in material.shader.rootParameters)
@@ -31,26 +31,26 @@ namespace CkfEngine.Core
             D3DAPICall.CreateCustomizedDescriptors(material.materialId, material.shader.m_name);
         }
 
-        public static object GetCustomizedResourceValue(StandardMaterial material, string paramName,Type type)
+        internal static object GetCustomizedResourceValue(StandardMaterial material, string paramName, Type type)
         {
             IntPtr dataPtr;
             UInt16 size;
 
-            D3DAPICall.GetCustomizedResourceValue(material.materialId, paramName,out dataPtr, out size);
+            D3DAPICall.GetCustomizedResourceValue(material.materialId, paramName, out dataPtr, out size);
             byte[] data = new byte[size];
             Marshal.Copy(dataPtr, data, 0, (int)size);
 
             return CommonFuction.ByteArrayToObject(data, type);
         }
 
-        public static void SetCustomizedResourceValue(StandardMaterial material, string paramName , object value)
+        internal static void SetCustomizedResourceValue(StandardMaterial material, string paramName, object value)
         {
-            var name = material.shader.rootParameters.Find( item => item.name == paramName ).name;
+            var name = material.shader.rootParameters.Find(item => item.name == paramName).name;
             var data = CommonFuction.StructToByteArray(value);
             D3DAPICall.SetCustomizedResourceValue(material.materialId, name, data);
         }
 
-        public static string GetToonPath(byte toonIdx)
+        internal static string GetToonPath(byte toonIdx)
         {
             string toonFilePath = "Assets/toon/";
             toonIdx++;
@@ -69,55 +69,56 @@ namespace CkfEngine.Core
         /// </summary>
         /// <param name="materials"></param>
         /// <returns></returns>
-        internal static bool RegisterMaterials( List<StandardMaterial> materials)
+        internal static bool RegisterMaterials(List<StandardMaterial> materials)
         {
-            List <StandardMaterial> setList = new List < StandardMaterial >();
-            foreach(var item in materials)
+            foreach (var item in materials)
             {
                 if (PrepareSet(item))
                 {
-                    setList.Add(item);
+                    if(D3DAPICall.SetMaterial(
+                           item.materialId,
+                           item.shader.m_name,
+                           item.diffuse,
+                           item.alpha,
+                           item.specularity,
+                           item.specular,
+                           item.ambient,
+                           item.edgeFlg,
+                           item.toonPath,
+                           item.texFilePath)    == 1 )
+                    {
+                        CreateCustomizedResource(item);
+                    }
                 }
             }
 
-            return D3DAPICall.SetMaterials(
-               setList.Select(item => item.materialId).ToArray(),
-                (uint)setList.Count,
-                setList.Select(item => item.shader.m_name).ToArray(),
-                setList.Select(item => item.diffuse).ToArray(),
-                setList.Select(item => item.alpha).ToArray(),
-                setList.Select(item => item.specularity).ToArray(),
-                setList.Select(item => item.specular).ToArray(),
-                setList.Select(item => item.ambient).ToArray(),
-                setList.Select(item => item.edgeFlg).ToArray(),
-                setList.Select(item => item.toonPath).ToArray(),
-                setList.Select(item => item.texFilePath).ToArray()) == 1;
+
+            return true;
         }
 
         internal static void SetInstanceMaterials(ulong UID, StandardMaterial[] matrials)
         {
-            for (uint i =0; i < matrials.Count(); i++)
+            for (uint i = 0; i < matrials.Count(); i++)
             {
                 //D3DAPICall.BindPipeline(UID, mat.shader.m_name);
                 D3DAPICall.BindMaterialControl(UID, matrials[i].materialId, i);
-            }
-
-            //set materials' root param
-            for (int i = 0; i < matrials.Count(); i++)
-            {
-                MaterialManager.CreateCustomizedResource(matrials[i]);
             }
         }
 
         internal static void SetInstanceMaterial(ulong UID, StandardMaterial matrial, uint index)
         {
             D3DAPICall.BindMaterialControl(UID, matrial.materialId, index);
-            MaterialManager.CreateCustomizedResource(matrial);
+        }
+
+        internal static void UnsetInstanceMaterial(ulong UID, StandardMaterial matrial, uint index)
+        {
+            D3DAPICall.UnBindMaterialControl(UID, matrial.materialId, index);
+            
         }
 
         private static bool PrepareSet(StandardMaterial material)
         {
-            if(material.isSetted)
+            if (material.isSetted)
             {
                 return false;
             }
@@ -129,9 +130,9 @@ namespace CkfEngine.Core
 
         internal static List<StandardMaterial> InstantiateMaterials(List<StandardMaterial> materials)
         {
-            var list = new List<StandardMaterial> ();
+            var list = new List<StandardMaterial>();
 
-            foreach(var item in materials)
+            foreach (var item in materials)
             {
                 list.Add(item.Clone());
                 list[list.Count - 1].isShared = false;
@@ -148,12 +149,12 @@ namespace CkfEngine.Core
             return newMat;
         }
 
-        public static void ChangeMaterialShader(StandardMaterial material,Shader shader, ulong  uid, uint index)
+        internal static void ChangeMaterialShader(StandardMaterial material, Shader shader, ulong uid, uint index)
         {
             //the logic of check old material release
             //.........................
 
-            material.shader = shader; 
+            material.shader = shader;
             MaterialManager.RegisterMaterials(new List<StandardMaterial>() { material });
             MaterialManager.SetInstanceMaterial(uid, material, index);
         }
@@ -189,6 +190,6 @@ namespace CkfEngine.Core
         public bool isShared = true;
     }
 
-    
+
 
 }

@@ -786,131 +786,128 @@ ModelInstance::~ModelInstance()
 	//m_shaderResouceTable.clear();
 }
 
-int MaterialControl::SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[],
-	DirectX::XMFLOAT3 diffuse[], float alpha[],
-	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-	const char* toonPath[], const char* texFilePath[], UINT MaterialControlIDs[])
+int MaterialControl::SetMaterial(D3DDevice* _cD3DDev, const char* shaderName,
+	DirectX::XMFLOAT3 diffuse, float alpha,
+	float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+	const char* toonPath, const char* texFilePath, UINT MaterialControlIDs)
 {
 	auto& matTable = D3DResourceManage::Instance().MaterialTable;
 	auto d3ddevice = _cD3DDev->pD3D12Device;
 
-	for (int i = 0; i < matCount; i++)
+	MaterialControl* matControl = new MaterialControl();
+	matTable.insert(std::pair<UINT, MaterialControl*>(MaterialControlIDs, matControl));
+
+	Material& matrial = matControl->m_material;
+
+	std::string toonFilePath = toonPath;
+	if (toonFilePath != "")
 	{
-		MaterialControl* matControl = new MaterialControl();
-		matTable.insert(std::pair<UINT, MaterialControl*>(MaterialControlIDs[i], matControl));
+		matrial.m_toonResource = LoadTextureFromFile(toonFilePath, d3ddevice);
+	}
 
-		Material& matrial = matControl->m_material;
+	matrial.pipeLineName = shaderName;
+	matrial.material.diffuse = diffuse;
+	matrial.material.alpha = alpha;
+	matrial.material.specular = specular;
+	matrial.material.specularity = specularity;
+	matrial.material.ambient = ambient;
 
-		std::string toonFilePath = toonPath[i];
-		if (toonFilePath != "")
+	if (strlen(texFilePath) == 0)
+	{
+		matrial.m_textureResource = nullptr;
+	}
+	else
+	{
+		std::string texFileName = GetFileName(texFilePath);
+		std::string directoryName = GetDirectoryName(texFilePath);
+		std::string sphFileName = "";
+		std::string spaFileName = "";
+
+		if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
 		{
-			matrial.m_toonResource = LoadTextureFromFile(toonFilePath, d3ddevice);
-		}
-
-		matrial.pipeLineName = shaderName[i];
-		matrial.material.diffuse = diffuse[i];
-		matrial.material.alpha = alpha[i];
-		matrial.material.specular = specular[i];
-		matrial.material.specularity = specularity[i];
-		matrial.material.ambient = ambient[i];
-
-		if (strlen(texFilePath[i]) == 0)
-		{
-			matrial.m_textureResource = nullptr;
-		}
-		else
-		{
-			std::string texFileName = GetFileName(texFilePath[i]);
-			std::string directoryName = GetDirectoryName(texFilePath[i]);
-			std::string sphFileName = "";
-			std::string spaFileName = "";
-
-			if (std::count(texFileName.begin(), texFileName.end(), '*') > 0)
+			auto namepair = SplitFileName(texFileName);
+			auto extension = GetExtension(namepair.first);
+			if (extension == "sph")
 			{
-				auto namepair = SplitFileName(texFileName);
-				auto extension = GetExtension(namepair.first);
-				if (extension == "sph")
-				{
-					texFileName = namepair.second;
-					sphFileName = namepair.first;
-				}
-				else if (extension == "spa")
-				{
-					texFileName = namepair.second;
-					spaFileName = namepair.first;
-				}
-				else
-				{
-					texFileName = namepair.first;
-					extension = GetExtension(namepair.second);
-					if (extension == "sph")
-					{
-						sphFileName = namepair.second;
-					}
-					else if (extension == "spa")
-					{
-						spaFileName = namepair.second;
-					}
-				}
+				texFileName = namepair.second;
+				sphFileName = namepair.first;
+			}
+			else if (extension == "spa")
+			{
+				texFileName = namepair.second;
+				spaFileName = namepair.first;
 			}
 			else
 			{
-				auto extension = GetExtension(texFileName);
+				texFileName = namepair.first;
+				extension = GetExtension(namepair.second);
 				if (extension == "sph")
 				{
-					sphFileName = texFileName;
-					texFileName = "";
+					sphFileName = namepair.second;
 				}
 				else if (extension == "spa")
 				{
-					spaFileName = texFileName;
-					texFileName = "";
+					spaFileName = namepair.second;
 				}
 			}
-
-			if (texFileName != "")
-			{
-				auto texFilePathFull = directoryName + '/' + texFileName;
-				matrial.m_textureResource = LoadTextureFromFile(texFilePathFull, d3ddevice);
-			}
-			if (sphFileName != "")
-			{
-				auto sphFilePath = directoryName + '/' + sphFileName;
-				matrial.m_sphResource = LoadTextureFromFile(sphFilePath, d3ddevice);
-			}
-			if (spaFileName != "")
-			{
-				auto spaFilePath = directoryName + '/' + spaFileName;
-				matrial.m_spaResource = LoadTextureFromFile(spaFilePath, d3ddevice);
-			}
 		}
-
-		//-----------material buff---------------------
-		auto materialBuffSize = sizeof(MaterialForHlsl);
-		materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
-
-		auto materialResDesc = CD3DX12_RESOURCE_DESC::Buffer(materialBuffSize);
-		auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-		auto result = d3ddevice->CreateCommittedResource(
-			&heapTypeUpload,
-			D3D12_HEAP_FLAG_NONE,
-			&materialResDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(matControl->m_materialBuff.ReleaseAndGetAddressOf()));
-		if (FAILED(result))
+		else
 		{
-			ShowMsgBox(L"error", L"Create material Resource fault.");
-			return -1;
+			auto extension = GetExtension(texFileName);
+			if (extension == "sph")
+			{
+				sphFileName = texFileName;
+				texFileName = "";
+			}
+			else if (extension == "spa")
+			{
+				spaFileName = texFileName;
+				texFileName = "";
+			}
 		}
 
-		char* mapMaterial = nullptr;
-		result = matControl->m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
-
-		*((MaterialForHlsl*)mapMaterial) = matrial.material;
-
-		matControl->m_materialBuff->Unmap(0, nullptr);
+		if (texFileName != "")
+		{
+			auto texFilePathFull = directoryName + '/' + texFileName;
+			matrial.m_textureResource = LoadTextureFromFile(texFilePathFull, d3ddevice);
+		}
+		if (sphFileName != "")
+		{
+			auto sphFilePath = directoryName + '/' + sphFileName;
+			matrial.m_sphResource = LoadTextureFromFile(sphFilePath, d3ddevice);
+		}
+		if (spaFileName != "")
+		{
+			auto spaFilePath = directoryName + '/' + spaFileName;
+			matrial.m_spaResource = LoadTextureFromFile(spaFilePath, d3ddevice);
+		}
 	}
+
+	//-----------material buff---------------------
+	auto materialBuffSize = sizeof(MaterialForHlsl);
+	materialBuffSize = (materialBuffSize + 0xff) & ~0xff;
+
+	auto materialResDesc = CD3DX12_RESOURCE_DESC::Buffer(materialBuffSize);
+	auto heapTypeUpload = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto result = d3ddevice->CreateCommittedResource(
+		&heapTypeUpload,
+		D3D12_HEAP_FLAG_NONE,
+		&materialResDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(matControl->m_materialBuff.ReleaseAndGetAddressOf()));
+	if (FAILED(result))
+	{
+		ShowMsgBox(L"error", L"Create material Resource fault.");
+		return -1;
+	}
+
+	char* mapMaterial = nullptr;
+	result = matControl->m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
+
+	*((MaterialForHlsl*)mapMaterial) = matrial.material;
+
+	matControl->m_materialBuff->Unmap(0, nullptr);
 
 	return 1;
 }

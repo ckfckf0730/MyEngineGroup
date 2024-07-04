@@ -100,10 +100,10 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_materialBuff = nullptr;
 	std::map<std::string, ShaderResource> m_shaderResourceTable;
 
-	static int SetMaterials(D3DDevice* _cD3DDev, unsigned int matCount, const char* shaderName[], 
-		DirectX::XMFLOAT3 diffuse[], float alpha[],
-		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-		const char* toonPath[], const char* texFilePath[], UINT MaterialIDs[]);
+	static int SetMaterial(D3DDevice* _cD3DDev, const char* shaderName,
+		DirectX::XMFLOAT3 diffuse, float alpha,
+		float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+		const char* toonPath, const char* texFilePath, UINT MaterialControlIDs);
 
 	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT rootParameterIndex);
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);

@@ -77,10 +77,10 @@ namespace CkfEngine.Core
         uint _indCount, ushort[] _indices, uint materialCount, uint[] matIndCount);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int SetMaterials(uint[] MaterialControlIDs, 
-            uint matCount, string[] shaderNames , Vector3[] diffuse, float[] alpha,
-        float[] specularity, Vector3[] specular, Vector3[] ambient, byte[] edgeFlg,
-        string[] toonPath, string[] texFilePath);
+        public static extern int SetMaterial(uint MaterialControlID,  
+            string shaderNames , Vector3 diffuse, float alpha,
+            float specularity, Vector3 specular, Vector3 ambient, byte edgeFlg,
+            string toonPath, string texFilePath);
 
         [DllImport("MyDirectx12.dll")]
         public static extern int SetPMDBoneIk(string fileFullName, ushort boneNum,
@@ -125,6 +125,9 @@ namespace CkfEngine.Core
 
         [DllImport("MyDirectx12.dll")]
         public static extern int BindMaterialControl(UInt64 UID, uint MaterialControlID, uint index);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int UnBindMaterialControl(UInt64 UID, uint MaterialControlID, uint index);
 
         #endregion
 

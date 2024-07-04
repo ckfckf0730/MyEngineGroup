@@ -25,7 +25,7 @@ int __declspec(dllexport) __stdcall InitD3d(HWND hwnd)
 	D3DResourceManage::Instance().pGraphicsCard = p;
 	D3DResourceManage::Instance().Init();
 	D3DResourceManage::Instance().InitializeLoadTable();
-	
+
 
 	return 1;
 }
@@ -98,7 +98,7 @@ int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 extern"C"
 {
 #endif
-void __declspec(dllexport) __stdcall SetModelTransform(unsigned long long _uid, DirectX::XMMATRIX matrix);
+	void __declspec(dllexport) __stdcall SetModelTransform(unsigned long long _uid, DirectX::XMMATRIX matrix);
 #ifdef __cplusplus 
 }
 #endif
@@ -180,8 +180,8 @@ void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName, 
-		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode , LPCSTR psEntry);
+	int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
+		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry);
 }
 
 int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
@@ -205,7 +205,7 @@ int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
 	};
 	UINT numElements = _countof(inputLayout);
 	int result = pipeline->CreatePipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
-		vsCode,vsEntry,psCode,psEntry);
+		vsCode, vsEntry, psCode, psEntry);
 	D3DResourceManage::Instance().PipelineTable.insert(
 		pair<std::string, D3DPipeline*>(pipelineName, pipeline));
 
@@ -268,11 +268,11 @@ void __declspec(dllexport) __stdcall ClearRootSignatureSetting()
 extern"C"
 {
 	void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,
-	D3D12_DESCRIPTOR_RANGE_TYPE type,int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility);
+		D3D12_DESCRIPTOR_RANGE_TYPE type, int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility);
 }
 
-void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name, 
-	D3D12_DESCRIPTOR_RANGE_TYPE type,int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility)
+void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,
+	D3D12_DESCRIPTOR_RANGE_TYPE type, int baseShaderRegister, D3D12_SHADER_VISIBILITY visibility)
 {
 	D3D12_DESCRIPTOR_RANGE desc = {};
 	desc.NumDescriptors = 1;  //testing phase just 1 each time
@@ -359,12 +359,12 @@ void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long long uid, UINT width, UINT height);
+	int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, unsigned long long uid, UINT width, UINT height);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long long uid, UINT width, UINT height)
+int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, unsigned long long uid, UINT width, UINT height)
 {
 	auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
 	if (iter != D3DResourceManage::Instance().CameraTable.end())
@@ -376,7 +376,7 @@ int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd,unsigned long l
 
 	D3DCamera* mainCamera = new D3DCamera();
 	mainCamera->Uid = uid;
-	mainCamera->CreateSwapChain(hwnd,width,height);
+	mainCamera->CreateSwapChain(hwnd, width, height);
 	mainCamera->CreateRenderTargetView();
 	mainCamera->CreateDepthStencilView(width, height);
 	mainCamera->SetViewPort(width, height);
@@ -461,11 +461,11 @@ void __declspec(dllexport) __stdcall SetCameraTransform(
 extern"C"
 {
 #endif
-	void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid,float*  color);
+	void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid, float* color);
 #ifdef __cplusplus 
 }
 #endif
-void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid,float* color)
+void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid, float* color)
 {
 	float* backColor = D3DResourceManage::Instance().CameraTable[uid]->m_backColor;
 
@@ -511,7 +511,7 @@ int __declspec(dllexport) __stdcall SetPMDVertices(const char* _FileFullName, un
 
 		BasicModel::s_modelTable.insert(
 			std::pair<std::string, BasicModel*>(std::string(_FileFullName), verRes));
-		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount, 
+		result = verRes->SetVertices(D3DResourceManage::Instance().pGraphicsCard, _vertCount,
 			_vertices, _indCount, _indices);
 		if (result < 1)
 		{
@@ -610,41 +610,38 @@ int __declspec(dllexport) __stdcall SetBasicVertices(const char* _FileFullName, 
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlIDs[], unsigned int matCount,
-		const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
-		float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-		const char* toonPath[], const char* texFilePath[]);
+	int __declspec(dllexport) __stdcall SetMaterial(UINT MaterialControlIDs,
+		const char* shaderName, DirectX::XMFLOAT3 diffuse, float alpha,
+		float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+		const char* toonPath, const char* texFilePath);
 }
 
-int __declspec(dllexport) __stdcall SetMaterials(UINT MaterialControlIDs[], unsigned int matCount,
-	const char* shaderName[], DirectX::XMFLOAT3 diffuse[], float alpha[],
-	float specularity[], DirectX::XMFLOAT3 specular[], DirectX::XMFLOAT3 ambient[], unsigned char edgeFlg[],
-	const char* toonPath[], const char* texFilePath[])
+int __declspec(dllexport) __stdcall SetMaterial(UINT MaterialControlID,
+	const char* shaderName, DirectX::XMFLOAT3 diffuse, float alpha,
+	float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+	const char* toonPath, const char* texFilePath)
 {
-	auto result = MaterialControl::SetMaterials(D3DResourceManage::Instance().pGraphicsCard, matCount, shaderName, diffuse, alpha,
-		specularity, specular, ambient, edgeFlg, toonPath, texFilePath, MaterialControlIDs);
+	auto result = MaterialControl::SetMaterial(D3DResourceManage::Instance().pGraphicsCard, shaderName, diffuse, alpha,
+		specularity, specular, ambient, edgeFlg, toonPath, texFilePath, MaterialControlID);
 
 	if (result != 1)
 	{
 		return result;
 	}
 
-	for (int i = 0; i < matCount; i++)
+
+	auto iter = D3DResourceManage::Instance().PipelineTable.find(shaderName);
+	if (iter == D3DResourceManage::Instance().PipelineTable.end())
 	{
-		auto pipelineName = shaderName[i];
-
-		auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
-		if (iter == D3DResourceManage::Instance().PipelineTable.end())
-		{
-			PrintDebug("Can't find pipeline when SetMaterials: ");
-			PrintDebug(pipelineName);
-			continue;
-		}
-
-		auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlIDs[i]];
-
-		material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard, iter->second);
+		PrintDebug("Can't find pipeline when SetMaterial: ");
+		PrintDebug(shaderName);
+		return -1;
 	}
+
+	auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlID];
+
+	material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard, iter->second);
+
 	return 1;
 }
 
@@ -696,7 +693,7 @@ extern"C"
 }
 
 void __declspec(dllexport) __stdcall GetCustomizedResourceValue(
-	UINT materialId, LPCSTR name , unsigned char** data, UINT16* size)
+	UINT materialId, LPCSTR name, unsigned char** data, UINT16* size)
 {
 	auto iter = D3DResourceManage::Instance().MaterialTable.find(materialId);
 	if (iter == D3DResourceManage::Instance().MaterialTable.end())
@@ -742,7 +739,7 @@ int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID,
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall BindMaterialControls(UINT64 UID, UINT MaterialControlIDs[],UINT materialCount);
+	int __declspec(dllexport) __stdcall BindMaterialControls(UINT64 UID, UINT MaterialControlIDs[], UINT materialCount);
 }
 int __declspec(dllexport) __stdcall BindMaterialControls(UINT64 UID, UINT MaterialControlIDs[], UINT materialCount)
 {
@@ -778,6 +775,27 @@ int __declspec(dllexport) __stdcall BindMaterialControl(UINT64 UID, UINT Materia
 	}
 
 	iter->second->BindMaterialControl(MaterialControlID, index);
+
+	return 1;
+}
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall UnBindMaterialControl(UINT64 UID, UINT MaterialControlID, UINT index);
+}
+int __declspec(dllexport) __stdcall UnBindMaterialControl(UINT64 UID, UINT MaterialControlID, UINT index)
+{
+	auto iter = ModelInstance::s_uidModelTable.find(UID);
+	if (iter == ModelInstance::s_uidModelTable.end())
+	{
+		PrintDebug("UnBindMaterialControl fault, can't find uid: ");
+		PrintDebug((int)UID);
+		return -1;
+	}
+
+	// Pending
+	//iter->second->UnBindMaterialControl(MaterialControlID, index);
+	PrintDebug("UnBindMaterialControl not realized, Pending...");
 
 	return 1;
 }
@@ -855,12 +873,12 @@ void __declspec(dllexport) __stdcall UpdatePMDBoneMatrices(unsigned long long _u
 		return;
 	}
 	PMDModelInstance* pInstance = static_cast<PMDModelInstance*>(iter->second);
-	pInstance->UpdateBoneMatrices(boneMatrices,size);
+	pInstance->UpdateBoneMatrices(boneMatrices, size);
 }
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid, const char* _FileFullName ,int boneSize);
+	int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid, const char* _FileFullName, int boneSize);
 }
 
 int __declspec(dllexport) __stdcall InstantiatePMDModel(unsigned long long _uid, const char* _FileFullName, int boneSize)

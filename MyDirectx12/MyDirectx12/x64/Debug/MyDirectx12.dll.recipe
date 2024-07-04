@@ -2,24 +2,24 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll</FullPath>
+      <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\BasicPixelShader.cso</FullPath>
+      <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\BasicPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\BasicVertexShader.cso</FullPath>
+      <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\BasicVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\NoBoneVertexShader.cso</FullPath>
+      <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\NoBoneVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\PeraPixel.cso</FullPath>
+      <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\PeraPixel.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\Projects\MyEngineGroup\MyEngine\MyEngine\bin\Debug\PeraVertex.cso</FullPath>
+      <FullPath>D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\PeraVertex.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />
