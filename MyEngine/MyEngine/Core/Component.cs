@@ -342,18 +342,12 @@ namespace CkfEngine.Core
 
                     MaterialManager.SetInstanceMaterials(OwnerEntity.Uid, m_materials.ToArray());
 
-                    var copyMats = MaterialManager.InstantiateMaterials(m_materials);
-                    for (int i = 0; i < copyMats.Count; i++)
-                    {
-                        copyMats[i].shader = Shader.ShaderTable["TestShader"];
-                    }
 
-
-                    MaterialManager.RegisterMaterials(copyMats);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        ChangeMaterial(copyMats[i], i);
-                    }
+                    //test change shader or material
+                    //for (int i = 0; i < 3; i++)
+                    //{
+                    //    ChangeShader(i,Shader.ShaderTable["TestShader"]);
+                    //}
                 }
             }
 
@@ -393,6 +387,36 @@ namespace CkfEngine.Core
             m_materials[index] = mat;
             MaterialManager.SetInstanceMaterial(OwnerEntity.Uid, mat, (uint)index);
         }
+
+        public void ChangeShader(int index, Shader shader)
+        {
+            if (m_materials == null)
+            {
+                Console.WriteLine(this.Name + " SetMaterial Error, the m_materials is null.");
+                return;
+            }
+
+            if (index >= m_materials.Count)
+            {
+                Console.WriteLine(this.Name + " SetMaterial Error, the index Overflow.");
+                return;
+            }
+
+            if (m_materials[index].isSetted)
+            {
+                MaterialManager.UnsetInstanceMaterial(OwnerEntity.Uid, m_materials[index], (uint)index);
+            }
+
+            if(m_materials[index].isShared)
+            {
+                m_materials[index] = MaterialManager.InstantiateMaterial(m_materials[index]);
+                m_materials[index].shader = shader;
+                MaterialManager.RegisterMaterials(new List<StandardMaterial>() { m_materials[index] });
+            }
+
+            MaterialManager.SetInstanceMaterial(OwnerEntity.Uid, m_materials[index], (uint)index);
+        }
+
     }
 
     [Serializable]

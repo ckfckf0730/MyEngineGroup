@@ -446,17 +446,34 @@ namespace CkfEngine.Editor
 
                 private void MaterialOnClicked(object sender, EventArgs e)
                 {
+                    Button button = sender as Button;
+
+                    UpdateMaterialPanel((int)button.Tag);
+                }
+
+                private void UpdateMaterialPanel(int matIndex)
+                {
                     ClearMateialInfo();
 
                     List<StandardMaterial> list = (m_info.GetValue(m_curComponent)) as List<StandardMaterial>;
-                    Button button = sender as Button;
 
-                    StandardMaterial mat = list[(int)button.Tag];
+                    StandardMaterial mat = list[matIndex];
 
                     int startX = 300;
                     if (mat?.shader != null)
                     {
-                        int offY = 0;
+                        Button mateName = new Button();
+                        m_matrialWindow.Controls.Add(mateName);
+                        m_mateialInfoControls.Add(mateName);
+                        mateName.Text = mat.shader.m_name;
+                        mateName.Location = new Point(startX, 10);
+                        mateName.Width = 400;
+                        mateName.Click += (sender2, e2) =>
+                        {
+                            CreateSelectShaderWindow(matIndex);
+                        };
+
+                        int offY = 50;
                         foreach (var rootParam in mat.shader.rootParameters)
                         {
                             Label label = new Label();
@@ -468,14 +485,14 @@ namespace CkfEngine.Editor
                             var data = MaterialManager.GetCustomizedResourceValue(mat, rootParam.name, type.type);
                             var fields = data.GetType().GetFields();
                             //var test2 = typeof(float).GetFields();
-                            for (int i=0; i < type.arrLen; i++)
+                            for (int i = 0; i < type.arrLen; i++)
                             {
                                 TextBox textBox = new TextBox();
                                 m_matrialWindow.Controls.Add(textBox);
                                 m_mateialInfoControls.Add(textBox);
                                 textBox.Location = new Point(startX + i * 100, offY + 25);
                                 textBox.Width = 80;
-                                textBox.Tag = button.Tag;
+                                textBox.Tag = matIndex;
 
                                 textBox.Text = fields[i].GetValue(data).ToString();
 
@@ -489,16 +506,50 @@ namespace CkfEngine.Editor
 
                                         MaterialManager.SetCustomizedResourceValue(mat, rootParam.name, data);
                                     }
-                                    catch(Exception excption)
+                                    catch (Exception excption)
                                     {
 
                                     }
-   
+
                                 };
                             }
 
                             offY += 60;
                         }
+                    }
+                }
+
+
+                private void CreateSelectShaderWindow(int matIndex)
+                {
+                    var window = new Form();
+                    window.Owner = m_matrialWindow;
+
+                    window.Width = 400;
+                    window.Height = 600;
+                    window.Show();
+
+                    int offY = 0;
+                    foreach(var shader in Shader.ShaderTable.Values)
+                    {
+                        Button botton = new Button();
+                        window.Controls.Add(botton);
+                        botton.Width = 300;
+                        botton.Location = new Point(0, offY);
+                        botton.Text = shader.m_name;
+                        botton.Click += (sender, e) =>
+                        {
+                            var renderer = m_curComponent as ModelBoneRenderer;
+                            if (renderer!= null)
+                            {
+                                renderer.ChangeShader(matIndex, shader);
+                                UpdateMaterialPanel(matIndex);
+                                window.Close();
+                            }
+
+                        };
+
+                        offY += 20;
                     }
                 }
 
