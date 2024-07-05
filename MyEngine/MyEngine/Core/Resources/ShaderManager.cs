@@ -47,6 +47,21 @@ namespace CkfEngine.Core
             Shader.CreateShaderByBuilder(shaderBuilder);
         }
 
+        public static void CompileAllShader(string directory)
+        {
+            var files = Directory.GetFiles(directory);
+            foreach(var file in files)
+            {
+                var extension = Path.GetExtension(file);
+                if(extension.ToUpper() == ".SHADER")
+                {
+                    ShaderManager.CreateShader(file);
+                }
+            }
+
+
+        }
+
     }
 
 

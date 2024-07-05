@@ -6,3 +6,6 @@
 *.exe
 
 *.obj
+MyEngine/MyEngine/obj/Debug/CkfEngine.pdb
+*.pdb
+MyEngine/MyEngine/bin/Debug/CkfEngine.pdb

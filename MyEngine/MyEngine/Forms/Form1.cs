@@ -60,7 +60,7 @@ namespace CkfEngine
         static void Test()
         {
             //ShaderManager.CreateShaderFile("Assets/Shaders/TestShaderOut.shader");
-            ShaderManager.CreateShader("Assets/Shaders/Shader1.shader");
+            //ShaderManager.CreateShader("Assets/Shaders/Shader1.shader");
         }
 
 
@@ -153,6 +153,7 @@ namespace CkfEngine
         private void CompileButton_Click(object sender, EventArgs e)
         {
             ScriptCompilate.CompileAllScript();
+            ShaderManager.CompileAllShader(ProjectManager.Instance.CurProject.Path + "Assets\\Shaders");
         }
 
         private void buttonRunScene_Click(object sender, EventArgs e)
