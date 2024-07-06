@@ -83,6 +83,12 @@ namespace CkfEngine.Core
             string toonPath, string texFilePath);
 
         [DllImport("MyDirectx12.dll")]
+        public static extern void SetMaterialValue(uint MaterialControlID,
+            string shaderNames, Vector3 diffuse, float alpha,
+            float specularity, Vector3 specular, Vector3 ambient, byte edgeFlg,
+            string toonPath, string texFilePath);
+
+        [DllImport("MyDirectx12.dll")]
         public static extern int SetPMDBoneIk(string fileFullName, ushort boneNum,
         ushort ikNum, string[] boneName, ushort[] parentNo, ushort[] nextNo,
         byte[] type, ushort[] ikBoneNo, Vector3[] pos,

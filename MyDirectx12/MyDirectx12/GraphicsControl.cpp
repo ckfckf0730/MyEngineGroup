@@ -647,6 +647,23 @@ int __declspec(dllexport) __stdcall SetMaterial(UINT MaterialControlID,
 
 extern"C"
 {
+	void __declspec(dllexport) __stdcall SetMaterialValue(UINT MaterialControlIDs,
+		const char* shaderName, DirectX::XMFLOAT3 diffuse, float alpha,
+		float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+		const char* toonPath, const char* texFilePath);
+}
+
+void __declspec(dllexport) __stdcall SetMaterialValue(UINT MaterialControlID,
+	const char* shaderName, DirectX::XMFLOAT3 diffuse, float alpha,
+	float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+	const char* toonPath, const char* texFilePath)
+{
+	MaterialControl::SetMaterialValue(D3DResourceManage::Instance().pGraphicsCard, shaderName, diffuse, alpha,
+		specularity, specular, ambient, edgeFlg, toonPath, texFilePath, MaterialControlID);
+}
+
+extern"C"
+{
 	void __declspec(dllexport) __stdcall CreateCustomizedResource(UINT materialId,
 		LPCSTR name, uint16_t datasize, UINT shaderRegisterNum);
 }

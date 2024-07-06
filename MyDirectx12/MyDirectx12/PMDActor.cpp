@@ -912,6 +912,52 @@ int MaterialControl::SetMaterial(D3DDevice* _cD3DDev, const char* shaderName,
 	return 1;
 }
 
+void MaterialControl::SetMaterialValue(D3DDevice* _cD3DDev, const char* shaderName,
+	DirectX::XMFLOAT3 diffuse, float alpha,
+	float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+	const char* toonPath, const char* texFilePath, UINT MaterialControlIDs)
+{
+	auto& matTable = D3DResourceManage::Instance().MaterialTable;
+	auto d3ddevice = _cD3DDev->pD3D12Device;
+
+	auto iter = matTable.find(MaterialControlIDs);
+	{
+		if (iter == matTable.end())
+		{
+			PrintDebug("SetMaterialValue Error, can't find MaterialControl:");
+			PrintDebug((int)MaterialControlIDs);
+		}
+	}
+
+	MaterialControl* matControl = iter->second;
+
+	Material& matrial = matControl->m_material;
+
+	std::string toonFilePath = toonPath;
+	if (toonFilePath != "")
+	{
+		matrial.m_toonResource = LoadTextureFromFile(toonFilePath, d3ddevice);
+	}
+
+	matrial.pipeLineName = shaderName;
+	matrial.material.diffuse = diffuse;
+	matrial.material.alpha = alpha;
+	matrial.material.specular = specular;
+	matrial.material.specularity = specularity;
+	matrial.material.ambient = ambient;
+
+	// texture load logic, pending
+	//......................
+
+	// Effective modification
+	char* mapMaterial = nullptr;
+	matControl->m_materialBuff->Map(0, nullptr, (void**)&mapMaterial);
+
+	*((MaterialForHlsl*)mapMaterial) = matrial.material;
+
+	matControl->m_materialBuff->Unmap(0, nullptr);
+}
+
 int MaterialControl::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,
 	UINT rootParameterIndex)
 {

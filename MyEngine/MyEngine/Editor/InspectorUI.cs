@@ -436,7 +436,7 @@ namespace CkfEngine.Editor
 
                 private void ClearMateialInfo()
                 {
-                    foreach(var item in m_mateialInfoControls)
+                    foreach (var item in m_mateialInfoControls)
                     {
                         m_matrialWindow.Controls.Remove(item);
                     }
@@ -474,6 +474,71 @@ namespace CkfEngine.Editor
                         };
 
                         int offY = 50;
+
+                        // basic root param fields
+                        var matType = mat.GetType();
+                        var matFields = matType.GetFields(
+                            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                        FieldInfo[] derivedFields = Array.FindAll(matFields, field => field.DeclaringType == matType);
+                        foreach (FieldInfo field in derivedFields)
+                        {
+                            var fileName = field.Name;
+                            Label label = new Label();
+                            m_matrialWindow.Controls.Add(label);
+                            m_mateialInfoControls.Add(label);
+                            label.Text = fileName;
+                            label.Location = new Point(startX, offY);
+
+                            var fileTypeName = field.FieldType.Name.ToUpper();
+
+                            var data = field.GetValue(mat);
+                            if (fileTypeName.Contains("VECTOR"))
+                            {
+                                var vectorFields = field.FieldType.GetFields();
+                                for (int i = 0; i < vectorFields.Length; i++)
+                                {
+                                    TextBox textBox = new TextBox();
+                                    m_matrialWindow.Controls.Add(textBox);
+                                    m_mateialInfoControls.Add(textBox);
+                                    textBox.Location = new Point(startX + i * 100, offY + 25);
+                                    textBox.Width = 80;
+                                    textBox.Tag = matIndex;
+
+                                    textBox.Text = vectorFields[i].GetValue(data).ToString();
+
+                                    int index = i;
+                                    textBox.TextChanged += (sender2, e2) =>
+                                    {
+                                        try
+                                        {
+                                            float value = float.Parse((sender2 as TextBox).Text);
+                                            vectorFields[index].SetValue(data, value);
+                                            field.SetValue(mat, data);
+
+                                            MaterialManager.SetMaterialValue(mat);
+
+                                        }
+                                        catch (Exception excption)
+                                        {
+
+                                        }
+
+                                    };
+                                }
+                            }
+                            else if (field.FieldType == typeof(float))
+                            {
+
+                            }
+                            else if (field.FieldType == typeof(string))
+                            {
+
+                            }
+
+                            offY += 60;
+                        }
+
+                        // cunstonmized root param fields
                         foreach (var rootParam in mat.shader.rootParameters)
                         {
                             Label label = new Label();
@@ -530,7 +595,7 @@ namespace CkfEngine.Editor
                     window.Show();
 
                     int offY = 0;
-                    foreach(var shader in Shader.ShaderTable.Values)
+                    foreach (var shader in Shader.ShaderTable.Values)
                     {
                         Button botton = new Button();
                         window.Controls.Add(botton);
@@ -540,7 +605,7 @@ namespace CkfEngine.Editor
                         botton.Click += (sender, e) =>
                         {
                             var renderer = m_curComponent as ModelBoneRenderer;
-                            if (renderer!= null)
+                            if (renderer != null)
                             {
                                 renderer.ChangeShader(matIndex, shader);
                                 UpdateMaterialPanel(matIndex);

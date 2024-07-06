@@ -104,11 +104,16 @@ public:
 		DirectX::XMFLOAT3 diffuse, float alpha,
 		float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
 		const char* toonPath, const char* texFilePath, UINT MaterialControlIDs);
+	static void SetMaterialValue(D3DDevice* _cD3DDev, const char* shaderName,
+		DirectX::XMFLOAT3 diffuse, float alpha,
+		float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
+		const char* toonPath, const char* texFilePath, UINT MaterialControlIDs);
 
 	int CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize, UINT rootParameterIndex);
 	void CreateDescriptorsByPipeline(D3DPipeline* pipeline);
 	void SetCustomizedResourceValue(LPCSTR name, unsigned char* data);
 	unsigned char* GetCustomizedResourceValue(LPCSTR name, UINT16* size);
+
 
 	void CreateDescriptor(D3DDevice* _cD3DDev, D3DPipeline* pipeline);
 

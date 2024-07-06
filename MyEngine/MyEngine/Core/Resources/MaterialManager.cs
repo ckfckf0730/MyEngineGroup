@@ -96,6 +96,24 @@ namespace CkfEngine.Core
             return true;
         }
 
+        internal static void SetMaterialValue(StandardMaterial material)
+        {
+
+            D3DAPICall.SetMaterialValue(
+                           material.materialId,
+                           material.shader.m_name,
+                           material.diffuse,
+                           material.alpha,
+                           material.specularity,
+                           material.specular,
+                           material.ambient,
+                           material.edgeFlg,
+                           material.toonPath,
+                           material.texFilePath);
+
+        }
+
+
         internal static void SetInstanceMaterials(ulong UID, StandardMaterial[] matrials)
         {
             for (uint i = 0; i < matrials.Count(); i++)

@@ -9,3 +9,5 @@
 MyEngine/MyEngine/obj/Debug/CkfEngine.pdb
 *.pdb
 MyEngine/MyEngine/bin/Debug/CkfEngine.pdb
+MyDirectx12/MyDirectx12/x64/Debug/vc143.pdb
+*.obj
