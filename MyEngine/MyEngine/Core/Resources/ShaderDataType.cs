@@ -33,6 +33,11 @@ namespace CkfEngine.Core
             type.limitedMax = 1.0f;
             type.StringToValue = (str) =>
             {
+                if(string.IsNullOrEmpty(str))
+                {
+                    return Vector4.Zero;
+                }
+
                 str = str.Trim('<', '>');
 
                 string[] values = str.Split(',');

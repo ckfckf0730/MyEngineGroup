@@ -362,7 +362,7 @@ namespace CkfEngine.Editor
             {
                 private Button m_showButton;
                 private Form m_matrialWindow;
-
+                Panel m_panel;
 
                 List<Control> m_mateialInfoControls;
 
@@ -411,6 +411,10 @@ namespace CkfEngine.Editor
                     m_matrialWindow.Width = 800;
                     m_matrialWindow.Height = 600;
 
+                    m_panel = new Panel();
+                    m_matrialWindow.Controls.Add(m_panel);
+                    m_panel.AutoScroll = true;
+                    m_panel.Dock = DockStyle.Fill;
 
                     List<StandardMaterial> list = (m_info.GetValue(m_curComponent)) as List<StandardMaterial>;
 
@@ -419,8 +423,8 @@ namespace CkfEngine.Editor
                     {
                         Button button1 = new Button();
                         Button button2 = new Button();
-                        m_matrialWindow.Controls.Add(button1);
-                        m_matrialWindow.Controls.Add(button2);
+                        m_panel.Controls.Add(button1);
+                        m_panel.Controls.Add(button2);
                         button1.Text = "Change";
                         button1.Location = new Point(0, offY);
 
@@ -438,7 +442,7 @@ namespace CkfEngine.Editor
                 {
                     foreach (var item in m_mateialInfoControls)
                     {
-                        m_matrialWindow.Controls.Remove(item);
+                        m_panel.Controls.Remove(item);
                     }
                     m_mateialInfoControls.Clear();
 
@@ -463,7 +467,7 @@ namespace CkfEngine.Editor
                     if (mat?.shader != null)
                     {
                         Button mateName = new Button();
-                        m_matrialWindow.Controls.Add(mateName);
+                        m_panel.Controls.Add(mateName);
                         m_mateialInfoControls.Add(mateName);
                         mateName.Text = mat.shader.m_name;
                         mateName.Location = new Point(startX, 10);
@@ -484,7 +488,7 @@ namespace CkfEngine.Editor
                         {
                             var fileName = field.Name;
                             Label label = new Label();
-                            m_matrialWindow.Controls.Add(label);
+                            m_panel.Controls.Add(label);
                             m_mateialInfoControls.Add(label);
                             label.Text = fileName;
                             label.Location = new Point(startX, offY);
@@ -498,7 +502,7 @@ namespace CkfEngine.Editor
                                 for (int i = 0; i < vectorFields.Length; i++)
                                 {
                                     TextBox textBox = new TextBox();
-                                    m_matrialWindow.Controls.Add(textBox);
+                                    m_panel.Controls.Add(textBox);
                                     m_mateialInfoControls.Add(textBox);
                                     textBox.Location = new Point(startX + i * 100, offY + 25);
                                     textBox.Width = 80;
@@ -528,7 +532,31 @@ namespace CkfEngine.Editor
                             }
                             else if (field.FieldType == typeof(float))
                             {
+                                TextBox textBox = new TextBox();
+                                m_panel.Controls.Add(textBox);
+                                m_mateialInfoControls.Add(textBox);
+                                textBox.Location = new Point(startX, offY + 25);
+                                textBox.Width = 80;
+                                textBox.Tag = matIndex;
 
+                                textBox.Text = data.ToString();
+
+                                textBox.TextChanged += (sender2, e2) =>
+                                {
+                                    try
+                                    {
+                                        float value = float.Parse((sender2 as TextBox).Text);
+                                        field.SetValue(mat, value);
+
+                                        MaterialManager.SetMaterialValue(mat);
+
+                                    }
+                                    catch (Exception excption)
+                                    {
+
+                                    }
+
+                                };
                             }
                             else if (field.FieldType == typeof(string))
                             {
@@ -542,7 +570,7 @@ namespace CkfEngine.Editor
                         foreach (var rootParam in mat.shader.rootParameters)
                         {
                             Label label = new Label();
-                            m_matrialWindow.Controls.Add(label);
+                            m_panel.Controls.Add(label);
                             m_mateialInfoControls.Add(label);
                             label.Text = rootParam.name;
                             label.Location = new Point(startX, offY);
@@ -553,7 +581,7 @@ namespace CkfEngine.Editor
                             for (int i = 0; i < type.arrLen; i++)
                             {
                                 TextBox textBox = new TextBox();
-                                m_matrialWindow.Controls.Add(textBox);
+                                m_panel.Controls.Add(textBox);
                                 m_mateialInfoControls.Add(textBox);
                                 textBox.Location = new Point(startX + i * 100, offY + 25);
                                 textBox.Width = 80;
