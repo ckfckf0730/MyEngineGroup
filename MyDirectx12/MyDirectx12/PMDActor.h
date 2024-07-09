@@ -376,6 +376,7 @@ public:
 
 	//int BindMaterialControls(UINT matIds[], UINT count);
 	int BindMaterialControl(UINT matId, UINT index);
+	void UnBindMaterialControl(UINT matId, UINT index);
 
 	~ModelInstance();
 };

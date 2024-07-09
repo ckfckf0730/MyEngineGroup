@@ -569,12 +569,19 @@ namespace CkfEngine.Editor
                         // cunstonmized root param fields
                         foreach (var rootParam in mat.shader.rootParameters)
                         {
+                            var type = ShaderDataTypeManager.GetTypeByString(rootParam.dataType);
+                            if (type.type == null)
+                            {
+                                Console.WriteLine("Create shader root parameter fault, can't find the type: " + rootParam.dataType);
+                                continue;
+                            }
+
                             Label label = new Label();
                             m_panel.Controls.Add(label);
                             m_mateialInfoControls.Add(label);
                             label.Text = rootParam.name;
                             label.Location = new Point(startX, offY);
-                            var type = ShaderDataTypeManager.GetTypeByString(rootParam.dataType);
+
                             var data = MaterialManager.GetCustomizedResourceValue(mat, rootParam.name, type.type);
                             var fields = data.GetType().GetFields();
                             //var test2 = typeof(float).GetFields();

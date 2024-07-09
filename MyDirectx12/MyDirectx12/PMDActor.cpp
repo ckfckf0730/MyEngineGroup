@@ -627,8 +627,6 @@ int BindPipelineToInstance(ModelInstance* pInstanse, const char* pipelineName)
 		iter->second++;
 	}
 
-
-
 	return 1;
 }
 
@@ -660,36 +658,8 @@ void RemovePipelineBind(ModelInstance* pInstanse, const char* pipelineName)
 
 			// release Descriptors logic
 		}
-
-
 	}
 }
-
-//int ModelInstance::BindMaterialControls(UINT matIds[], UINT count)
-//{
-//	if (count != m_materialControls.size())
-//	{
-//		ShowMsgBox(nullptr, "BindMaterialControl Error, the material count wrong!");
-//		ShowMsgBox(nullptr, count);
-//		ShowMsgBox(nullptr, m_materialControls.size());
-//		return 1;
-//	}
-//
-//	for (int i = 0; i < count; i++)
-//	{
-//		auto iter = D3DResourceManage::Instance().MaterialTable.find(matIds[i]);
-//		if (iter == D3DResourceManage::Instance().MaterialTable.end())
-//		{
-//			PrintDebug("Bind Material Control fault, can't find matID: ");
-//			PrintDebug((int)matIds[i]);
-//			return -1;
-//		}
-//
-//		
-//		m_materialControls[i] = iter->second;
-//	}
-//	return 1;
-//}
 
 int ModelInstance::BindMaterialControl(UINT matId, UINT index)
 {
@@ -721,7 +691,30 @@ int ModelInstance::BindMaterialControl(UINT matId, UINT index)
 	return BindPipelineToInstance(this, iter->second->m_material.pipeLineName.c_str());
 }
 
+void ModelInstance::UnBindMaterialControl(UINT matId, UINT index)
+{
+	if (index >= m_materialControls.size())
+	{
+		ShowMsgBox(nullptr, "BindMaterialControl Error, the material index is over size!");
+		ShowMsgBox(nullptr, index);
+		ShowMsgBox(nullptr, m_materialControls.size());
+		return;
+	}
 
+	auto iter = D3DResourceManage::Instance().MaterialTable.find(matId);
+	if (iter == D3DResourceManage::Instance().MaterialTable.end())
+	{
+		PrintDebug("Bind Material Control fault, can't find matID: ");
+		PrintDebug((int)matId);
+		return;
+	}
+
+	if (m_materialControls[index] != nullptr)
+	{
+		RemovePipelineBind(this, iter->second->m_material.pipeLineName.c_str());
+		m_materialControls[index] = nullptr;
+	}
+}
 
 //int ModelInstance::CreateCustomizedResource(D3DDevice* _cD3DDev, LPCSTR name, uint16_t datasize,
 //	UINT rootParameterIndex)
@@ -775,15 +768,21 @@ int ModelInstance::BindMaterialControl(UINT matId, UINT index)
 
 ModelInstance::~ModelInstance()
 {
-	//m_transformDescHeap->Release();
 	m_transformConstBuff->Release();
 
-	//for (auto& iter : m_shaderResouceTable)
-	//{
-	//	auto& res = iter.second;
-	//	res.resource->Release();
-	//}
-	//m_shaderResouceTable.clear();
+	for (int i = 0; i < m_materialControls.size(); i++)
+	{
+		auto matControl = m_materialControls[i];
+		auto pipeline = D3DResourceManage::Instance().PipelineTable[matControl->m_material.pipeLineName];
+		pipeline->RenderModelTable[m_model][this]--;
+
+		if (pipeline->RenderModelTable[m_model][this] <= 0)
+		{
+			pipeline->RenderModelTable[m_model].erase(this);
+			PrintDebug("Remove BindPipeline Success");
+		}
+
+	}
 }
 
 int MaterialControl::SetMaterial(D3DDevice* _cD3DDev, const char* shaderName,

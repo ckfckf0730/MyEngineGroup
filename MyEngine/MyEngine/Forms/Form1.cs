@@ -169,6 +169,7 @@ namespace CkfEngine
             int height = 600;
             runForm.Size = new Size(width, height);
             runForm.Show();
+            ShaderManager.CompileAllShader(ProjectManager.Instance.CurProject.Path + "Assets\\Shaders");
             RuntimeControl.Instance.SwitchState(runForm.Handle,ProjectManager.Instance.CurScene);
             runForm.FormClosed += (sender2, e2) =>
             {

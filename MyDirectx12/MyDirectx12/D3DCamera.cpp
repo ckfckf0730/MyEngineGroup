@@ -296,7 +296,18 @@ int D3DCamera::Draw(D3DDevice* _cD3DDev)
 	{
 		auto pipeline = iter->second;
 		//SetInitialRenderState(cmdList);
-		pipeline->Draw(cmdList, d3ddevice);
+		try
+		{
+			pipeline->Draw(cmdList, d3ddevice);
+		}
+		catch (const std::runtime_error& e)
+		{
+			PrintDebug(e.what());
+		}
+		catch (const std::exception& e)
+		{
+			PrintDebug(e.what());
+		}
 		//cmdList->Close();
 
 	/*	ID3D12CommandList* cmdlists[] = { cmdList };

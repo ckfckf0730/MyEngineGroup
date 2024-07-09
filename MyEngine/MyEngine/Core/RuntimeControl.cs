@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -50,6 +51,8 @@ namespace CkfEngine.Core
             m_isRun = true;
             curScene.Boot();
             CoreEvents.SceneRunned?.Invoke(curScene);
+
+            TestBoot();
         }
 
         internal void Stop()
@@ -66,9 +69,42 @@ namespace CkfEngine.Core
             if(m_isRun)
             {
                 UpdateEvent?.Invoke();
+                TestUpdate();
             }
 
         }
 
+        ModelBoneRenderer renderer;
+        private void TestBoot()
+        {
+            var entities = Entity.GetAllEntities();
+
+            foreach(var entity in entities)
+            {
+                if(entity.Name == "Role")
+                {
+                    renderer = entity.GetComponent<ModelBoneRenderer>();
+                    renderer.ChangeShader(3, Shader.ShaderTable["TestShader"]);
+                    
+
+                    return;
+                }
+            }
+        }
+
+        float yAxis = 0;
+
+        private void TestUpdate()
+        {
+            if(renderer != null)
+            {
+                yAxis += 0.1f;
+                Vector3 lightDir = new Vector3(1, -1, 1);
+                Matrix4x4 rotY = Matrix4x4.CreateRotationY(yAxis);
+                lightDir = Vector3.Transform(lightDir, rotY);
+
+                MaterialManager.SetCustomizedResourceValue(renderer.Materials[3], "testFloat3", lightDir);
+            }
+        }
     }
 }

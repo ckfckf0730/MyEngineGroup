@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -277,6 +278,10 @@ namespace CkfEngine.Core
         //uint m_materialId;
         [MyAttributeNewWindowInspector]
         private List<StandardMaterial> m_materials = null;
+        public StandardMaterial[] Materials
+        {
+            get { return m_materials?.ToArray(); }
+        }
 
         protected override void OnCreated()
         {
@@ -298,6 +303,15 @@ namespace CkfEngine.Core
 
         protected override void OnDestroyed()
         {
+            //if(m_materials != null)
+            //{
+            //    for (int i = 0; i < m_materials.Count; i++)
+            //    {
+            //        MaterialManager.UnsetInstanceMaterial(OwnerEntity.Uid, m_materials[i], (uint)i);
+            //    }
+            //}
+
+
             D3DAPICall.DeleteModelInstance(OwnerEntity.Uid);
         }
 
@@ -329,7 +343,7 @@ namespace CkfEngine.Core
             {
                 if (m_materials == null)
                 {
-                    m_materials = m_model.m_materials;
+                    m_materials = m_model.m_materials.ToList() ;
                 }
 
                 //foreach (var material in m_materials)
@@ -407,12 +421,13 @@ namespace CkfEngine.Core
                 MaterialManager.UnsetInstanceMaterial(OwnerEntity.Uid, m_materials[index], (uint)index);
             }
 
-            if(m_materials[index].isShared)
+            if (m_materials[index].isShared)
             {
                 m_materials[index] = MaterialManager.InstantiateMaterial(m_materials[index]);
-                m_materials[index].shader = shader;
-                MaterialManager.RegisterMaterials(new List<StandardMaterial>() { m_materials[index] });
+
             }
+            m_materials[index].shader = shader;
+            MaterialManager.RegisterMaterials(new List<StandardMaterial>() { m_materials[index] });
 
             MaterialManager.SetInstanceMaterial(OwnerEntity.Uid, m_materials[index], (uint)index);
         }

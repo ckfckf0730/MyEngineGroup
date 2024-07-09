@@ -92,6 +92,11 @@ namespace CkfEngine.Core
 
         internal static void CreateShaderByBuilder(ShaderBuilder builder)
         {
+            if(ShaderTable.ContainsKey(builder.name))
+            {
+                return;
+            }
+
             var shader = new Shader(builder.name);
             if(builder.Properties != null)
             {

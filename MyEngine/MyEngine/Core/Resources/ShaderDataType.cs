@@ -16,6 +16,7 @@ namespace CkfEngine.Core
 
         internal static ShaderDataType GetTypeByString(string typeName)
         {
+            typeName = typeName.ToUpper();
             Table.TryGetValue(typeName, out var type);
             return type;
         }
@@ -56,6 +57,41 @@ namespace CkfEngine.Core
             };
 
             Table.Add(type.name, type);
+
+            //-------------------- FLOAT3 --------------------
+            type = new ShaderDataType();
+            type.name = "FLOAT3";
+            type.type = typeof(Vector3);
+            type.arrLen = 3;
+            type.limitedMin = float.MinValue;
+            type.limitedMax = float.MaxValue;
+            type.StringToValue = (str) =>
+            {
+                if (string.IsNullOrEmpty(str))
+                {
+                    return Vector3.Zero;
+                }
+
+                str = str.Trim('<', '>');
+
+                string[] values = str.Split(',');
+
+                if (values.Length != 3)
+                {
+                    throw new FormatException("Invalid vector format");
+                }
+
+                float x = float.Parse(values[0], CultureInfo.InvariantCulture);
+                float y = float.Parse(values[1], CultureInfo.InvariantCulture);
+                float z = float.Parse(values[2], CultureInfo.InvariantCulture);
+
+                return new Vector3(x, y, z);
+            };
+
+            Table.Add(type.name, type);
+
+
+            //
         }
 
         internal static ValueType GetValueByString(string typeName, string data)

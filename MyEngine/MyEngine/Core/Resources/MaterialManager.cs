@@ -119,7 +119,10 @@ namespace CkfEngine.Core
             for (uint i = 0; i < matrials.Count(); i++)
             {
                 //D3DAPICall.BindPipeline(UID, mat.shader.m_name);
-                D3DAPICall.BindMaterialControl(UID, matrials[i].materialId, i);
+                if(D3DAPICall.BindMaterialControl(UID, matrials[i].materialId, i) == -1)
+                {
+                    Console.WriteLine("BindMaterialControl Error!");
+                }
             }
         }
 

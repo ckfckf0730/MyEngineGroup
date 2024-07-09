@@ -106,7 +106,7 @@ namespace CkfEngine.Core
             DeleteEntity(entity.Uid);
         }
 
-        public static Entity FindEntity(ulong UID)
+        internal static Entity FindEntity(ulong UID)
         {
             Entity entity = null;
             m_entityTable.TryGetValue(UID, out entity);

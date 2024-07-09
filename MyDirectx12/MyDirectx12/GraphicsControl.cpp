@@ -1,6 +1,7 @@
 #include"D3DFunction.h"
 #include"PMDActor.h"
 #include"D3DResourceManage.h"
+#include <stdexcept>
 
 using namespace std;
 
@@ -67,18 +68,6 @@ int __declspec(dllexport) __stdcall DeleteModelInstance(unsigned long long _uid)
 	if (iter != ModelInstance::s_uidModelTable.end())
 	{
 		auto instance = (*iter).second;
-
-		for (int i = 0; i < instance->m_materialControls.size(); i++)
-		{
-			auto pipeline = D3DResourceManage::Instance().PipelineTable[instance->m_materialControls[i]->m_material.pipeLineName];
-			pipeline->RenderModelTable[instance->m_model][instance]--;
-
-			if (pipeline->RenderModelTable[instance->m_model][instance] <= 0)
-			{
-				pipeline->RenderModelTable[instance->m_model].erase(instance);
-				PrintDebug("Remove BindPipeline Success");
-			}
-		}
 
 		auto& list = instance->m_model->m_instances;
 		auto iter2 = std::find(list.begin(), list.end(), instance);
@@ -810,8 +799,7 @@ int __declspec(dllexport) __stdcall UnBindMaterialControl(UINT64 UID, UINT Mater
 		return -1;
 	}
 
-	// Pending
-	//iter->second->UnBindMaterialControl(MaterialControlID, index);
+	iter->second->UnBindMaterialControl(MaterialControlID, index);
 	PrintDebug("UnBindMaterialControl not realized, Pending...");
 
 	return 1;
