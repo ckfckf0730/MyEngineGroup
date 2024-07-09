@@ -32,8 +32,10 @@ namespace CkfEngine.Editor
             BuildType<Component>(moduleBuilder);
             BuildType<Transform>(moduleBuilder);
             BuildType<Behaviour>(moduleBuilder);
-
-
+            BuildType<ModelBoneRenderer>(moduleBuilder);
+            BuildType<Shader>(moduleBuilder);
+            BuildType(typeof(MaterialManager),moduleBuilder);
+            BuildType<StandardMaterial>(moduleBuilder);
 
 
             assemblyBuilder.Save("CkfEngine.dll");
@@ -47,6 +49,14 @@ namespace CkfEngine.Editor
         {
             // create class 
             Type type = typeof(T);
+
+            BuildType(type, moduleBuilder);
+        }
+
+        internal static void BuildType(Type type ,ModuleBuilder moduleBuilder)
+
+        {
+            // create class 
             string typeName = type.FullName;
             bool isSerialzable = type.GetCustomAttribute<SerializableAttribute>() != null;
             TypeAttributes typeAttributes = (type.IsPublic ? TypeAttributes.Public : TypeAttributes.NotPublic) |
@@ -59,14 +69,14 @@ namespace CkfEngine.Editor
 
             // add attribute
             var attributes = type.GetCustomAttributes();
-            if(attributes.Count() != 0)
+            if (attributes.Count() != 0)
             {
-                foreach(Attribute attribute in attributes) 
+                foreach (Attribute attribute in attributes)
                 {
                     //get attribute all fields info and their value 
                     var attFields = attribute.GetType().GetFields();
                     var attFieldValues = new object[attFields.Length];
-                    for(int i =0;i< attFields.Length;i++)
+                    for (int i = 0; i < attFields.Length; i++)
                     {
                         attFieldValues[i] = attFields[i].GetValue(attribute);
                     }
@@ -90,23 +100,23 @@ namespace CkfEngine.Editor
             // add instance field
             var fieldInfos = type.GetFields(BindingFlags.Instance | BindingFlags.Public)
                 .Where(m => m.DeclaringType == type);  //don't add basic class field
-            foreach ( var fieldInfo in fieldInfos)
+            foreach (var fieldInfo in fieldInfos)
             {
                 FieldBuilder fieldBuilder = typeBuilder.DefineField(fieldInfo.Name, fieldInfo.FieldType, fieldInfo.Attributes);
             }
 
             // add Property
             var propertyInfos = type.GetProperties(BindingFlags.Instance | BindingFlags.Public).
-                Where(m => m.DeclaringType == type);        
+                Where(m => m.DeclaringType == type);
             foreach (var propertyInfo in propertyInfos)
             {
                 var propertyType = propertyInfo.PropertyType;
                 PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Name, PropertyAttributes.None, propertyType, null);
-  
+
                 //get
-                if(propertyInfo.CanRead)
+                if (propertyInfo.CanRead)
                 {
-                    MethodBuilder getMethodBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, 
+                    MethodBuilder getMethodBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name,
                         MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, propertyType, Type.EmptyTypes);
                     ILGenerator methodGetIL = getMethodBuilder.GetILGenerator();
                     //△△△△△△△△△△△ The Final App Run by Engine project,  game project just script files  △△△△△△△△△△△△
@@ -115,9 +125,9 @@ namespace CkfEngine.Editor
                     methodGetIL.ThrowException(typeof(Exception));
                     propertyBuilder.SetGetMethod(getMethodBuilder);
                 }
-                if(propertyInfo.CanWrite)
+                if (propertyInfo.CanWrite)
                 {
-                    MethodBuilder setMethodBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name, 
+                    MethodBuilder setMethodBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name,
                         MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, null, new Type[] { propertyType });
                     ILGenerator setIl = setMethodBuilder.GetILGenerator();
                     setIl.ThrowException(typeof(Exception));
@@ -130,7 +140,7 @@ namespace CkfEngine.Editor
 
             // add Method 
             var methodInfos = type.GetMethods(
-                BindingFlags.Public| BindingFlags.Instance |BindingFlags.NonPublic). 
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic).
                 Where(m => m.DeclaringType == type).
                 Where(m => !m.Name.StartsWith("get_") && !m.Name.StartsWith("set_")).ToArray();
             foreach (var methodInfo in methodInfos)
@@ -186,7 +196,7 @@ namespace CkfEngine.Editor
             // add constructors
             var constructorInfos = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance).
                 Where(m => m.DeclaringType == type);
-            foreach(var constructorInfo in constructorInfos)
+            foreach (var constructorInfo in constructorInfos)
             {
                 var paramenterInfos = constructorInfo.GetParameters();
                 Type[] types = new Type[paramenterInfos.Length];

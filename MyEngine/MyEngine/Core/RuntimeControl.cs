@@ -77,34 +77,34 @@ namespace CkfEngine.Core
         ModelBoneRenderer renderer;
         private void TestBoot()
         {
-            var entities = Entity.GetAllEntities();
+            //var entities = Entity.GetAllEntities();
 
-            foreach(var entity in entities)
-            {
-                if(entity.Name == "Role")
-                {
-                    renderer = entity.GetComponent<ModelBoneRenderer>();
-                    renderer.ChangeShader(3, Shader.ShaderTable["TestShader"]);
+            //foreach(var entity in entities)
+            //{
+            //    if(entity.Name == "Role")
+            //    {
+            //        renderer = entity.GetComponent<ModelBoneRenderer>();
+            //        renderer.ChangeShader(3, Shader.ShaderTable["TestShader"]);
                     
 
-                    return;
-                }
-            }
+            //        return;
+            //    }
+            //}
         }
 
         float yAxis = 0;
 
         private void TestUpdate()
         {
-            if(renderer != null)
-            {
-                yAxis += 0.1f;
-                Vector3 lightDir = new Vector3(1, -1, 1);
-                Matrix4x4 rotY = Matrix4x4.CreateRotationY(yAxis);
-                lightDir = Vector3.Transform(lightDir, rotY);
+            //if(renderer != null)
+            //{
+            //    yAxis += 0.1f;
+            //    Vector3 lightDir = new Vector3(1, -1, 1);
+            //    Matrix4x4 rotY = Matrix4x4.CreateRotationY(yAxis);
+            //    lightDir = Vector3.Transform(lightDir, rotY);
 
-                MaterialManager.SetCustomizedResourceValue(renderer.Materials[3], "testFloat3", lightDir);
-            }
+            //    MaterialManager.SetCustomizedResourceValue(renderer.Materials[3], "testFloat3", lightDir);
+            //}
         }
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CkfEngine.Core
 {
-    internal static class MaterialManager
+    public static class MaterialManager
     {
         internal static uint materialId = 0;
 
@@ -43,7 +43,7 @@ namespace CkfEngine.Core
             return CommonFuction.ByteArrayToObject(data, type);
         }
 
-        internal static void SetCustomizedResourceValue(StandardMaterial material, string paramName, object value)
+        public static void SetCustomizedResourceValue(StandardMaterial material, string paramName, object value)
         {
             var name = material.shader.rootParameters.Find(item => item.name == paramName).name;
             var data = CommonFuction.StructToByteArray(value);

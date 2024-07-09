@@ -71,6 +71,13 @@ namespace CkfEngine.Core
         internal static Shader BasicNoBoneShader;
         internal static Dictionary<string,Shader> ShaderTable;
 
+        public static Shader GetShader(string name)
+        {
+            Shader shader = null;
+            ShaderTable.TryGetValue(name, out shader);
+            return shader;
+        }
+
         internal static void InitBasicShader()
         {
             ShaderTable = new Dictionary<string, Shader>();
