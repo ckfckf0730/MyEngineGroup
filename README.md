@@ -101,7 +101,7 @@ Shaderの名前、カスタマイズのルートパラメータ、HLSLのコー�
 <br>
 EntityのRenderer Componentのエディターで、Materialsのパネルができた。<br>
 このパネルで、モデルの各Materials一々の各変数を設定も、MaterialのShadernの変更もできる。<br>
-![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/selectProject.jpg)<br>
+![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/MaterialPanel.jpg)<br>
 <br>
 将来加える機能の展望：<br>
 <br>
