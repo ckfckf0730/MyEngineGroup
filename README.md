@@ -94,10 +94,17 @@ criptsのコンパイルが直後、コードで、またエディター部分�
 これでEngineを使って、最初のゲームが作られる。（でもゲームのBuildは今できません）<br>
 <br>
 <br>
+レンダーパイプラインはシェーダによって、自動的に構築：<br>
+Jsonを利用して、逆直列化するShaderBuilderに基づいて、カスタマイズのShaderを構築できる。<br>
+ShaderBuilderに記録したデータは：<br>
+Shaderの名前、カスタマイズのルートパラメータ、HLSLのコード、VSとPSの入口関数名、レンダーされるのモデルは骨のかどうか、などである。<br>
+<br>
+EntityのRenderer Componentのエディターで、Materialsのパネルができた。<br>
+このパネルで、モデルの各Materials一々の各変数を設定も、MaterialのShadernの変更もできる。<br>
+![describe1](https://github.com/ckfckf0730/MyEngineGroup/blob/main/ReadMe/selectProject.jpg)<br>
 <br>
 将来加える機能の展望：<br>
 <br>
-レンダーパイプラインはシェーダによって、自動的に構築や、<br>
 グローバル光や、影などシェーダに簡単使われるなどシェーダー自動化ツール。<br>
 <br>
 <br>
