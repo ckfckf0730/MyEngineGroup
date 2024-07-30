@@ -55,15 +55,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\Common.cs" />
-    <Compile Include="Core\Resources\ShaderDataType.cs" />
+    <Compile Include="Core\CoreFunction\ShaderDataType.cs" />
+    <Compile Include="Core\Resources\RenderResource.cs" />
     <Compile Include="Core\TimeManager.cs" />
     <Compile Include="Core\Behaviour.cs" />
     <Compile Include="Core\CoreEvents.cs" />
     <Compile Include="Core\EngineObject.cs" />
-    <Compile Include="Core\Animation\AnimationManager.cs" />
-    <Compile Include="Core\Resources\MaterialManager.cs" />
-    <Compile Include="Core\Resources\ModelManager.cs" />
-    <Compile Include="Core\Resources\ShaderManager.cs" />
+    <Compile Include="Core\CoreFunction\AnimationManager.cs" />
+    <Compile Include="Core\CoreFunction\MaterialManager.cs" />
+    <Compile Include="Core\CoreFunction\ModelManager.cs" />
+    <Compile Include="Core\CoreFunction\ShaderManager.cs" />
     <Compile Include="Core\RuntimeControl.cs" />
     <Compile Include="Core\GraphAlgorithms.cs" />
     <Compile Include="Core\Prefab.cs" />

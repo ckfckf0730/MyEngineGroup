@@ -51,8 +51,9 @@ namespace CkfEngine.Core
         {
             if(MainCamera != null)
             {
-                D3DAPICall.CreateRenderTarget(RuntimeControl.Instance.MainHandle, MainCamera.Uid,
+                MainCamera.m_renderTarget = new RenderTargetResource(RuntimeControl.Instance.MainHandle,
                     MainCamera.m_width, MainCamera.m_height);
+                MainCamera.m_renderTarget.Create();
             }
         }
 
@@ -60,7 +61,7 @@ namespace CkfEngine.Core
         {
             if (MainCamera != null)
             {
-                D3DAPICall.DeleteRenderTarget(MainCamera.Uid);
+                MainCamera.m_renderTarget.Release();
             }
         }
 

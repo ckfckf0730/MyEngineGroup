@@ -114,21 +114,22 @@ namespace CkfEngine.Editor
 
             var panel = PanelRegister.GetExtendScreen();
             m_cameraPanelTable.Add(camera.Uid, panel);
-            D3DAPICall.CreateRenderTarget(panel.Handle, camera.Uid, camera.m_width, camera.m_height);
-            D3DAPICall.SetRenderTargetBackColor(camera.Uid,new float[4] {1.0f, 1.0f, 0.0f, 1.0f });
+            camera.m_renderTarget = new RenderTargetResource(panel.Handle, camera.m_width, camera.m_height);
+            camera.m_renderTarget.Create();
+            camera.m_renderTarget.SetRenderTargetBackColor(new float[4] { 1.0f, 1.0f, 0.0f, 1.0f });
             camera.OwnerEntity.Transform.CalculateForwardAndUp();
             D3DAPICall.SetCameraTransform(
                     camera.OwnerEntity.Transform.Translation,
                     camera.OwnerEntity.Transform.m_forward,
                     camera.OwnerEntity.Transform.m_up);
-            D3DAPICall.Render(camera.Uid);
+            camera.m_renderTarget.Render();
 
             panel.Show();
         }
 
         private void CameraDestoried(Camera camera)
         {
-            D3DAPICall.DeleteRenderTarget(camera.Uid);
+            camera.m_renderTarget.Release();
 
             Control panel;
             m_cameraPanelTable.TryGetValue(camera.Uid, out panel);
@@ -164,11 +165,13 @@ namespace CkfEngine.Editor
             public float NearZ;
             public float Far;
 
-            private ulong m_uid =99999989; //temp editor camera uid
+            //private ulong m_uid =99999989; //temp editor camera uid
+            private RenderTargetResource renderTargetResource;
 
             public void Init()
             {
-                D3DAPICall.CreateRenderTarget(PanelRegister.EditorMainScreen.Handle, m_uid, 800, 600);
+                renderTargetResource = new RenderTargetResource(PanelRegister.EditorMainScreen.Handle, 800, 600);
+                renderTargetResource.Create();
             }
 
             public void SetTransform(Vector3 eye, Vector3 forward, Vector3 up)
@@ -216,7 +219,7 @@ namespace CkfEngine.Editor
             public void Render()
             {
                 Implement();
-                D3DAPICall.Render(m_uid);
+                renderTargetResource?.Render();
             }
         }
     }

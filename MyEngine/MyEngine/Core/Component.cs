@@ -190,6 +190,8 @@ namespace CkfEngine.Core
         [JsonProperty]
         internal float m_far;
 
+        internal RenderTargetResource m_renderTarget;
+
         public Camera()
         {
             m_fovAngleY = (float)Math.PI / 2;
@@ -220,7 +222,7 @@ namespace CkfEngine.Core
                     trans.Translation,
                     target,
                     up);
-            D3DAPICall.Render(this.Uid);
+            m_renderTarget?.Render();
         }
 
         protected override void OnDestroyed()
@@ -241,7 +243,7 @@ namespace CkfEngine.Core
         protected override void Update()
         {
             Implement();
-            D3DAPICall.Render(this.Uid);
+            m_renderTarget?.Render();
         }
 
     }

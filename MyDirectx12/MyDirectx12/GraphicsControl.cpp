@@ -348,32 +348,33 @@ void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, unsigned long long uid, UINT width, UINT height);
+	int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UINT height, UINT64& resPoint);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, unsigned long long uid, UINT width, UINT height)
+int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UINT height, UINT64& resPoint)
 {
-	auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
+	/*auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
 	if (iter != D3DResourceManage::Instance().CameraTable.end())
 	{
 		iter->second->Release();
 		delete (iter->second);
 		D3DResourceManage::Instance().CameraTable.erase(iter);
-	}
+	}*/
 
-	D3DCamera* mainCamera = new D3DCamera();
-	mainCamera->Uid = uid;
-	mainCamera->CreateSwapChain(hwnd, width, height);
-	mainCamera->CreateRenderTargetView();
-	mainCamera->CreateDepthStencilView(width, height);
-	mainCamera->SetViewPort(width, height);
+	D3DCamera* camera = new D3DCamera();
+	resPoint = reinterpret_cast<UINT64>(camera);
+	//mainCamera->Uid = uid;
+	camera->CreateSwapChain(hwnd, width, height);
+	camera->CreateRenderTargetView();
+	camera->CreateDepthStencilView(width, height);
+	camera->SetViewPort(width, height);
 	//mainCamera->InitMulPassRender();
-	mainCamera->Clear();
+	camera->Clear();
 
-	D3DResourceManage::Instance().CameraTable.insert(
-		pair<unsigned long long, D3DCamera*>(uid, mainCamera));
+	//D3DResourceManage::Instance().CameraTable.insert(
+	//	pair<unsigned long long, D3DCamera*>(uid, mainCamera));
 
 	return 1;
 }
@@ -382,24 +383,31 @@ int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, unsigned long 
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall DeleteRenderTarget(unsigned long long uid);
+	int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPoint);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall DeleteRenderTarget(unsigned long long uid)
+int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPoint)
 {
-	auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
+	/*auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
 	if (iter == D3DResourceManage::Instance().CameraTable.end())
 	{
 		PrintDebug("DeleteRenderTarget Error, Cant find camera UID:");
 		PrintDebug((int)uid);
 		return -1;
-	}
+	}*/
 
-	iter->second->Release();
-	delete (iter->second);
-	D3DResourceManage::Instance().CameraTable.erase(iter);
+	//if (resPoint == 0)
+	//{
+	//	PrintDebug("DeleteRenderTarget Error, resPoint is NULL.");
+	//	return -1;
+	//}
+
+	auto camera = reinterpret_cast<D3DCamera*>(resPoint);
+	camera->Release();
+	delete (camera);
+	//D3DResourceManage::Instance().CameraTable.erase(iter);
 
 	return 1;
 }
@@ -408,23 +416,26 @@ int __declspec(dllexport) __stdcall DeleteRenderTarget(unsigned long long uid)
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall Render(unsigned long long uid);
+	int __declspec(dllexport) __stdcall Render(UINT64 resPoint);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall Render(unsigned long long uid)
+int __declspec(dllexport) __stdcall Render(UINT64 resPoint)
 {
-	auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
-	if (iter != D3DResourceManage::Instance().CameraTable.end())
-	{
-		iter->second->Draw(D3DResourceManage::Instance().pGraphicsCard);
-		return 1;
-	}
+	//auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
+	//if (iter != D3DResourceManage::Instance().CameraTable.end())
+	//{
+	//	iter->second->Draw(D3DResourceManage::Instance().pGraphicsCard);
+	//	return 1;
+	//}
+	auto camera = reinterpret_cast<D3DCamera*>(resPoint);
+	camera->Draw(D3DResourceManage::Instance().pGraphicsCard);
 
-	PrintDebug("Can't find Camera UID:");
-	PrintDebug((int)uid);
-	return -1;
+	return 1;
+	//PrintDebug("Can't find Camera UID:");
+	//PrintDebug((int)uid);
+	//return -1;
 }
 
 #ifdef __cplusplus 
@@ -450,13 +461,16 @@ void __declspec(dllexport) __stdcall SetCameraTransform(
 extern"C"
 {
 #endif
-	void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid, float* color);
+	void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 resPoint, float* color);
 #ifdef __cplusplus 
 }
 #endif
-void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 uid, float* color)
+void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 resPoint, float* color)
 {
-	float* backColor = D3DResourceManage::Instance().CameraTable[uid]->m_backColor;
+	//float* backColor = D3DResourceManage::Instance().CameraTable[uid]->m_backColor;
+
+	auto camera = reinterpret_cast<D3DCamera*>(resPoint);
+	float* backColor = camera->m_backColor;
 
 	for (int i = 0; i < 4; i++)
 	{

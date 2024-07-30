@@ -32,7 +32,7 @@ public:
 class D3DCamera
 {
 public:
-	UINT64 Uid;
+	//UINT64 Uid;
 
 	float m_backColor[4] = { 0.0f,0.0f,1.0f,1.0f };
 

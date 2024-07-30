@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,13 +21,13 @@ namespace CkfEngine.Core
 
         [DllImport("MyDirectx12.dll")]
         public static extern int CreateRenderTarget(System.IntPtr hwnd, 
-            ulong uid, uint width, uint height);
+            uint width, uint height, ref UInt64 resPoint);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int DeleteRenderTarget(ulong uid);
+        public static extern int DeleteRenderTarget(UInt64 resPoint);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int Render(ulong uid);
+        public static extern int Render(UInt64 resPoint);
 
    
         [DllImport("MyDirectx12.dll")]
@@ -66,7 +67,7 @@ namespace CkfEngine.Core
         string vsCode, string vsEntry, string psCode, string psEntry);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int SetRenderTargetBackColor(UInt64 uid, float[] color);
+        public static extern int SetRenderTargetBackColor(UInt64 resPoint, float[] color);
 
         [DllImport("MyDirectx12.dll")]
         public static extern int SetPMDVertices(string fileFullName, uint _vertCount, byte[] _vertices,
