@@ -170,19 +170,19 @@ void __declspec(dllexport) __stdcall UpdateAnimation(unsigned long long _uid)
 extern"C"
 {
 	int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
-		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry);
+		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry, UINT64& resPointer);
 }
 
 int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
-	LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry)
+	LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry, UINT64& resPointer)
 {
-	auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	/*auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
 	if (iter != D3DResourceManage::Instance().PipelineTable.end())
 	{
 		PrintDebug("Already exist pipeline name:");
 		PrintDebug(pipelineName);
 		return -1;
-	}
+	}*/
 	D3DPipeline* pipeline = new D3DPipeline(pipelineName);
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 	{
@@ -195,6 +195,7 @@ int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
 	UINT numElements = _countof(inputLayout);
 	int result = pipeline->CreatePipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
 		vsCode, vsEntry, psCode, psEntry);
+	resPointer = reinterpret_cast<UINT64>(pipeline);
 	D3DResourceManage::Instance().PipelineTable.insert(
 		pair<std::string, D3DPipeline*>(pipelineName, pipeline));
 
@@ -211,19 +212,19 @@ int __declspec(dllexport) __stdcall CreateBonePipeline(LPCSTR pipelineName,
 extern"C"
 {
 	int __declspec(dllexport) __stdcall CreateNoBonePipeline(LPCSTR pipelineName,
-		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry);
+		LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry, UINT64& resPointer);
 }
 
 int __declspec(dllexport) __stdcall CreateNoBonePipeline(LPCSTR pipelineName,
-	LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry)
+	LPCSTR vsCode, LPCSTR vsEntry, LPCSTR psCode, LPCSTR psEntry, UINT64& resPointer)
 {
-	auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	/*auto iter = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
 	if (iter != D3DResourceManage::Instance().PipelineTable.end())
 	{
 		PrintDebug("Already exist pipeline name:");
 		PrintDebug(pipelineName);
 		return -1;
-	}
+	}*/
 	D3DPipeline* pipeline = new D3DPipeline(pipelineName);
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
 	{
@@ -234,6 +235,7 @@ int __declspec(dllexport) __stdcall CreateNoBonePipeline(LPCSTR pipelineName,
 	UINT numElements = _countof(inputLayout);
 	int result = pipeline->CreatePipeline(D3DResourceManage::Instance().pGraphicsCard, inputLayout, numElements,
 		vsCode, vsEntry, psCode, psEntry);
+	resPointer = reinterpret_cast<UINT64>(pipeline);
 	D3DResourceManage::Instance().PipelineTable.insert(
 		pair<std::string, D3DPipeline*>(pipelineName, pipeline));
 
@@ -244,6 +246,40 @@ int __declspec(dllexport) __stdcall CreateNoBonePipeline(LPCSTR pipelineName,
 	}
 
 	return result;
+}
+
+
+extern"C"
+{
+	int __declspec(dllexport) __stdcall DrawPipeline(UINT64 pipelinePointer);
+}
+
+int __declspec(dllexport) __stdcall DrawPipeline(UINT64 pipelinePointer)
+{
+	auto pipeline = reinterpret_cast<D3DPipeline*>(pipelinePointer);
+	if (D3DResourceManage::Instance().pGraphicsCard == nullptr ||
+		D3DResourceManage::Instance().pGraphicsCard->pCmdList == nullptr ||
+		D3DResourceManage::Instance().pGraphicsCard->pD3D12Device == nullptr)
+	{
+		return 0;
+	}
+	try
+	{
+		pipeline->Draw(D3DResourceManage::Instance().pGraphicsCard->pCmdList,
+			D3DResourceManage::Instance().pGraphicsCard->pD3D12Device);
+	}
+	catch (const std::runtime_error& e)
+	{
+		PrintDebug(e.what());
+	}
+	catch (const std::exception& e)
+	{
+		PrintDebug(e.what());
+	}
+	
+
+
+	return 1;
 }
 
 extern"C"
@@ -348,12 +384,12 @@ void __declspec(dllexport) __stdcall SetRootSignature(LPCSTR name,
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UINT height, UINT64& resPoint);
+	int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UINT height, UINT64& resPointer);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UINT height, UINT64& resPoint)
+int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UINT height, UINT64& resPointer)
 {
 	/*auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
 	if (iter != D3DResourceManage::Instance().CameraTable.end())
@@ -364,7 +400,7 @@ int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UI
 	}*/
 
 	D3DCamera* camera = new D3DCamera();
-	resPoint = reinterpret_cast<UINT64>(camera);
+	resPointer = reinterpret_cast<UINT64>(camera);
 	//mainCamera->Uid = uid;
 	camera->CreateSwapChain(hwnd, width, height);
 	camera->CreateRenderTargetView();
@@ -383,12 +419,12 @@ int __declspec(dllexport) __stdcall CreateRenderTarget(HWND hwnd, UINT width, UI
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPoint);
+	int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPointer);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPoint)
+int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPointer)
 {
 	/*auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
 	if (iter == D3DResourceManage::Instance().CameraTable.end())
@@ -398,13 +434,13 @@ int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPoint)
 		return -1;
 	}*/
 
-	//if (resPoint == 0)
+	//if (resPointer == 0)
 	//{
-	//	PrintDebug("DeleteRenderTarget Error, resPoint is NULL.");
+	//	PrintDebug("DeleteRenderTarget Error, resPointer is NULL.");
 	//	return -1;
 	//}
 
-	auto camera = reinterpret_cast<D3DCamera*>(resPoint);
+	auto camera = reinterpret_cast<D3DCamera*>(resPointer);
 	camera->Release();
 	delete (camera);
 	//D3DResourceManage::Instance().CameraTable.erase(iter);
@@ -416,26 +452,34 @@ int __declspec(dllexport) __stdcall DeleteRenderTarget(UINT64 resPoint)
 extern"C"
 {
 #endif
-	int __declspec(dllexport) __stdcall Render(UINT64 resPoint);
+	int __declspec(dllexport) __stdcall RenderTargetClear(UINT64 cameraPointer);
 #ifdef __cplusplus 
 }
 #endif
 
-int __declspec(dllexport) __stdcall Render(UINT64 resPoint)
+int __declspec(dllexport) __stdcall RenderTargetClear(UINT64 cameraPointer)
 {
-	//auto iter = D3DResourceManage::Instance().CameraTable.find(uid);
-	//if (iter != D3DResourceManage::Instance().CameraTable.end())
-	//{
-	//	iter->second->Draw(D3DResourceManage::Instance().pGraphicsCard);
-	//	return 1;
-	//}
-	auto camera = reinterpret_cast<D3DCamera*>(resPoint);
-	camera->Draw(D3DResourceManage::Instance().pGraphicsCard);
+	auto camera = reinterpret_cast<D3DCamera*>(cameraPointer);
+	camera->Clear();
 
 	return 1;
-	//PrintDebug("Can't find Camera UID:");
-	//PrintDebug((int)uid);
-	//return -1;
+}
+
+#ifdef __cplusplus 
+extern"C"
+{
+#endif
+	int __declspec(dllexport) __stdcall RenderTargetFlip(UINT64 cameraPointer);
+#ifdef __cplusplus 
+}
+#endif
+
+int __declspec(dllexport) __stdcall RenderTargetFlip(UINT64 cameraPointer)
+{
+	auto camera = reinterpret_cast<D3DCamera*>(cameraPointer);
+	camera->Flip();
+
+	return 1;
 }
 
 #ifdef __cplusplus 
@@ -443,33 +487,39 @@ extern"C"
 {
 #endif
 	void __declspec(dllexport) __stdcall SetCameraTransform(
-		DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up);
+		DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up, UINT64* pipelinePointers, int count);
 #ifdef __cplusplus 
 }
 #endif
 void __declspec(dllexport) __stdcall SetCameraTransform(
-	DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up)
+	DirectX::XMFLOAT3 eye, DirectX::XMFLOAT3 target, DirectX::XMFLOAT3 up, UINT64* pipelinePointers, int count)
 {
 	//auto iter = D3DResourceManage::Instance().PipelineTable.find("PmdStandard");
-	for (const auto& iter : D3DResourceManage::Instance().PipelineTable)
+	for (int i = 0; i < count; i++)
+	{
+		auto pipeline = reinterpret_cast<D3DPipeline*>(pipelinePointers[i]);
+		pipeline->SetCameraTransform(eye, target, up);
+	}
+
+	/*for (const auto& iter : D3DResourceManage::Instance().PipelineTable)
 	{
 		iter.second->SetCameraTransform(eye, target, up);
-	}
+	}*/
 }
 
 #ifdef __cplusplus 
 extern"C"
 {
 #endif
-	void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 resPoint, float* color);
+	void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 resPointer, float* color);
 #ifdef __cplusplus 
 }
 #endif
-void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 resPoint, float* color)
+void __declspec(dllexport) __stdcall SetRenderTargetBackColor(UINT64 resPointer, float* color)
 {
 	//float* backColor = D3DResourceManage::Instance().CameraTable[uid]->m_backColor;
 
-	auto camera = reinterpret_cast<D3DCamera*>(resPoint);
+	auto camera = reinterpret_cast<D3DCamera*>(resPointer);
 	float* backColor = camera->m_backColor;
 
 	for (int i = 0; i < 4; i++)
@@ -616,13 +666,13 @@ extern"C"
 	int __declspec(dllexport) __stdcall SetMaterial(UINT MaterialControlIDs,
 		const char* shaderName, DirectX::XMFLOAT3 diffuse, float alpha,
 		float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
-		const char* toonPath, const char* texFilePath);
+		const char* toonPath, const char* texFilePath, UINT64 pipelinePointer);
 }
 
 int __declspec(dllexport) __stdcall SetMaterial(UINT MaterialControlID,
 	const char* shaderName, DirectX::XMFLOAT3 diffuse, float alpha,
 	float specularity, DirectX::XMFLOAT3 specular, DirectX::XMFLOAT3 ambient, unsigned char edgeFlg,
-	const char* toonPath, const char* texFilePath)
+	const char* toonPath, const char* texFilePath, UINT64 pipelinePointer)
 {
 	auto result = MaterialControl::SetMaterial(D3DResourceManage::Instance().pGraphicsCard, shaderName, diffuse, alpha,
 		specularity, specular, ambient, edgeFlg, toonPath, texFilePath, MaterialControlID);
@@ -632,18 +682,18 @@ int __declspec(dllexport) __stdcall SetMaterial(UINT MaterialControlID,
 		return result;
 	}
 
-
-	auto iter = D3DResourceManage::Instance().PipelineTable.find(shaderName);
+	auto pipeline = reinterpret_cast<D3DPipeline*>(pipelinePointer);
+	/*auto iter = D3DResourceManage::Instance().PipelineTable.find(shaderName);
 	if (iter == D3DResourceManage::Instance().PipelineTable.end())
 	{
 		PrintDebug("Can't find pipeline when SetMaterial: ");
 		PrintDebug(shaderName);
 		return -1;
-	}
+	}*/
 
 	auto material = D3DResourceManage::Instance().MaterialTable[MaterialControlID];
 
-	material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard, iter->second);
+	material->CreateDescriptor(D3DResourceManage::Instance().pGraphicsCard, pipeline);
 
 	return 1;
 }
@@ -728,10 +778,10 @@ void __declspec(dllexport) __stdcall GetCustomizedResourceValue(
 
 extern"C"
 {
-	int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID, const char* pipelineName);
+	int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID, UINT64 pipelinePointer);
 }
 
-int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID, const char* pipelineName)
+int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID, UINT64 pipelinePointer)
 {
 	auto iter = D3DResourceManage::Instance().MaterialTable.find(materialID);
 	if (iter == D3DResourceManage::Instance().MaterialTable.end())
@@ -741,16 +791,16 @@ int __declspec(dllexport) __stdcall CreateCustomizedDescriptors(UINT materialID,
 		return -1;
 	}
 
-	auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
+	/*auto iter2 = D3DResourceManage::Instance().PipelineTable.find(pipelineName);
 	if (iter2 == D3DResourceManage::Instance().PipelineTable.end())
 	{
 		PrintDebug("BindPipeline fault, can't find pipeline: ");
 		PrintDebug(pipelineName);
 		return -1;
-	}
+	}*/
 
 	auto materialControl = iter->second;
-	auto pipeline = iter2->second;
+	auto pipeline = reinterpret_cast<D3DPipeline*>(pipelinePointer);
 
 	materialControl->CreateDescriptorsByPipeline(pipeline);
 

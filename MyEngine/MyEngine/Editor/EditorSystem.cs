@@ -118,7 +118,7 @@ namespace CkfEngine.Editor
             camera.m_renderTarget.Create();
             camera.m_renderTarget.SetRenderTargetBackColor(new float[4] { 1.0f, 1.0f, 0.0f, 1.0f });
             camera.OwnerEntity.Transform.CalculateForwardAndUp();
-            D3DAPICall.SetCameraTransform(
+            PipelineManager.SetCameraTransform(
                     camera.OwnerEntity.Transform.Translation,
                     camera.OwnerEntity.Transform.m_forward,
                     camera.OwnerEntity.Transform.m_up);
@@ -213,7 +213,7 @@ namespace CkfEngine.Editor
             private void Implement()
             {
                 Vector3 target = Forward + Eye;
-                D3DAPICall.SetCameraTransform(Eye, target, Up);
+                PipelineManager.SetCameraTransform(Eye, target, Up);
             }
 
             public void Render()

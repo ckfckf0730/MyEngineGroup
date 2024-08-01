@@ -218,7 +218,7 @@ namespace CkfEngine.Core
             Vector3 target = trans.m_forward + trans.Translation;
             Vector3 up = trans.m_up;
 
-            D3DAPICall.SetCameraTransform(
+            PipelineManager.SetCameraTransform(
                     trans.Translation,
                     target,
                     up);
@@ -237,7 +237,7 @@ namespace CkfEngine.Core
         {
             var trans = OwnerEntity.Transform;
             Vector3 target = trans.m_forward + trans.Translation;
-            D3DAPICall.SetCameraTransform(trans.Translation, target, trans.m_up);
+            PipelineManager.SetCameraTransform(trans.Translation, target, trans.m_up);
         }
 
         protected override void Update()

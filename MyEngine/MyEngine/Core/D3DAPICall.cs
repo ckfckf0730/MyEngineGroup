@@ -21,13 +21,22 @@ namespace CkfEngine.Core
 
         [DllImport("MyDirectx12.dll")]
         public static extern int CreateRenderTarget(System.IntPtr hwnd, 
-            uint width, uint height, ref UInt64 resPoint);
+            uint width, uint height, ref UInt64 resPointer);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int DeleteRenderTarget(UInt64 resPoint);
+        public static extern int DeleteRenderTarget(UInt64 resPointer);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int Render(UInt64 resPoint);
+        public static extern int SetRenderTargetBackColor(UInt64 resPointer, float[] color);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int RenderTargetFlip(UInt64 resPointer);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int RenderTargetClear(UInt64 resPointer);
+
+        [DllImport("MyDirectx12.dll")]
+        public static extern int DrawPipeline(UInt64 pipelinePointer);
 
    
         [DllImport("MyDirectx12.dll")]
@@ -53,21 +62,19 @@ namespace CkfEngine.Core
 
         [DllImport("MyDirectx12.dll")]
         public static extern void SetCameraTransform(
-            Vector3 eye, Vector3 target, Vector3 up);
+            Vector3 eye, Vector3 target, Vector3 up, UInt64[] pipelinePointers, int count);
 
         [DllImport("MyDirectx12.dll")]
         public static extern int SetPmdStandardPipeline();
 
         [DllImport("MyDirectx12.dll", CharSet = CharSet.Ansi)]
         public static extern int CreateBonePipeline(string pipelineName,
-        string vsCode, string vsEntry, string psCode, string psEntry);
+        string vsCode, string vsEntry, string psCode, string psEntry, ref UInt64 resPointer);
 
         [DllImport("MyDirectx12.dll", CharSet = CharSet.Ansi)]
         public static extern int CreateNoBonePipeline(string pipelineName,
-        string vsCode, string vsEntry, string psCode, string psEntry);
+        string vsCode, string vsEntry, string psCode, string psEntry, ref UInt64 resPointer);
 
-        [DllImport("MyDirectx12.dll")]
-        public static extern int SetRenderTargetBackColor(UInt64 resPoint, float[] color);
 
         [DllImport("MyDirectx12.dll")]
         public static extern int SetPMDVertices(string fileFullName, uint _vertCount, byte[] _vertices,
@@ -81,7 +88,7 @@ namespace CkfEngine.Core
         public static extern int SetMaterial(uint MaterialControlID,  
             string shaderNames , Vector3 diffuse, float alpha,
             float specularity, Vector3 specular, Vector3 ambient, byte edgeFlg,
-            string toonPath, string texFilePath);
+            string toonPath, string texFilePath, UInt64 pipelinePointer);
 
         [DllImport("MyDirectx12.dll")]
         public static extern void SetMaterialValue(uint MaterialControlID,
@@ -125,7 +132,7 @@ namespace CkfEngine.Core
         public static extern void GetCustomizedResourceValue(uint materialId, string name, out IntPtr data, out UInt16 size);
 
         [DllImport("MyDirectx12.dll")]
-        public static extern int CreateCustomizedDescriptors(uint materialID, string pipelineName);
+        public static extern int CreateCustomizedDescriptors(uint materialID, UInt64 pipelinePointer);
 
         [DllImport("MyDirectx12.dll")]
         public static extern int BindMaterialControls(UInt64 UID, uint[] MaterialControlIDs, uint materialCount);

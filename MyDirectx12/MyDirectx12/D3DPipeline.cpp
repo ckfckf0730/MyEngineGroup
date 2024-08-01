@@ -742,6 +742,8 @@ void D3DPipeline::SetCameraTransform(XMFLOAT3 eye, XMFLOAT3 target, XMFLOAT3 up)
 
 void D3DPipeline::Draw(ID3D12GraphicsCommandList* _cmdList, ID3D12Device* d3ddevice)
 {
+	//_cmdList->Reset(D3DResourceManage::Instance().pGraphicsCard->pCmdAllocator, this->m_pipelinestate);
+
 	_cmdList->SetPipelineState(m_pipelinestate);
 	_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	_cmdList->SetGraphicsRootSignature(m_rootsignature);

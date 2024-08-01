@@ -28,7 +28,7 @@ namespace CkfEngine.Core
                 D3DAPICall.SetCustomizedResourceValue(material.materialId, rootParameter.name, data);
                 firstNum++;
             }
-            D3DAPICall.CreateCustomizedDescriptors(material.materialId, material.shader.m_name);
+            D3DAPICall.CreateCustomizedDescriptors(material.materialId,PipelineManager.PipelineTable[material.shader.m_name].GetResourcePointer());
         }
 
         internal static object GetCustomizedResourceValue(StandardMaterial material, string paramName, Type type)
@@ -85,6 +85,7 @@ namespace CkfEngine.Core
 
                 if (PrepareSet(item))
                 {
+                    var pipeLinePointer = PipelineManager.PipelineTable[item.shader.m_name].GetResourcePointer();
                     if(D3DAPICall.SetMaterial(
                            item.materialId,
                            item.shader.m_name,
@@ -95,7 +96,8 @@ namespace CkfEngine.Core
                            item.ambient,
                            item.edgeFlg,
                            item.toonPath,
-                           item.texFilePath)    == 1 )
+                           item.texFilePath, 
+                           pipeLinePointer)    == 1 )
                     {
                         CreateCustomizedResource(item);
                     }

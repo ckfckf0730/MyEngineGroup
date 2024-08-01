@@ -129,7 +129,7 @@ namespace CkfEngine.Core
             rootParameters = new List<RootParameter>();
         }
 
-        public bool CreatePipeline(string vsText, string psText, string vsEntrance, string psEntrance, bool isBoneModel)
+        public void CreatePipeline(string vsText, string psText, string vsEntrance, string psEntrance, bool isBoneModel)
         {
             D3DAPICall.ClearRootSignatureSetting();
             foreach (var parameter in rootParameters)
@@ -138,25 +138,7 @@ namespace CkfEngine.Core
                     parameter.descRangeType, parameter.register, parameter.visibility);
             }
 
-            if (isBoneModel)
-            {
-                if (D3DAPICall.CreateBonePipeline(m_name, vsText,
-                        vsEntrance, psText, psEntrance) < 1)
-                {
-                    Console.WriteLine("Create bone pipeline fault: " + m_name);
-                    return false;
-                }
-            }
-            else
-            {
-                if (D3DAPICall.CreateNoBonePipeline(m_name, vsText,
-                        vsEntrance, psText, psEntrance) < 1)
-                {
-                    Console.WriteLine("Create bone pipeline fault: " + m_name);
-                    return false;
-                }
-            }
-            return true;
+            PipelineManager.CreatePipeline(isBoneModel, m_name, vsText, psText, vsEntrance, psEntrance);
         }
 
 

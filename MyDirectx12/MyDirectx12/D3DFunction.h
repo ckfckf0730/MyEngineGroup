@@ -49,7 +49,7 @@ public:
 	int CreateSwapChain(HWND hwnd, UINT width, UINT height);
 	int CreateRenderTargetView();
 	int CreateDepthStencilView(UINT width, UINT height);
-	int Draw(D3DDevice* _cD3DDev);
+	//int Draw(D3DDevice* _cD3DDev);
 
 	void SetViewPort(UINT width, UINT height);
 	void SetInitialRenderState(ID3D12GraphicsCommandList* cmdList);

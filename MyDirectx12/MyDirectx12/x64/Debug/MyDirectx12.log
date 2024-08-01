@@ -1,40 +1,4 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(503,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\BasicPixelShader.hlsl(8,28-52): warning X3206: 'dot': implicit truncation of vector type
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\BasicPixelShader.hlsl(25,15-32): warning X3206: implicit truncation of vector type
-  
-  compilation object save succeeded; see D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\BasicPixelShader.cso
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\BasicVertexShader.hlsl(3,14): warning X3578: Output value 'BasicVS' is not completely initialized
-  
-  compilation object save succeeded; see D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\BasicVertexShader.cso
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\NoBoneVertexShader.hlsl(3,14): warning X3578: 'BasicVS': Top-level return value is not completely initialized
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\NoBoneVertexShader.hlsl(3,14): warning X3578: 'BasicVS': Top-level return value is not completely initialized
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\NoBoneVertexShader.hlsl(3,14): warning X3578: 'BasicVS': Top-level return value is not completely initialized
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\NoBoneVertexShader.hlsl(3,14): warning X3578: 'BasicVS': Top-level return value is not completely initialized
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\NoBoneVertexShader.hlsl(3,14): warning X3578: Output value 'BasicVS' is not completely initialized
-  
-  compilation object save succeeded; see D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\NoBoneVertexShader.cso
-  compilation object save succeeded; see D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\PeraPixel.cso
-  compilation object save succeeded; see D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\PeraVertex.cso
-  Common.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\Common.cpp(59,27): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\Common.cpp(66,31): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  D3DAnimation.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(133,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DResourceManage.h(13,15): warning C4099: 'Material': type name first seen using 'struct' now seen using 'class'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(66,8): message : see declaration of 'Material'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(86,21): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DAnimation.cpp(235,28): warning C4018: '<=': signed/unsigned mismatch
-  D3DCamera.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(133,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DResourceManage.h(13,15): warning C4099: 'Material': type name first seen using 'struct' now seen using 'class'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(66,8): message : see declaration of 'Material'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(66,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(138,21): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DCamera.cpp(139,22): warning C4244: '=': conversion from 'UINT' to 'FLOAT', possible loss of data
-  D3DMulPassRender.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(67,1): warning C4099: 'Material': type name first seen using 'class' now seen using 'struct'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(66,8): message : see declaration of 'Material'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(133,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
   D3DPipeline.cpp
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(133,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DResourceManage.h(13,15): warning C4099: 'Material': type name first seen using 'struct' now seen using 'class'
@@ -46,41 +10,5 @@ D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(491
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(561,33): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(599,38): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
 D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(721,47): warning C4244: '=': conversion from 'UINT64' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(784,21): warning C4018: '<': signed/unsigned mismatch
-  PMDActor.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(133,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DResourceManage.h(13,15): warning C4099: 'Material': type name first seen using 'struct' now seen using 'class'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(66,8): message : see declaration of 'Material'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(55,37): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(56,50): warning C4267: '=': conversion from 'size_t' to 'UINT16', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(59,43): warning C4267: '=': conversion from 'size_t' to 'UINT16', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(86,2): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(149,37): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(203,32): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(224,20): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(265,40): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(296,44): warning C4267: '=': conversion from 'size_t' to 'UINT', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(313,36): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(670,48): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(700,48): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1069,19): warning C4244: 'initializing': conversion from 'UINT64' to 'UINT', possible loss of data
-  D3DResourceManage.cpp
-  Debug.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\Debug.cpp(66,10): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\Debug.cpp(75,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\Debug.cpp(88,28): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  GraphicsControl.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(133,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DResourceManage.h(13,15): warning C4099: 'Material': type name first seen using 'struct' now seen using 'class'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(66,8): message : see declaration of 'Material'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\GraphicsControl.cpp(508,21): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\GraphicsControl.cpp(556,21): warning C4018: '<': signed/unsigned mismatch
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\GraphicsControl.cpp(774,20): warning C4018: '<': signed/unsigned mismatch
-  D3DDevice.cpp
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(133,9): warning C4086: expected pragma parameter to be '1', '2', '4', '8', or '16'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DResourceManage.h(13,15): warning C4099: 'Material': type name first seen using 'struct' now seen using 'class'
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.h(66,8): message : see declaration of 'Material'
-  Generating Code...
-D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\PMDActor.cpp(1032): warning C4715: 'MaterialControl::GetCustomizedResourceValue': not all control paths return a value
-     Creating library ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.lib and object ..\..\MyEngine\MyEngine\bin\Debug\MyDirectx12.exp
+D:\VisualStudioProject\MyEngineGroup\MyDirectx12\MyDirectx12\D3DPipeline.cpp(786,21): warning C4018: '<': signed/unsigned mismatch
   MyDirectx12.vcxproj -> D:\VisualStudioProject\MyEngineGroup\MyEngine\MyEngine\bin\Debug\MyDirectx12.dll

@@ -21,7 +21,12 @@ namespace CkfEngine.Core
 
         internal void Release()
         {
-            DeleteResource(GetResourcePoint());
+            if(m_state == State.Deleted) 
+            {
+                return;
+            }
+
+            DeleteResource(GetResourcePointer());
 
             m_state = State.Deleted;
             m_resPoint = 0;
@@ -29,7 +34,7 @@ namespace CkfEngine.Core
 
         protected abstract void DeleteResource(UInt64 resPoint);
 
-        protected UInt64 GetResourcePoint()
+        internal UInt64 GetResourcePointer()
         {
             if(m_state != State.Created)
             {
@@ -84,12 +89,20 @@ namespace CkfEngine.Core
 
         internal void SetRenderTargetBackColor(float[] color)
         {
-            D3DAPICall.SetRenderTargetBackColor(GetResourcePoint(), color);
+            D3DAPICall.SetRenderTargetBackColor(GetResourcePointer(), color);
         }
 
         internal void Render()
         {
-            D3DAPICall.Render(GetResourcePoint());
+            var cameraPointer = GetResourcePointer();
+            D3DAPICall.RenderTargetClear(cameraPointer);
+
+            foreach (var pipeline in PipelineManager.PipelineTable.Values)
+            {
+                D3DAPICall.DrawPipeline(pipeline.GetResourcePointer());
+            }
+
+            D3DAPICall.RenderTargetFlip(cameraPointer);
         }
     }
 

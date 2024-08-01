@@ -283,44 +283,44 @@ void D3DCamera::Flip()
 	}
 }
 
-int D3DCamera::Draw(D3DDevice* _cD3DDev)
-{
-	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
-	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
-
-	Clear();
-
-	//-------------render each pipeline------------------
-	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin();
-		iter != D3DResourceManage::Instance().PipelineTable.end(); iter++)
-	{
-		auto pipeline = iter->second;
-		//SetInitialRenderState(cmdList);
-		try
-		{
-			pipeline->Draw(cmdList, d3ddevice);
-		}
-		catch (const std::runtime_error& e)
-		{
-			PrintDebug(e.what());
-		}
-		catch (const std::exception& e)
-		{
-			PrintDebug(e.what());
-		}
-		//cmdList->Close();
-
-	/*	ID3D12CommandList* cmdlists[] = { cmdList };
-		_cD3DDev->pCmdQueue->ExecuteCommandLists(1, cmdlists);
-		_cD3DDev->WaitForCommandQueue();
-
-		cmdList->Reset(_cD3DDev->pCmdAllocator, nullptr);*/
-	}
-
-	Flip();
-
-	return 1;
-}
+//int D3DCamera::Draw(D3DDevice* _cD3DDev)
+//{
+//	auto cmdList = D3DResourceManage::Instance().pGraphicsCard->pCmdList;
+//	auto d3ddevice = D3DResourceManage::Instance().pGraphicsCard->pD3D12Device;
+//
+//	Clear();
+//
+//	//-------------render each pipeline------------------
+//	for (auto iter = D3DResourceManage::Instance().PipelineTable.begin();
+//		iter != D3DResourceManage::Instance().PipelineTable.end(); iter++)
+//	{
+//		auto pipeline = iter->second;
+//		//SetInitialRenderState(cmdList);
+//		try
+//		{
+//			pipeline->Draw(cmdList, d3ddevice);
+//		}
+//		catch (const std::runtime_error& e)
+//		{
+//			PrintDebug(e.what());
+//		}
+//		catch (const std::exception& e)
+//		{
+//			PrintDebug(e.what());
+//		}
+//		//cmdList->Close();
+//
+//	/*	ID3D12CommandList* cmdlists[] = { cmdList };
+//		_cD3DDev->pCmdQueue->ExecuteCommandLists(1, cmdlists);
+//		_cD3DDev->WaitForCommandQueue();
+//
+//		cmdList->Reset(_cD3DDev->pCmdAllocator, nullptr);*/
+//	}
+//
+//	Flip();
+//
+//	return 1;
+//}
 
 //void D3DCamera::InitMulPassRender()
 //{
