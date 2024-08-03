@@ -51,9 +51,9 @@ namespace CkfEngine.Core
         {
             if(MainCamera != null)
             {
-                MainCamera.m_renderTarget = new RenderTargetResource(RuntimeControl.Instance.MainHandle,
+                MainCamera.m_renderTargetHandle =
+                    RenderTargetManager.Create(RuntimeControl.Instance.MainHandle,
                     MainCamera.m_width, MainCamera.m_height);
-                MainCamera.m_renderTarget.Create();
             }
         }
 
@@ -61,7 +61,7 @@ namespace CkfEngine.Core
         {
             if (MainCamera != null)
             {
-                MainCamera.m_renderTarget.Release();
+                MainCamera.m_renderTargetHandle.Release();
             }
         }
 

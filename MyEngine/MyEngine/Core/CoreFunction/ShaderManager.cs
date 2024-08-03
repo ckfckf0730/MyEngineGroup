@@ -138,7 +138,7 @@ namespace CkfEngine.Core
                     parameter.descRangeType, parameter.register, parameter.visibility);
             }
 
-            PipelineManager.CreatePipeline(isBoneModel, m_name, vsText, psText, vsEntrance, psEntrance);
+            PipelineManager.Create(isBoneModel, m_name, vsText, psText, vsEntrance, psEntrance);
         }
 
 

@@ -114,22 +114,21 @@ namespace CkfEngine.Editor
 
             var panel = PanelRegister.GetExtendScreen();
             m_cameraPanelTable.Add(camera.Uid, panel);
-            camera.m_renderTarget = new RenderTargetResource(panel.Handle, camera.m_width, camera.m_height);
-            camera.m_renderTarget.Create();
-            camera.m_renderTarget.SetRenderTargetBackColor(new float[4] { 1.0f, 1.0f, 0.0f, 1.0f });
+            camera.m_renderTargetHandle =RenderTargetManager.Create(panel.Handle, camera.m_width, camera.m_height);
+            RenderTargetManager.SetRenderTargetBackColor(new float[4] { 1.0f, 1.0f, 0.0f, 1.0f }, camera.m_renderTargetHandle);
             camera.OwnerEntity.Transform.CalculateForwardAndUp();
             PipelineManager.SetCameraTransform(
                     camera.OwnerEntity.Transform.Translation,
                     camera.OwnerEntity.Transform.m_forward,
                     camera.OwnerEntity.Transform.m_up);
-            camera.m_renderTarget.Render();
+            RenderTargetManager.Render(camera.m_renderTargetHandle);
 
             panel.Show();
         }
 
         private void CameraDestoried(Camera camera)
         {
-            camera.m_renderTarget.Release();
+            camera.m_renderTargetHandle.Release();
 
             Control panel;
             m_cameraPanelTable.TryGetValue(camera.Uid, out panel);
@@ -166,12 +165,11 @@ namespace CkfEngine.Editor
             public float Far;
 
             //private ulong m_uid =99999989; //temp editor camera uid
-            private RenderTargetResource renderTargetResource;
+            private ResourceHandle renderTargetResource;
 
             public void Init()
             {
-                renderTargetResource = new RenderTargetResource(PanelRegister.EditorMainScreen.Handle, 800, 600);
-                renderTargetResource.Create();
+                renderTargetResource = RenderTargetManager.Create(PanelRegister.EditorMainScreen.Handle, 800, 600);
             }
 
             public void SetTransform(Vector3 eye, Vector3 forward, Vector3 up)
@@ -219,7 +217,10 @@ namespace CkfEngine.Editor
             public void Render()
             {
                 Implement();
-                renderTargetResource?.Render();
+                if(renderTargetResource.GetPointer() != 0)
+                {
+                    RenderTargetManager.Render(renderTargetResource);
+                }
             }
         }
     }

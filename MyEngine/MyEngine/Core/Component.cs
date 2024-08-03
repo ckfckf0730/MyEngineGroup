@@ -190,7 +190,7 @@ namespace CkfEngine.Core
         [JsonProperty]
         internal float m_far;
 
-        internal RenderTargetResource m_renderTarget;
+        internal ResourceHandle m_renderTargetHandle;
 
         public Camera()
         {
@@ -222,7 +222,10 @@ namespace CkfEngine.Core
                     trans.Translation,
                     target,
                     up);
-            m_renderTarget?.Render();
+            if(m_renderTargetHandle.GetPointer() != 0)
+            {
+                RenderTargetManager.Render(m_renderTargetHandle);
+            }
         }
 
         protected override void OnDestroyed()
@@ -243,7 +246,10 @@ namespace CkfEngine.Core
         protected override void Update()
         {
             Implement();
-            m_renderTarget?.Render();
+            if (m_renderTargetHandle.GetPointer() != 0)
+            {
+                RenderTargetManager.Render(m_renderTargetHandle);
+            }
         }
 
     }
